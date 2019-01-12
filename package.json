@@ -1,0 +1,29 @@
+{
+  "name": "ji1840",
+  "version": "1.0.0",
+  "description": "Consorcio Jose Ingenieros 1840",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/msalimbe1/ji1840.git"
+  },
+  "author": "Matias Salimbene",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/msalimbe1/ji1840/issues"
+  },
+  "homepage": "https://github.com/msalimbe1/ji1840#readme",
+  "dependencies": {
+    "config": "^3.0.1",
+    "debug": "^4.1.1",
+    "express": "^4.16.4",
+    "helmet": "^3.15.0",
+    "joi": "^14.3.1",
+    "mongoose": "^5.4.3",
+    "morgan": "^1.9.1",
+    "nodemon": "^1.18.9"
+  }
+}
