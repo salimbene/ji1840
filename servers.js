@@ -3,48 +3,29 @@ const morgan = require('morgan'); //Logging HTTP requests
 const config = require('config'); //Handle config settings
 const debug = require('debug')('app:server'); //Formated & Located debugging
 const debugM = require('debug')('app:mongo');
+
 const funits = require('./routes/funits');
+const users = require('./routes/users');
 const home = require('./routes/home');
 
 const express = require('express');
 const app = express();
 
 const mongoose = require('mongoose');
+// const Consortium = require('./models/consortium');
+
+const { User } = require('./models/user');
+const { FUnit, Debt } = require('./models/funit');
+
+const TEST_DB = 'jitests';
 
 mongoose
-  .connect('mongodb://localhost/ji1840')
+  .connect(
+    `mongodb://localhost/${TEST_DB}`,
+    { useNewUrlParser: true }
+  )
   .then(() => debugM('Connected to MongoDB...'))
   .catch(err => debugM('Could not connect', err));
-
-// async function createFu() {
-//   const fUnit = new FUnit({
-//     fUnit: 35,
-//     floor: 2,
-//     flat: 'd',
-//     share: 4.6,
-//     ownerLastname: 'Salimbene',
-//     ownerFirstnames: 'Matias damian',
-//     ownerMail: 'matias.salimbene@gmail.com',
-//     ownerPhone: '1549288551',
-//     isOccupied: true
-//   });
-
-//   try {
-//     const result = await fUnit.save();
-//     debugM(result);
-//   } catch (ex) {
-//     for (field in ex.errors) debugM('Exception:', ex.errors[field].message);
-//   }
-// }
-
-// createFu();
-
-debug('app', config.get('name'));
-debug('mail', config.get('mail.host'));
-debug('mail', config.get('mail.password'));
-
-app.use(express.json());
-app.use(helmet());
 
 //Logging only on development environment
 if (app.get('env') === 'development') {
@@ -52,9 +33,91 @@ if (app.get('env') === 'development') {
   debug('Morgan enabled');
 }
 
+debug('name', config.get('name'));
+debug('mail.host', config.get('mail.host'));
+debug('mail.password', config.get('mail.password'));
+
+app.use(express.json());
+app.use(helmet());
+
 //Routes
-app.use('/api/funits', funits);
+// app.use('/api/funits', funits);
+app.use('/api/users', users);
 app.use('/', home);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => debug(`Listening on port ${port}...`));
+
+async function createUser(
+  lastname,
+  firstname,
+  mail,
+  phone,
+  propietaryType,
+  role
+) {
+  const user = new User({
+    lastname,
+    firstname,
+    mail,
+    phone,
+    propietaryType,
+    role
+  });
+
+  const result = await user.save();
+  debugM(result);
+}
+
+async function createFUnit(fUnit, floor, flat, share, landlord, debts) {
+  const funit = new FUnit({
+    fUnit,
+    floor,
+    flat,
+    share,
+    landlord,
+    debts
+  });
+
+  const result = await funit.save();
+  debugM(result);
+}
+
+async function listFUnits() {
+  const fUnits = await FUnit.find()
+    .populate()
+    .select();
+  debugM(fUnits);
+}
+
+// createUser(
+//   'VAZQUES',
+//   'lala',
+//   'lala@mail',
+//   1289896767,
+//   'Propietario',
+//   'Usuario'
+// );
+
+async function addDebt(fUnitId, debt) {
+  const fUnit = await FUnit.findById(fUnitId);
+  fUnit.debts.push(debt);
+  fUnit.save();
+}
+
+async function removeDebt(fUnitId, debtId) {
+  const fUnit = await FUnit.findById(fUnitId);
+  const debt = fUnit.debts.id(debtId);
+  debt.remove();
+  fUnit.save();
+}
+
+// createFUnit(21, 1, 'A', 5.75, '5c3bc54fae1805110d3c85bc', [
+//   new Debt({ ammount: 1000 }),
+//   new Debt({ ammount: 1500 })
+// ]);
+
+// addDebt('5c3bc7de5a4f3d11f1923536', new Debt({ ammount: 7500 }));
+removeDebt('5c3bc7de5a4f3d11f1923536', '5c3bc8c1ee457e1210f1775e');
+
+listFUnits();

@@ -1,6 +1,14 @@
 const mongoose = require('mongoose');
 const Joi = require('joi');
 
+const debtSchema = new mongoose.Schema({
+  // date: { type: Date },
+  ammount: { type: Number }
+  // canceled: { type: Date }
+});
+
+const Debt = mongoose.model('debt', debtSchema);
+
 const FUnit = mongoose.model(
   'fUnit',
   mongoose.Schema({
@@ -14,17 +22,11 @@ const FUnit = mongoose.model(
       required: true
     },
     share: { type: Number, required: true },
-    ownerLastname: {
-      type: String,
-      required: true,
-      uppercase: true,
-      trim: true
+    landlord: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user' // target collection
     },
-    ownerFirstnames: { type: String, uppercase: true, trim: true },
-    ownerMail: { type: String, lowercase: true, trim: true },
-    ownerPhone: { type: String, trim: true },
-    date: { type: Date, default: Date.now },
-    isOccupied: { type: Boolean }
+    debts: [debtSchema]
   })
 );
 
@@ -39,7 +41,7 @@ function validateFUnits(fUnit) {
       .max(2)
       .required(),
     share: Joi.number().required(),
-    ownerLastname: Joi.string()
+    landlord: Joi.string()
       .min(1)
       .required()
   };
@@ -47,5 +49,6 @@ function validateFUnits(fUnit) {
   return Joi.validate(fUnit, schema);
 }
 
+exports.Debt = Debt;
 exports.FUnit = FUnit;
 exports.validate = validateFUnits;
