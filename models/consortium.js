@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const debug = require('debug')('models:consortium');
-const Joi = require('joi');
 
 const fUnitSchema = new mongoose.Schema({
   fUnit: { type: Number, required: true },

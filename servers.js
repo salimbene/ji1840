@@ -14,8 +14,8 @@ const app = express();
 const mongoose = require('mongoose');
 // const Consortium = require('./models/consortium');
 
-const { User } = require('./models/user');
-const { FUnit, Debt } = require('./models/funit');
+// const { User } = require('./models/user');
+// const { FUnit } = require('./models/funit');
 
 const TEST_DB = 'jitests';
 
@@ -33,62 +33,62 @@ if (app.get('env') === 'development') {
   debug('Morgan enabled');
 }
 
-debug('name', config.get('name'));
-debug('mail.host', config.get('mail.host'));
-debug('mail.password', config.get('mail.password'));
+// debug('name', config.get('name'));
+// debug('mail.host', config.get('mail.host'));
+// debug('mail.password', config.get('mail.password'));
 
 app.use(express.json());
 app.use(helmet());
 
 //Routes
-// app.use('/api/funits', funits);
+// app.use('/api/funits', funits);)
 app.use('/api/users', users);
 app.use('/', home);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => debug(`Listening on port ${port}...`));
 
-async function createUser(
-  lastname,
-  firstname,
-  mail,
-  phone,
-  propietaryType,
-  role
-) {
-  const user = new User({
-    lastname,
-    firstname,
-    mail,
-    phone,
-    propietaryType,
-    role
-  });
+// async function createUser(
+//   lastname,
+//   firstname,
+//   mail,
+//   phone,
+//   propietaryType,
+//   role
+// ) {
+//   const user = new User({
+//     lastname,
+//     firstname,
+//     mail,
+//     phone,
+//     propietaryType,
+//     role
+//   });
 
-  const result = await user.save();
-  debugM(result);
-}
+//   const result = await user.save();
+//   debugM(result);
+// }
 
-async function createFUnit(fUnit, floor, flat, share, landlord, debts) {
-  const funit = new FUnit({
-    fUnit,
-    floor,
-    flat,
-    share,
-    landlord,
-    debts
-  });
+// async function createFUnit(fUnit, floor, flat, share, landlord, debts) {
+//   const funit = new FUnit({
+//     fUnit,
+//     floor,
+//     flat,
+//     share,
+//     landlord,
+//     debts
+//   });
 
-  const result = await funit.save();
-  debugM(result);
-}
+//   const result = await funit.save();
+//   debugM(result);
+// }
 
-async function listFUnits() {
-  const fUnits = await FUnit.find()
-    .populate()
-    .select();
-  debugM(fUnits);
-}
+// async function listFUnits() {
+//   const fUnits = await FUnit.find()
+//     .populate()
+//     .select();
+//   debugM(fUnits);
+// }
 
 // createUser(
 //   'VAZQUES',
@@ -99,18 +99,18 @@ async function listFUnits() {
 //   'Usuario'
 // );
 
-async function addDebt(fUnitId, debt) {
-  const fUnit = await FUnit.findById(fUnitId);
-  fUnit.debts.push(debt);
-  fUnit.save();
-}
+// async function addDebt(fUnitId, debt) {
+//   const fUnit = await FUnit.findById(fUnitId);
+//   fUnit.debts.push(debt);
+//   fUnit.save();
+// }
 
-async function removeDebt(fUnitId, debtId) {
-  const fUnit = await FUnit.findById(fUnitId);
-  const debt = fUnit.debts.id(debtId);
-  debt.remove();
-  fUnit.save();
-}
+// async function removeDebt(fUnitId, debtId) {
+//   const fUnit = await FUnit.findById(fUnitId);
+//   const debt = fUnit.debts.id(debtId);
+//   debt.remove();
+//   fUnit.save();
+// }
 
 // createFUnit(21, 1, 'A', 5.75, '5c3bc54fae1805110d3c85bc', [
 //   new Debt({ ammount: 1000 }),
@@ -118,6 +118,6 @@ async function removeDebt(fUnitId, debtId) {
 // ]);
 
 // addDebt('5c3bc7de5a4f3d11f1923536', new Debt({ ammount: 7500 }));
-removeDebt('5c3bc7de5a4f3d11f1923536', '5c3bc8c1ee457e1210f1775e');
+// removeDebt('5c3bc7de5a4f3d11f1923536', '5c3bc8c1ee457e1210f1775e');
 
-listFUnits();
+// listFUnits();

@@ -1,4 +1,5 @@
 const { User, validate } = require('../models/user');
+const _ = require('lodash');
 const express = require('express');
 const debug = require('debug')('routes:users');
 const router = express.Router();
@@ -21,37 +22,32 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   //Validation
   const { error } = validate(req.body);
-  if (error) {
-    res.status(400).send(error.details[0].message);
-    return;
-  }
+  if (error) return res.status(400).send(error.details[0].message);
 
-  let user = new User({
-    lastname: req.body.lastname,
-    firstname: req.body.firstname,
-    mail: req.body.mail,
-    phone: req.body.phone,
-    propietaryType: req.body.propietaryType,
-    role: req.body.role
-  });
+  debug(req.body.mail);
+  let user = await User.findOne({ mail: req.body.mail });
+  if (user) return res.status(400).send('Usuario ya registrado.');
 
-  try {
-    user = await user.save();
-    debug(`${user.lastname} saved ok!`);
-  } catch (ex) {
-    for (field in ex.errors) debug('Errors:', ex.errors[field].message);
-  }
+  user = new User(
+    _.pick(req.body, ['lastname', 'firstname', 'mail', 'password'])
+  );
 
-  res.send(user);
+  await user.save();
+
+  // try {
+  //   user = await user.save();
+  //   debug(`${user.lastname} saved ok!`);
+  // } catch (ex) {
+  //   for (field in ex.errors) debug('Errors:', ex.errors[field].message);
+  // }
+
+  res.send(_.pick(user, ['_id', 'lastname', 'firstname', 'mail']));
 });
 
 router.put('/:id', async (req, res) => {
   //Validation
   const { error } = validate(req.body);
-  if (error) {
-    res.status(400).send(error.details[0].message);
-    return;
-  }
+  if (error) return res.status(400).send(error.details[0].message);
 
   const user = await User.findOneAndUpdate(
     req.params.id,

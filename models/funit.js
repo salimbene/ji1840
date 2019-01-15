@@ -24,12 +24,14 @@ const FUnit = mongoose.model(
     share: { type: Number, required: true },
     landlord: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'user' // target collection
+      ref: 'user', // target collection,
+      lastname: { type: String }
     },
     debts: [debtSchema]
   })
 );
 
+// Joi validation processes client input from the API, separated from mongoose
 function validateFUnits(fUnit) {
   const schema = {
     fUnit: Joi.number().required(),
