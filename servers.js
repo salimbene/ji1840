@@ -1,3 +1,4 @@
+require('dotenv').config();
 const helmet = require('helmet'); //Secure HTTP headers
 const morgan = require('morgan'); //Logging HTTP requests
 const config = require('config'); //Handle config settings
@@ -7,6 +8,7 @@ const debugM = require('debug')('app:mongo');
 const funits = require('./routes/funits');
 const users = require('./routes/users');
 const home = require('./routes/home');
+const auth = require('./routes/auth');
 
 const express = require('express');
 const app = express();
@@ -18,6 +20,11 @@ const mongoose = require('mongoose');
 // const { FUnit } = require('./models/funit');
 
 const TEST_DB = 'jitests';
+
+if (!config.get('jwtPrivateKey')) {
+  console.error('FATAL ERROR: jwtPrivateKey is not defined.');
+  process.exit(1);
+}
 
 mongoose
   .connect(
@@ -43,6 +50,7 @@ app.use(helmet());
 //Routes
 // app.use('/api/funits', funits);)
 app.use('/api/users', users);
+app.use('/api/auth', auth);
 app.use('/', home);
 
 const port = process.env.PORT || 3000;

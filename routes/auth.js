@@ -1,8 +1,9 @@
-const jwt = require('jsonwebtoken');
 const config = require('config');
-const { User, validate } = require('../models/user');
-const _ = require('lodash');
+
+const { User } = require('../models/user');
+const Joi = require('joi');
 const bcrypt = require('bcrypt');
+const _ = require('lodash');
 const express = require('express');
 const debug = require('debug')('routes:users');
 const router = express.Router();
@@ -27,23 +28,15 @@ router.post('/', async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  debug(req.body.mail);
   let user = await User.findOne({ mail: req.body.mail });
-  if (user) return res.status(400).send('Usuario ya registrado.');
+  if (!user) return res.status(400).send('Invalid email');
 
-  user = new User(
-    _.pick(req.body, ['lastname', 'firstname', 'mail', 'password'])
-  );
-
-  const salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(user.password, salt);
-  await user.save();
+  const validPassword = await bcrypt.compare(req.body.password, user.password);
+  if (!validPassword) return res.status(400).send('Invalid password');
 
   const token = user.generateAuthToken();
 
-  res
-    .header('x-auth-token', token)
-    .send(_.pick(user, ['_id', 'lastname', 'firstname', 'mail']));
+  res.send(token);
 });
 
 router.put('/:id', async (req, res) => {
@@ -83,4 +76,20 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+function validate(req) {
+  const schema = {
+    mail: Joi.string()
+      .min(5)
+      .max(255)
+      .required()
+      .email(),
+
+    password: Joi.string()
+      .min(5)
+      .max(255)
+      .required()
+  };
+
+  return Joi.validate(req, schema);
+}
 module.exports = router;
