@@ -2,9 +2,7 @@ const mongoose = require('mongoose');
 const Joi = require('joi');
 
 const debtSchema = new mongoose.Schema({
-  // date: { type: Date },
   ammount: { type: Number }
-  // canceled: { type: Date }
 });
 
 const Debt = mongoose.model('debt', debtSchema);

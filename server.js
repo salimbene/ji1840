@@ -5,7 +5,7 @@ const config = require('config'); //Handle config settings
 const debug = require('debug')('app:server'); //Formated & Located debugging
 const debugM = require('debug')('app:mongo');
 
-const funits = require('./routes/funits');
+const expenses = require('./routes/expenses');
 const users = require('./routes/users');
 const home = require('./routes/home');
 const auth = require('./routes/auth');
@@ -48,7 +48,7 @@ app.use(express.json());
 app.use(helmet());
 
 //Routes
-// app.use('/api/funits', funits);)
+app.use('/api/expenses', expenses);
 app.use('/api/users', users);
 app.use('/api/auth', auth);
 app.use('/', home);

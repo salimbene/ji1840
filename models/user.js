@@ -2,8 +2,7 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const Joi = require('joi');
-// const Joi.ObjectId = require('joi-objectid')(joi); //Add Object ID validation function to Joi.
-// joi-password-complexity
+
 const debug = require('debug')('model:users');
 
 const userSchema = mongoose.Schema({
@@ -30,23 +29,20 @@ const userSchema = mongoose.Schema({
     trim: true,
     unique: true
   },
-  // phone: { type: Number, required: true },
   password: {
     type: String,
     minlength: 5,
     maxlenght: 1024,
     trim: true
-  }
-  // propietaryType: {
-  //   type: String,
-  //   enum: ['Propietario', 'Inquilino'],
-  //   required: true
-  // },
-  // role: { type: String, enum: ['Administrador', 'Consejal', 'Usuario'] }
+  },
+  isAdmin: Boolean
 });
 
 userSchema.methods.generateAuthToken = function() {
-  const token = jwt.sign({ _id: this._id }, config.get('jwtPrivateKey'));
+  const token = jwt.sign(
+    { _id: this._id, isAdmin: this.isAdmin },
+    config.get('jwtPrivateKey')
+  );
   return token;
 };
 
@@ -74,10 +70,6 @@ function validateUsers(user) {
       .min(5)
       .max(255)
       .required()
-
-    // phone: Joi.number().required(),
-    // propietaryType: Joi.string().required(),
-    // role: Joi.string().required()
   };
 
   return Joi.validate(user, schema);

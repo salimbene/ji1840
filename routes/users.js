@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 const config = require('config');
+const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
 const { User, validate } = require('../models/user');
 const _ = require('lodash');
 const bcrypt = require('bcrypt');
@@ -10,6 +12,11 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   const users = await User.find().sort('lastname');
   res.send(users);
+});
+
+router.get('/me', auth, async (req, res) => {
+  const user = await User.findById(req.user._id).select('-password');
+  res.send(user);
 });
 
 router.get('/:id', async (req, res) => {
@@ -72,7 +79,7 @@ router.put('/:id', async (req, res) => {
   res.send(user);
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', [auth, admin], async (req, res) => {
   try {
     const user = await User.findByIdAndRemove(req.params.id);
     res.send(user);
