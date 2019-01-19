@@ -1,5 +1,3 @@
-const config = require('config');
-
 const { User } = require('../models/user');
 const Joi = require('joi');
 const bcrypt = require('bcrypt');

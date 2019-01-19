@@ -1,33 +1,25 @@
 const mongoose = require('mongoose');
 const Joi = require('joi');
+Joi.ObjectId = require('joi-objectid')(Joi);
 
-const debtSchema = new mongoose.Schema({
-  ammount: { type: Number }
+const functionalUnitsSchema = mongoose.Schema({
+  fUnit: { type: Number, required: true },
+  floor: { type: Number, enum: [0, 1, 2], required: true },
+  flat: {
+    type: String,
+    enum: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'CH'],
+    uppercase: true,
+    trim: true,
+    required: true
+  },
+  share: { type: Number, required: true },
+  landlord: {
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' }, // target collection,
+    lastname: { type: String }
+  }
 });
 
-const Debt = mongoose.model('debt', debtSchema);
-
-const FUnit = mongoose.model(
-  'fUnit',
-  mongoose.Schema({
-    fUnit: { type: Number, required: true },
-    floor: { type: Number, enum: [0, 1, 2], required: true },
-    flat: {
-      type: String,
-      enum: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'CH'],
-      uppercase: true,
-      trim: true,
-      required: true
-    },
-    share: { type: Number, required: true },
-    landlord: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'user', // target collection,
-      lastname: { type: String }
-    },
-    debts: [debtSchema]
-  })
-);
+const FUnit = mongoose.model('fUnit', functionalUnitsSchema);
 
 // Joi validation processes client input from the API, separated from mongoose
 function validateFUnits(fUnit) {
@@ -41,14 +33,17 @@ function validateFUnits(fUnit) {
       .max(2)
       .required(),
     share: Joi.number().required(),
-    landlord: Joi.string()
-      .min(1)
+    landlord: Joi.object()
+      .keys({
+        user: Joi.ObjectId().required(),
+        lastname: Joi.string().required()
+      })
       .required()
   };
 
   return Joi.validate(fUnit, schema);
 }
 
-exports.Debt = Debt;
 exports.FUnit = FUnit;
+exports.functionalUnitsSchema = functionalUnitsSchema;
 exports.validate = validateFUnits;

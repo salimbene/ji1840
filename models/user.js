@@ -26,7 +26,6 @@ const userSchema = mongoose.Schema({
     minlength: 5,
     maxlenght: 255,
     lowercase: true,
-    trim: true,
     unique: true
   },
   password: {
@@ -35,7 +34,17 @@ const userSchema = mongoose.Schema({
     maxlenght: 1024,
     trim: true
   },
-  isAdmin: Boolean
+  role: {
+    type: String,
+    enum: ['Administrador', 'Consejal', 'Usuario'],
+    defaut: 'Usuario',
+    trim: true
+  },
+  landlord: {
+    type: Boolean,
+    required: true
+  },
+  isAdmin: { type: Boolean, required: true }
 });
 
 userSchema.methods.generateAuthToken = function() {
@@ -69,7 +78,10 @@ function validateUsers(user) {
     password: Joi.string()
       .min(5)
       .max(255)
-      .required()
+      .required(),
+    role: Joi.string().required(),
+    landlord: Joi.boolean(),
+    isAdmin: Joi.boolean().required()
   };
 
   return Joi.validate(user, schema);

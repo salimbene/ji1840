@@ -6,6 +6,7 @@ const debug = require('debug')('app:server'); //Formated & Located debugging
 const debugM = require('debug')('app:mongo');
 
 const expenses = require('./routes/expenses');
+const consortia = require('./routes/consortia');
 const users = require('./routes/users');
 const home = require('./routes/home');
 const auth = require('./routes/auth');
@@ -49,6 +50,7 @@ app.use(helmet());
 
 //Routes
 app.use('/api/expenses', expenses);
+app.use('/api/consortia', consortia);
 app.use('/api/users', users);
 app.use('/api/auth', auth);
 app.use('/', home);

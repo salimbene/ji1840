@@ -1,5 +1,3 @@
-const jwt = require('jsonwebtoken');
-const config = require('config');
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 const { User, validate } = require('../models/user');
@@ -39,7 +37,15 @@ router.post('/', async (req, res) => {
   if (user) return res.status(400).send('Usuario ya registrado.');
 
   user = new User(
-    _.pick(req.body, ['lastname', 'firstname', 'mail', 'password'])
+    _.pick(req.body, [
+      'lastname',
+      'firstname',
+      'mail',
+      'password',
+      'role',
+      'landlord',
+      'isAdmin'
+    ])
   );
 
   const salt = await bcrypt.genSalt(10);

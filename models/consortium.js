@@ -1,68 +1,46 @@
 const mongoose = require('mongoose');
+const Joi = require('joi');
+Joi.ObjectId = require('joi-objectid')(Joi);
+
+const { functionalUnitsSchema } = require('./funit');
+
 const debug = require('debug')('models:consortium');
 
-const fUnitSchema = new mongoose.Schema({
-  fUnit: { type: Number, required: true },
-  floor: { type: Number, enum: [0, 1, 2], required: true },
-  flat: {
-    type: String,
-    enum: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'CH'],
-    uppercase: true,
-    trim: true,
-    required: true
-  },
-  share: { type: Number, required: true },
-  landlord: {
-    type: String,
-    required: true,
-    uppercase: true,
-    trim: true
-  }
+const consortiumSchema = mongoose.Schema({
+  name: { type: String, trim: true },
+  functionalUnits: [{ type: functionalUnitsSchema, required: true }]
 });
 
-// const consortiumSchema = new mongoose.Schema({
-//   name: { type: String },
-//   // fUnits: fUnitSchema,
-//   balance_A: { type: Number },
-//   balance_B: { type: Number },
-//   balance: { type: Number }
-// });
+const Consortium = mongoose.model('Consortium', consortiumSchema);
 
-// const FUnit = mongoose.model('fUnit', fUnitSchema);
+function validateConsortium(consortium) {
+  const schema = {
+    name: Joi.string().required(),
+    functionalUnits: Joi.array()
+      .items(
+        Joi.object().keys({
+          fUnit: Joi.number().required(),
+          floor: Joi.number()
+            .max(3)
+            .required(),
+          flat: Joi.string()
+            .min(1)
+            .max(2)
+            .required(),
+          share: Joi.number().required(),
+          landlord: Joi.object()
+            .keys({
+              user: Joi.ObjectId().required(),
+              lastname: Joi.string().required()
+            })
+            .required()
+        })
+      )
+      .required()
+  };
 
-// const Consortium = mongoose.model('game', consortiumSchema);
-
-// async function createConsortium(name, balance_A, balance_B, balance) {
-//   const consortium = new Consortium({
-//     name,
-//     balance_A,
-//     balance_B,
-//     balance
-//   });
-//   const result = await consortium.save();
-//   debug(result);
-// }
-
-// createConsortium('Jose Ingenieros 1840', 1, 2, 3);
-
-// function validateExpense(expense) {
-//   const schema = {
-//     fUnit: Joi.number().required(),
-//     floor: Joi.number()
-//       .max(2)
-//       .required(),
-//     flat: Joi.string()
-//       .min(1)
-//       .max(2)
-//       .required(),
-//     share: Joi.number().required(),
-//     landlord: Joi.string()
-//       .min(1)
-//       .required()
-//   };
-
-//   return Joi.validate(fUnit, schema);
-// }
+  return Joi.validate(consortium, schema);
+}
 
 exports.Consortium = Consortium;
-// exports.validate = validateFUnits;
+exports.validate = validateConsortium;
