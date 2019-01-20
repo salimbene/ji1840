@@ -1,17 +1,22 @@
-const mongoose = require('mongoose');
+const debug = require('debug')('models:expenses');
 const Joi = require('joi');
+Joi.ObjectId = require('joi-objectid')(Joi);
+
+const mongoose = require('mongoose');
 
 const expensesSchema = mongoose.Schema({
   concept: { type: String, trim: true, required: true },
   type: { type: String, enum: ['A', 'B'], default: 'A', required: true },
   category: { type: String, required: true },
-  ammount: { type: Number, required: true }
+  ammount: { type: Number, required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
+  date: { type: Date, default: Date.now }
 });
 
 const paymentsSchema = mongoose.Schema({
   fUnit: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'consortia',
+    ref: 'funits',
     required: true
   },
   user: {
@@ -41,21 +46,23 @@ const Expense = mongoose.model(
 );
 
 function validateExpenses(expense) {
+  debug(expense);
   const schema = {
     month: Joi.number().required(),
     year: Joi.number().required(),
     eTypeA: Joi.number(),
     eTypeB: Joi.number(),
     expenses: Joi.array().items(
-      Joi.Object().keys({
+      Joi.object().keys({
         concept: Joi.string().required(),
         type: Joi.string().required(),
         category: Joi.string().required(),
+        user: Joi.ObjectId().required(),
         ammount: Joi.number().required()
       })
     ),
-    payments: Joy.array().items(
-      Joi.Object().keys({
+    payments: Joi.array().items(
+      Joi.object().keys({
         fUnit: Joi.ObjectId().required(),
         user: Joi.ObjectId().required(),
         ammount: Joi.number().required(),

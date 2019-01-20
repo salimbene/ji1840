@@ -1,12 +1,24 @@
 const auth = require('../middleware/auth');
 const { Expense, validate } = require('../models/expense');
 const _ = require('lodash');
-const express = require('express');
 const debug = require('debug')('routes:expenses');
+const { User } = require('../models/user');
+const { FUnit } = require('../models/funit');
+
+const express = require('express');
 const router = express.Router();
 
-router.get('/', auth, async (req, res) => {
-  const expenses = await Expense.find().sort('month');
+router.get('/', async (req, res) => {
+  const expenses = await Expense.find()
+    .populate({
+      path: 'payments.user',
+      model: User
+    })
+    .populate({
+      path: 'payments.fUnit',
+      model: FUnit
+    })
+    .sort('month');
   res.send(expenses);
 });
 
@@ -25,10 +37,19 @@ router.post('/', auth, async (req, res) => {
   if (error) return res.status(400).send(error.details[0].message);
 
   expense = new Expense(
-    _.pick(req.body, ['month', 'expenseTypeA', 'expenseTypeB'])
+    _.pick(req.body, [
+      'month',
+      'year',
+      'eTypeA',
+      'eTypeB',
+      'expenses',
+      'payments'
+    ])
   );
 
-  res.send(_.pick(expense, ['_id', 'month', 'expenseTypeA', 'expenseTypeB']));
+  await expense.save();
+
+  res.send(expense);
 });
 
 router.put('/:id', async (req, res) => {
@@ -36,12 +57,17 @@ router.put('/:id', async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
+  const { month, year, eTypeA, eTypeB, expenses, payments } = req.body;
+
   const expense = await Expense.findOneAndUpdate(
     req.params.id,
     {
-      month: req.body.month,
-      expenseTypeA: req.body.expenseTypeA,
-      expenseTypeB: req.body.expenseTypeB
+      month: month,
+      year: year,
+      eTypeA: eTypeA,
+      eTypeB: eTypeB,
+      expenses: expenses,
+      payments: payments
     },
     { new: true }
   );

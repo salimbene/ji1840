@@ -26,14 +26,7 @@ router.post('/', async (req, res) => {
   let consortium = await Consortium.findOne({ name: req.body.name });
   if (consortium) return res.status(400).send('El consorsio ya existe.');
 
-  consortium = new Consortium(
-    _.pick(req.body, [
-      'name',
-      // 'manager',
-      // 'councilors',
-      'functionalUnits'
-    ])
-  );
+  consortium = new Consortium(_.pick(req.body, ['name', 'fUnits']));
 
   await consortium.save();
 
@@ -45,12 +38,12 @@ router.put('/:id', async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const { name, functionalUnits } = req.body;
+  const { NAME, FUNITS } = req.body;
   const consortium = await Consortia.findOneAndUpdate(
     req.params.id,
     {
-      name: name,
-      functionalUnits: functionalUnits
+      name: NAME,
+      fUnits: FUNITS
     },
     { new: true }
   );
