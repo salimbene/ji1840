@@ -1,9 +1,6 @@
-const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const config = require('config');
-const Joi = require('joi');
-
-const debug = require('debug')('model:users');
+const mongoose = require('mongoose');
+// const debug = require('debug')('model:users');
 
 const userSchema = mongoose.Schema({
   lastname: {

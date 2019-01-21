@@ -1,7 +1,4 @@
 const debug = require('debug')('models:expenses');
-const Joi = require('joi');
-Joi.ObjectId = require('joi-objectid')(Joi);
-
 const mongoose = require('mongoose');
 
 const expensesSchema = mongoose.Schema({

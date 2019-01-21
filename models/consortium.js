@@ -1,8 +1,5 @@
-const mongoose = require('mongoose');
-const Joi = require('joi');
-Joi.ObjectId = require('joi-objectid')(Joi);
-
 const debug = require('debug')('models:consortium');
+const mongoose = require('mongoose');
 
 const consortiumSchema = mongoose.Schema({
   name: { type: String, trim: true },

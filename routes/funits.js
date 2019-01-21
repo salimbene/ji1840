@@ -9,6 +9,7 @@ const express = require('express');
 const router = express.Router();
 
 router.get('/', async (req, res) => {
+  throw new Error('Could not get Funit');
   const fUnits = await FUnit.find().sort('fUnit');
   res.send(fUnits);
 });

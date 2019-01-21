@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const config = require('config');
 const debug = require('debug')('middleware:auth');
 
 module.exports = function(req, res, next) {
