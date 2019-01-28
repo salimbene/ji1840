@@ -9,7 +9,6 @@ const express = require('express');
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-  throw new Error('Could not get Funit');
   const fUnits = await FUnit.find().sort('fUnit');
   res.send(fUnits);
 });
@@ -47,19 +46,21 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   //Validation
-  const { error } = validate(req.body);
-  if (error) return res.status(400).send(ERROR.details[0].message);
+  // const { error } = validate(req.body);
+  // debug(req.body);
+  // debug(error);
+  // if (error) return res.status(400).send(error.details[0].message);
 
-  const { FUNIT, FLOOR, FLAT, SHARE, LANDLORD } = req.body;
+  const { fUnit, floor, flat, share, landlord } = req.body;
 
   const fUnits = await FUnit.findOneAndUpdate(
     req.params.id,
     {
-      fUnit: FUNIT,
-      floor: FLOOR,
-      flat: FLAT,
-      share: SHARE,
-      landlord: LANDLORD
+      fUnit,
+      floor,
+      flat,
+      share,
+      landlord
     },
     { new: true }
   );

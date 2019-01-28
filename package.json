@@ -4,7 +4,12 @@
   "description": "Consorcio Jose Ingenieros 1840",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "nodemon server.js",
+    "client": "cd ./client && npm run client",
+    "build": "cd ./client && npm run build",
+    "postbuild": "cp -R ./client/build .",
+    "dev": "concurrently --kill-others \"npm run server\" \"npm run client\""
   },
   "repository": {
     "type": "git",
@@ -17,6 +22,7 @@
   },
   "homepage": "https://github.com/msalimbe1/ji1840#readme",
   "dependencies": {
+    "axios": "^0.18.0",
     "bcrypt": "^3.0.3",
     "config": "^3.0.1",
     "debug": "^4.1.1",
