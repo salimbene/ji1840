@@ -33,7 +33,7 @@ ListGroup.defaultProps = {
 };
 
 ListGroup.propTypes = {
-  pisos: PropTypes.array.isRequired,
+  // pisos: PropTypes.array.isRequired,
   onItemSelect: PropTypes.func.isRequired
 };
 
