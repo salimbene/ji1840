@@ -5,9 +5,9 @@ import {
   updateUnit,
   addUnit
 } from '../services/unitsService';
-import Pagination from './common/pagination';
-import ListGroup from './common/listGroup';
-import UnitsTable from './unitsTable';
+import Pagination from './common/Pagination';
+import ListGroup from './common/ListGroup';
+import UnitsTable from './UnitsTable';
 import { paginate } from '../utils/paginate';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -91,6 +91,7 @@ class Units extends Component {
       selectedFloor,
       sortColumn
     } = this.state;
+
     const filtered =
       selectedFloor && selectedFloor.id
         ? allUnits.filter(u => u.floor === selectedFloor.id)
@@ -100,7 +101,10 @@ class Units extends Component {
 
     const units = paginate(sorted, currentPage, pageSize);
 
-    return { totalcount: filtered.length, data: units };
+    return {
+      totalCount: filtered.length || 0,
+      data: units
+    };
   };
 
   render() {
