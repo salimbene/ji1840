@@ -1,9 +1,18 @@
 import React, { Component } from 'react';
 import Table from './common/Table';
+import { Link } from 'react-router-dom';
 
 class UnitsTable extends Component {
   columns = [
-    { path: 'landlord.lastname', label: 'Propietario' },
+    {
+      path: 'landlord.lastname',
+      label: 'Propietario',
+      content: unit => (
+        <Link to={`/units/${unit.landlord.user}`}>
+          {unit.landlord.lastname}
+        </Link>
+      )
+    },
     { path: 'fUnit', label: 'Unidad' },
     { path: 'floor', label: 'Piso' },
     { path: 'flat', label: 'Puerta' },

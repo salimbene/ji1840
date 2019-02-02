@@ -6,8 +6,8 @@ class Dummy extends Component {
     return (
       <React.Fragment>
         <h2>Section title</h2>
-        <div class="table-responsive">
-          <table class="table table-striped table-sm">
+        <div className="table-responsive">
+          <table className="table table-striped table-sm">
             <thead>
               <tr>
                 <th>#</th>
