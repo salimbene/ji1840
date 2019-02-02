@@ -5,6 +5,7 @@ import Units from './Units';
 import NotFound from './NotFound';
 import Dummy from './Dummy';
 import UnitsForm from './UnitsForm';
+import LoginForm from './LoginForm';
 
 class Main extends Component {
   state = {};
@@ -12,6 +13,7 @@ class Main extends Component {
     return (
       <main role="main" className="col-md-9 ml-sm-auto col-lg-10 px-4">
         <Switch>
+          <Route path="/login" component={LoginForm} />
           <Route path="/units/:id" component={UnitsForm} />
           <Route path="/units" component={Units} />
           <Route path="/dummy" component={Dummy} />
