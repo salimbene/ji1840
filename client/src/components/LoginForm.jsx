@@ -29,6 +29,8 @@ class LoginForm extends Form {
       const result = await login({ mail: username, password });
       const token = result.headers['consortia-auth-token'];
       localStorage.setItem('consortia-auth-token', token);
+
+      console.log(token);
     } catch (ex) {
       console.log(ex.response.data);
     }

@@ -36,13 +36,31 @@ code {
 }
 
 .login {
-  padding: 10px;
+  padding: 20px;
   width: 400px;
   background: rgba(255, 255, 255, 0.1);
 }
 
+.center-children {
+  text-align: center;
+}
+
+.center-me {
+  display: flex;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.btn-center {
+  display: block;
+  width: 150px;
+}
+
 .label {
-  opacity: 0.8;
   color: White;
   z-index: 1000;
 }
