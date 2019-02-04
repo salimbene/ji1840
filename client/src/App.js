@@ -1,19 +1,19 @@
 import React, { Component } from 'react';
-import NavBar from './components/NavBar';
-import SideBar from './components/SideBar';
+import { Route, Switch, Redirect } from 'react-router-dom';
+
 import Main from './components/Main';
 import './App.css';
+import LoginForm from './components/LoginForm';
+import PrivateRoute from './components/common/PrivateRoute';
 class App extends Component {
   render() {
     return (
       <React.Fragment>
-        <NavBar />
-        <div className="container-fluid">
-          <div className="row">
-            <SideBar />
-            <Main />
-          </div>
-        </div>
+        <Switch>
+          <PrivateRoute exact path="/main" component={Main} />
+          <Route exact path="/" component={LoginForm} />
+          <Redirect to="/not-found" />
+        </Switch>
       </React.Fragment>
     );
   }

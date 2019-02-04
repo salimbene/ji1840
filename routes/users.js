@@ -7,7 +7,7 @@ const express = require('express');
 const debug = require('debug')('routes:users');
 const router = express.Router();
 
-router.get('/', async (req, res) => {
+router.get('/', [auth, admin], async (req, res) => {
   const users = await User.find().sort('lastname');
   res.send(users);
 });
@@ -17,7 +17,7 @@ router.get('/me', auth, async (req, res) => {
   res.send(user);
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', [auth, admin], async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     res.send(user);
@@ -27,7 +27,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', [auth, admin], async (req, res) => {
   //Validation
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
@@ -52,14 +52,10 @@ router.post('/', async (req, res) => {
   user.password = await bcrypt.hash(user.password, salt);
   await user.save();
 
-  const token = user.generateAuthToken();
-
-  res
-    .header('x-auth-token', token)
-    .send(_.pick(user, ['_id', 'lastname', 'firstname', 'mail']));
+  res.send(_.pick(user, ['_id', 'lastname', 'firstname', 'mail']));
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', [auth, admin], async (req, res) => {
   //Validation
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
