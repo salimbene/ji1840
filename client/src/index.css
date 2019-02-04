@@ -41,6 +41,21 @@ code {
   background: rgba(255, 255, 255, 0.1);
 }
 
+.registrar {
+  padding: 20px;
+  width: 400px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.units {
+  width: 80%;
+  border: 1px gray solid;
+}
+
+.units--form {
+  width: 80%;
+}
+
 .center-children {
   text-align: center;
 }
@@ -61,7 +76,6 @@ code {
 }
 
 .label {
-  color: White;
   z-index: 1000;
 }
 .opacity {

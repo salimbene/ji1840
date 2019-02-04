@@ -7,8 +7,10 @@ const express = require('express');
 const debug = require('debug')('routes:users');
 const router = express.Router();
 
-router.get('/', [auth, admin], async (req, res) => {
-  const users = await User.find().sort('lastname');
+router.get('/', async (req, res) => {
+  const users = await User.find()
+    .select('-password -role -isAdmin')
+    .sort('lastname');
   res.send(users);
 });
 

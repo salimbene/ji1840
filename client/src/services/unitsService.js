@@ -7,6 +7,10 @@ export function getUnits() {
   return http.get(apiEndpoint);
 }
 
+export function getUnit(unitId) {
+  return http.get(`${apiEndpoint}/${unitId}`);
+}
+
 export function deleteUnit(unitId) {
   return http.delete(`${apiEndpoint}/${unitId}`);
 }

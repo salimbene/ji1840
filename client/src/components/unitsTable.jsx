@@ -13,8 +13,15 @@ class UnitsTable extends Component {
         </Link>
       )
     },
-    { path: 'fUnit', label: 'Unidad' },
-    { path: 'floor', label: 'Piso' },
+    {
+      path: 'fUnit',
+      label: 'Unidad',
+      content: unit => <Link to={`/units/${unit._id}`}>{unit.fUnit}</Link>
+    },
+    {
+      path: 'floor',
+      label: 'Piso'
+    },
     { path: 'flat', label: 'Puerta' },
     { path: 'share', label: 'Participación' },
     {

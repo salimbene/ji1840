@@ -18,7 +18,6 @@ router.get('/:id', async (req, res) => {
     const fUnits = await FUnit.findById(req.params.id);
     res.send(fUnits);
   } catch (ex) {
-    debug(ex.message);
     res
       .status(404)
       .send(`La unidad funcional con ID: ${req.params.id} no existe.`);

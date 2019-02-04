@@ -58,21 +58,23 @@ class Units extends Component {
     this.setState({ sortColumn });
   };
 
-  handleAddUnit = async () => {
-    const fUnit = {
-      fUnit: 351,
-      floor: 2,
-      flat: 'D',
-      share: 4.6,
-      landlord: {
-        user: '5c425cf738e2bc62ce2bce98',
-        lastname: 'Salimbene'
-      }
-    };
+  handleAddUnit = () => {
+    // const fUnit = {
+    //   fUnit: 351,
+    //   floor: 2,
+    //   flat: 'D',
+    //   share: 4.6,
+    //   landlord: {
+    //     user: '5c425cf738e2bc62ce2bce98',
+    //     lastname: 'Salimbene'
+    //   }
+    // };
+    // await addUnit(fUnit);
+    // const units = [fUnit, ...this.state.units];
+    // this.setState({ units });
 
-    await addUnit(fUnit);
-    const units = [fUnit, ...this.state.units];
-    this.setState({ units });
+    const { history } = this.props;
+    history.push('/units/new');
   };
 
   handlePageChange = page => {
@@ -116,34 +118,25 @@ class Units extends Component {
     const { totalCount, data: units } = this.getPageData();
 
     return (
-      <div className="row">
-        <div className="col-2">
+      <div className="row units">
+        <div className="col-1">
           <ListGroup
             items={this.state.floor}
             selectedItem={this.state.selectedFloor}
             onItemSelect={this.handleFloorSelect}
           />
         </div>
+
         <div className="col">
           <ToastContainer />
           <button
             onClick={event => this.handleAddUnit(event)}
-            className="btn btn-info btn-sm"
+            className="btn btn-primary btn-sm"
+            style={{ marginBottom: 20 }}
           >
-            Add
+            Nuevo
           </button>
-          <button
-            onClick={event => this.handleUpdate(this.state.units[1])}
-            className="btn btn-info btn-sm"
-          >
-            Update
-          </button>
-          <button
-            onClick={event => this.handleDelete(this.state.units[1])}
-            className="btn btn-danger btn-sm"
-          >
-            Del
-          </button>
+          <p>Unidades funcionales registradas: {totalCount}</p>
           <UnitsTable
             units={units}
             onDelete={this.handleDelete}

@@ -32,12 +32,10 @@ function validateFUnits(fUnit) {
       .max(2)
       .required(),
     share: Joi.number().required(),
-    landlord: Joi.object()
-      .keys({
-        user: Joi.ObjectId().required(),
-        lastname: Joi.string().required()
-      })
-      .required()
+    landlord: Joi.object().keys({
+      user: Joi.ObjectId(),
+      lastname: Joi.string()
+    })
   };
 
   return Joi.validate(fUnit, schema);
