@@ -13,8 +13,8 @@ const functionalUnitsSchema = mongoose.Schema({
   },
   share: { type: Number, required: true },
   landlord: {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' }, // target collection,
-    lastname: { type: String }
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users' }, // target collection,
+    name: { type: String }
   }
 });
 
@@ -23,6 +23,7 @@ const FUnit = mongoose.model('fUnit', functionalUnitsSchema);
 // Joi validation processes client input from the API, separated from mongoose
 function validateFUnits(fUnit) {
   const schema = {
+    _id: Joi.ObjectId().required(),
     fUnit: Joi.number().required(),
     floor: Joi.number()
       .max(2)
@@ -33,8 +34,8 @@ function validateFUnits(fUnit) {
       .required(),
     share: Joi.number().required(),
     landlord: Joi.object().keys({
-      user: Joi.ObjectId(),
-      lastname: Joi.string()
+      userId: Joi.ObjectId(),
+      name: Joi.string()
     })
   };
 

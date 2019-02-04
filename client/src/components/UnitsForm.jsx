@@ -1,8 +1,7 @@
 import React from 'react';
 import Joi from 'joi-browser';
 import Form from './common/Form';
-import Select from './common/Select';
-import { getUnit } from '../services/unitsService';
+import { getUnit, addUnit, updateUnit } from '../services/unitsService';
 import { getUsers } from '../services/usersService';
 
 class UnitsForm extends Form {
@@ -12,13 +11,14 @@ class UnitsForm extends Form {
       flat: '',
       floor: 0,
       share: 0,
-      landlord: ''
+      userId: ''
     },
     users: [],
     errors: {}
   };
 
   schema = {
+    _id: Joi.string(),
     fUnit: Joi.number()
       .required()
       .label('Unidad'),
@@ -34,12 +34,13 @@ class UnitsForm extends Form {
     share: Joi.number()
       .required()
       .label('Share'),
-    landlord: Joi.string().label('Propietario')
+    userId: Joi.string()
+      .required()
+      .label('Propietario') //No validation
   };
 
   async componentDidMount() {
     const { data: users } = await getUsers();
-    console.log(users);
     this.setState({ users });
 
     const unitId = this.props.match.params.id;
@@ -48,21 +49,52 @@ class UnitsForm extends Form {
     const unit = await getUnit(unitId);
     if (!unit) return this.props.history.replace('/not-found');
 
-    console.log(unit.data);
     this.setState({ data: this.mapToViewModel(unit.data) });
   }
 
   mapToViewModel(unit) {
     return {
+      _id: unit._id,
       fUnit: unit.fUnit,
       flat: unit.flat,
       floor: unit.floor,
       share: unit.share,
-      landlord: unit.landlord.lastname
+      userId: unit.landlord.userId
     };
   }
 
   doSubmit = async () => {
+    const unitId = this.props.match.params.id;
+
+    const { data, users } = this.state;
+    const fUnit = { ...data };
+
+    fUnit.userId = fUnit.userId || '5c58ae683ce66232d93fff7c';
+    console.log(fUnit);
+
+    fUnit.landlord = {
+      userId: fUnit.userId,
+      name: users.find(u => u._id === fUnit.userId).lastname || 'vacante'
+    };
+
+    delete fUnit.userId;
+
+    if (unitId === 'new') {
+      try {
+        await addUnit(fUnit);
+      } catch (ex) {
+        console.log(ex.response);
+      }
+
+      return;
+    }
+
+    try {
+      await updateUnit(fUnit);
+    } catch (ex) {
+      console.log(ex.response);
+    }
+
     const { history } = this.props;
     history.push('/units');
   };
@@ -92,7 +124,12 @@ class UnitsForm extends Form {
                 {this.renderInput('share', 'Participación')}
               </div>
               <div className="col col-md-6">
-                {this.renderSelect('lastname', 'Propietario', this.state.users)}
+                {this.renderSelect(
+                  'userId',
+                  'Propietario',
+                  'lastname',
+                  this.state.users
+                )}
               </div>
             </div>
             <div className="row">{this.renderButton('Guardar')}</div>

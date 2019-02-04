@@ -29,7 +29,9 @@ router.post('/', async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  let fUnits = await FUnit.findOne({ fUnit: req.body.fUnit });
+  const { fUnit, floor, flat } = req.body;
+
+  let fUnits = await FUnit.findOne({ fUnit, floor, flat });
   if (fUnits) return res.status(400).send('Unidad funcional ya registrada.');
 
   fUnits = new FUnit(
@@ -45,10 +47,8 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   //Validation
-  // const { error } = validate(req.body);
-  // debug(req.body);
-  // debug(error);
-  // if (error) return res.status(400).send(error.details[0].message);
+  const { error } = validate(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
 
   const { fUnit, floor, flat, share, landlord } = req.body;
 

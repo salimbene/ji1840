@@ -1,20 +1,21 @@
 import React from 'react';
 
-const Select = ({ value, label, items }) => {
-  console.log(items, value);
+const Select = ({ name, label, options, altName, error, ...rest }) => {
   return (
-    <React.Fragment>
-      <label className="label" htmlFor="select">
-        {label}
-      </label>
-      <select className="custom-select lg mb-3" name="select">
-        {items.map(i => (
-          <option key={i._id} value={i[value]}>
-            {i[value]}
+    <div className="form-group">
+      <label htmlFor={name}>{label}</label>
+      <select name={name} id={name} {...rest} className="form-control">
+        <option value="" />
+        {options.map(option => (
+          <option key={option._id} value={option._id}>
+            {option[altName]}
           </option>
         ))}
       </select>
-    </React.Fragment>
+      {(error && <div className="invalid-feedback">{error}</div>) || (
+        <div className="hidden">fix</div>
+      )}
+    </div>
   );
 };
 

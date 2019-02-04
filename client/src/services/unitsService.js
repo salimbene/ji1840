@@ -16,7 +16,7 @@ export function deleteUnit(unitId) {
 }
 
 export function updateUnit(unit) {
-  return http.put(apiEndpoint, unit);
+  return http.put(`${apiEndpoint}/${unit._id}`, unit);
 }
 
 export function addUnit(unit) {

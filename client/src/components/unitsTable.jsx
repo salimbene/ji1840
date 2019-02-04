@@ -8,9 +8,7 @@ class UnitsTable extends Component {
       path: 'landlord.lastname',
       label: 'Propietario',
       content: unit => (
-        <Link to={`/units/${unit.landlord.user}`}>
-          {unit.landlord.lastname}
-        </Link>
+        <Link to={`/users/${unit.landlord.userId}`}>{unit.landlord.name}</Link>
       )
     },
     {
@@ -18,10 +16,7 @@ class UnitsTable extends Component {
       label: 'Unidad',
       content: unit => <Link to={`/units/${unit._id}`}>{unit.fUnit}</Link>
     },
-    {
-      path: 'floor',
-      label: 'Piso'
-    },
+    { path: 'floor', label: 'Piso' },
     { path: 'flat', label: 'Puerta' },
     { path: 'share', label: 'Participación' },
     {
