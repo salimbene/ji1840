@@ -4,20 +4,8 @@ import { apiUrl } from '../config.json';
 
 const apiEndpoint = `${apiUrl}/auth`;
 
-export function getUnits() {
-  return http.get(apiEndpoint);
-}
-
-export function deleteUnit(unitId) {
-  return http.delete(`${apiEndpoint}/${unitId}`);
-}
-
-export function updateUnit(unit) {
-  return http.put(apiEndpoint, unit);
-}
-
-export function login(user) {
-  return http.post(apiEndpoint, user);
+export function login(mail, password) {
+  return http.post(apiEndpoint, { mail, password });
 }
 
 const authService = {};

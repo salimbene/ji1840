@@ -19,6 +19,9 @@ export function updateUser(user) {
   return http.put(apiEndpoint, user);
 }
 
-export function addUser(user) {
-  return http.post(apiEndpoint, user);
+export function register(user) {
+  return http.post(apiEndpoint, {
+    mail: user.username,
+    password: user.password
+  });
 }

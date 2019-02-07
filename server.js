@@ -7,6 +7,7 @@ const winston = require('winston');
 const express = require('express');
 const app = express();
 
+app.use(helmet());
 require('./startup/logging');
 require('./startup/routes')(app);
 require('./startup/mongodb')();
@@ -22,8 +23,6 @@ if (app.get('env') === 'development') {
 // debug('name', config.get('name'));
 // debug('mail.host', config.get('mail.host'));
 // debug('mail.password', config.get('mail.password'));
-
-app.use(helmet());
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => winston.info(`Listening on port ${PORT}...`));

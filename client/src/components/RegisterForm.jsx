@@ -1,10 +1,11 @@
 import React from 'react';
 import Joi from 'joi-browser';
 import Form from './common/Form';
+import { register } from '../services/usersService';
 
 class RegisterForm extends Form {
   state = {
-    data: { username: '', password: '', name: '' },
+    data: { username: '', password: '' },
     errors: {}
   };
 
@@ -19,14 +20,21 @@ class RegisterForm extends Form {
       .min(5)
       .max(255)
       .required()
-      .label('Clave'),
-    name: Joi.string()
-      .required()
-      .label('Name')
+      .label('Clave')
   };
 
-  doSubmit = () => {
-    console.log('Submited');
+  doSubmit = async () => {
+    try {
+      const response = await register(this.state.data);
+      localStorage.setItem('token', response.headers['x-auth-token']);
+      this.props.history.push('/');
+    } catch (ex) {
+      if (ex.response && ex.response.status === 400) {
+        const errors = { ...this.state.errors };
+        errors.username = ex.response.data;
+        this.setState({ errors });
+      }
+    }
     //Call srv, save and redirect
   };
   render() {
@@ -36,7 +44,6 @@ class RegisterForm extends Form {
         <form onSubmit={this.handleSubmit}>
           {this.renderInput('username', 'Usuario')}
           {this.renderInput('password', 'Clave', 'password')}
-          {this.renderInput('name', 'Nombre')}
           {this.renderButton('Acceder')}
         </form>
       </div>

@@ -7,6 +7,7 @@ import {
 } from '../services/unitsService';
 import Pagination from './common/Pagination';
 import ListGroup from './common/ListGroup';
+import SearchBox from './common/SearchBox';
 import UnitsTable from './UnitsTable';
 import { paginate } from '../utils/paginate';
 import { ToastContainer, toast } from 'react-toastify';
@@ -18,6 +19,7 @@ class Units extends Component {
     units: {},
     pageSize: 3,
     currentPage: 1,
+    searchQuery: '',
     sortColumn: { path: 'fUnit', order: 'asc' },
     floor: [{ name: 'a', id: 0 }, { name: 'b', id: 1 }, { name: 'c', id: 2 }]
   };
@@ -82,7 +84,11 @@ class Units extends Component {
   };
 
   handleFloorSelect = item => {
-    this.setState({ selectedFloor: item, currentPage: 1 });
+    this.setState({ selectedFloor: item, currentPage: 1, searchQuery: '' });
+  };
+
+  handleSearch = query => {
+    this.setState({ searchQuery: query, selectedFloor: null, currentPage: 1 });
   };
 
   getPageData = () => {
@@ -91,13 +97,17 @@ class Units extends Component {
       pageSize,
       currentPage,
       selectedFloor,
-      sortColumn
+      sortColumn,
+      searchQuery
     } = this.state;
 
-    const filtered =
-      selectedFloor && selectedFloor.id
-        ? allUnits.filter(u => u.floor === selectedFloor.id)
-        : allUnits;
+    let filtered = allUnits;
+    if (searchQuery)
+      filtered = allUnits.filter(u =>
+        u.field.toLowerCase().startsWidh(searchQuery.toLowerCase())
+      );
+    else if (selectedFloor && selectedFloor.id)
+      filtered = allUnits.filter(u => u.floor === selectedFloor.id);
 
     const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
 
@@ -111,7 +121,7 @@ class Units extends Component {
 
   render() {
     const { length: count } = this.state.units;
-    const { pageSize, currentPage, sortColumn } = this.state;
+    const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
 
     if (count === 0) return <p>No existen unidades funcionales registradas.</p>;
 
@@ -137,6 +147,7 @@ class Units extends Component {
             Nuevo
           </button>
           <p>Unidades funcionales registradas: {totalCount}</p>
+          <SearchBox value={searchQuery} onChange={this.handleSearch} />
           <UnitsTable
             units={units}
             onDelete={this.handleDelete}

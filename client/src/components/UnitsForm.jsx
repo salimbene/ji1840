@@ -1,7 +1,7 @@
 import React from 'react';
 import Joi from 'joi-browser';
 import Form from './common/Form';
-import { getUnit, addUnit, updateUnit } from '../services/unitsService';
+import { getUnit, saveUnit } from '../services/unitsService';
 import { getUsers } from '../services/usersService';
 
 class UnitsForm extends Form {
@@ -39,17 +39,26 @@ class UnitsForm extends Form {
       .label('Propietario') //No validation
   };
 
-  async componentDidMount() {
+  async populateUsers() {
     const { data: users } = await getUsers();
     this.setState({ users });
+  }
 
-    const unitId = this.props.match.params.id;
-    if (unitId === 'new') return;
+  async populateUnit() {
+    try {
+      const unitId = this.props.match.params.id;
+      if (unitId === 'new') return;
+      const { data: unit } = await getUnit(unitId);
+      this.setState({ data: this.mapToViewModel(unit) });
+    } catch (ex) {
+      if (ex.response && ex.response.status === 404)
+        return this.props.history.replace('/not-found');
+    }
+  }
 
-    const unit = await getUnit(unitId);
-    if (!unit) return this.props.history.replace('/not-found');
-
-    this.setState({ data: this.mapToViewModel(unit.data) });
+  async componentDidMount() {
+    await this.populateUsers();
+    await this.populateUnits();
   }
 
   mapToViewModel(unit) {
@@ -63,37 +72,24 @@ class UnitsForm extends Form {
     };
   }
 
-  doSubmit = async () => {
-    const unitId = this.props.match.params.id;
+  generateLandlord = fUnit => {
+    const { users } = this.state;
 
-    const { data, users } = this.state;
-    const fUnit = { ...data };
-
-    fUnit.userId = fUnit.userId || '5c58ae683ce66232d93fff7c';
-    console.log(fUnit);
-
-    fUnit.landlord = {
-      userId: fUnit.userId,
-      name: users.find(u => u._id === fUnit.userId).lastname || 'vacante'
-    };
-
+    const userId = fUnit.userId || '5c58ae683ce66232d93fff7c';
     delete fUnit.userId;
 
-    if (unitId === 'new') {
-      try {
-        await addUnit(fUnit);
-      } catch (ex) {
-        console.log(ex.response);
-      }
+    return {
+      userId: userId,
+      name: users.find(u => u._id === fUnit.userId).lastname || 'vacante'
+    };
+  };
 
-      return;
-    }
+  doSubmit = async () => {
+    const fUnit = { ...this.state.data };
 
-    try {
-      await updateUnit(fUnit);
-    } catch (ex) {
-      console.log(ex.response);
-    }
+    fUnit.landlord = this.generateLandlord(fUnit);
+
+    await saveUnit(fUnit);
 
     const { history } = this.props;
     history.push('/units');

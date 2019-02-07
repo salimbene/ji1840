@@ -29,12 +29,11 @@ router.get('/:id', [auth, admin], async (req, res) => {
   }
 });
 
-router.post('/', [auth, admin], async (req, res) => {
+router.post('/', async (req, res) => {
   //Validation
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  debug(req.body.mail);
   let user = await User.findOne({ mail: req.body.mail });
   if (user) return res.status(400).send('Usuario ya registrado.');
 
@@ -54,7 +53,13 @@ router.post('/', [auth, admin], async (req, res) => {
   user.password = await bcrypt.hash(user.password, salt);
   await user.save();
 
-  res.send(_.pick(user, ['_id', 'lastname', 'firstname', 'mail']));
+  const token = user.generateAuthToken();
+
+  res
+    .status(200)
+    .header('x-auth-token', token)
+    .header('access-control-expose-headers', 'x-auth-token')
+    .send(_.pick(user, ['_id', 'mail']));
 });
 
 router.put('/:id', [auth, admin], async (req, res) => {

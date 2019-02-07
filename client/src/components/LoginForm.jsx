@@ -1,6 +1,6 @@
 import React from 'react';
 import Form from './common/Form';
-import { login } from '../services/loginService';
+import { login } from '../services/authService';
 import Joi from 'joi-browser';
 
 class LoginForm extends Form {
@@ -26,13 +26,15 @@ class LoginForm extends Form {
   doSubmit = async () => {
     const { username, password } = this.state.data;
     try {
-      const result = await login({ mail: username, password });
-      const token = result.headers['consortia-auth-token'];
-      localStorage.setItem('consortia-auth-token', token);
-
-      console.log(token);
+      const { data: jwt } = await login(username, password);
+      localStorage.setItem('consortia-auth-token', jwt);
+      this.props.history.push('/');
     } catch (ex) {
-      console.log(ex.response.data);
+      if (ex.response && ex.response.status === 400) {
+        const errors = { ...this.state.errors };
+        errors.username = ex.response.data;
+        this.setState({ errors });
+      }
     }
   };
 
