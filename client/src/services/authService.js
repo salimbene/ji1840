@@ -1,39 +1,67 @@
 import http from './httpService';
 import jwtDecode from 'jwt-decode';
 import { apiUrl } from '../config.json';
-
 const apiEndpoint = `${apiUrl}/auth`;
+const tokenKey = 'consortia-token';
 
-export function login(mail, password) {
-  return http.post(apiEndpoint, { mail, password });
+//adding x-auth-token, if any, to the headers.
+//Required to access protected api endpoints.
+http.setJwt(getJwt());
+
+export async function login(mail, password) {
+  const { data: jwt } = await http.post(apiEndpoint, { mail, password });
+  localStorage.setItem(tokenKey, jwt);
 }
 
-const authService = {};
+export function logout() {
+  localStorage.removeItem(tokenKey);
+}
 
-const setToken = token => localStorage.setItem('screxpress-token', token);
+export function getCurrentUser() {
+  try {
+    const jwt = localStorage.getItem(tokenKey);
+    return jwtDecode(jwt);
+  } catch (error) {
+    return null;
+  }
+}
 
-authService.getToken = () => localStorage.getItem('screxpress-token');
+export function loginWithJwt(jwt) {
+  localStorage.setItem(tokenKey, jwt);
+}
 
-const getTokenExpirationDate = token => {
-  const decoded = jwtDecode(token);
-  const { exp } = decoded;
+export function getJwt() {
+  localStorage.getItem(tokenKey);
+}
 
-  if (!exp) return null;
-
-  return exp;
+export default {
+  login,
+  logout,
+  getCurrentUser,
+  loginWithJwt,
+  getJwt
 };
 
-const isTokenExpired = token => {
-  const tokenExpDate = getTokenExpirationDate(token);
-  const now = Date.now() / 1000;
+// const getTokenExpirationDate = token => {
+//   const decoded = jwtDecode(token);
+//   const { exp } = decoded;
 
-  return tokenExpDate < now;
-};
+//   if (!exp) return null;
 
-authService.isLoggedIn = () => {
-  const token = authService.getToken();
-  return token && !isTokenExpired(token);
-};
+//   return exp;
+// };
+
+// const isTokenExpired = token => {
+//   const tokenExpDate = getTokenExpirationDate(token);
+//   const now = Date.now() / 1000;
+
+//   return tokenExpDate < now;
+// };
+
+// authService.isLoggedIn = () => {
+//   const token = authService.getToken();
+//   return token && !isTokenExpired(token);
+// };
 
 // authService.login = async password => {
 //   const response = await axios.post(
@@ -47,5 +75,3 @@ authService.isLoggedIn = () => {
 
 //   return data.auth === 'ok';
 // };
-
-export default authService;

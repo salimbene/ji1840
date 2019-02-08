@@ -24,7 +24,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', [auth, admin], async (req, res) => {
   //Validation
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
@@ -45,7 +45,7 @@ router.post('/', async (req, res) => {
   );
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', [auth, admin], async (req, res) => {
   //Validation
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
@@ -72,7 +72,7 @@ router.put('/:id', async (req, res) => {
   res.send(fUnits);
 });
 
-router.delete('/:id', [auth, admin], async (req, res) => {
+router.delete('/:id', [auth, admin], [auth, admin], async (req, res) => {
   try {
     const fUnits = await FUnit.findByIdAndRemove(req.params.id);
     res.send(fUnits);

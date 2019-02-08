@@ -1,4 +1,5 @@
 const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
 const { Expense, validate } = require('../models/expense');
 const _ = require('lodash');
 const debug = require('debug')('routes:expenses');
@@ -32,7 +33,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/', auth, async (req, res) => {
+router.post('/', [auth, admin], async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
@@ -52,7 +53,7 @@ router.post('/', auth, async (req, res) => {
   res.send(expense);
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', [auth, admin], async (req, res) => {
   //Validation
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
@@ -80,7 +81,7 @@ router.put('/:id', async (req, res) => {
   res.send(expense);
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', [auth, admin], async (req, res) => {
   try {
     const expense = await Expense.findByIdAndRemove(req.params.id);
     res.send(expense);

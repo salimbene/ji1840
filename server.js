@@ -4,6 +4,7 @@ const helmet = require('helmet'); //Secure HTTP headers
 const morgan = require('morgan'); //Logging HTTP requests
 const debug = require('debug')('app:server'); //Formated & Located debugging
 const winston = require('winston');
+const config = require('config');
 const express = require('express');
 const app = express();
 
@@ -24,5 +25,5 @@ if (app.get('env') === 'development') {
 // debug('mail.host', config.get('mail.host'));
 // debug('mail.password', config.get('mail.password'));
 
-const PORT = process.env.PORT || 5000;
+const PORT = config.get('port') || process.env.PORT || 5000;
 app.listen(PORT, () => winston.info(`Listening on port ${PORT}...`));

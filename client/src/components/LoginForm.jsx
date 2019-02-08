@@ -1,6 +1,7 @@
 import React from 'react';
+import { Redirect } from 'react-router-dom';
 import Form from './common/Form';
-import { login } from '../services/authService';
+import auth from '../services/authService';
 import Joi from 'joi-browser';
 
 class LoginForm extends Form {
@@ -26,9 +27,9 @@ class LoginForm extends Form {
   doSubmit = async () => {
     const { username, password } = this.state.data;
     try {
-      const { data: jwt } = await login(username, password);
-      localStorage.setItem('consortia-auth-token', jwt);
-      this.props.history.push('/');
+      await auth.login(username, password);
+      const { state } = this.props.location;
+      window.location = state ? state.from.pathname : '/';
     } catch (ex) {
       if (ex.response && ex.response.status === 400) {
         const errors = { ...this.state.errors };
@@ -39,6 +40,8 @@ class LoginForm extends Form {
   };
 
   render() {
+    if (auth.getCurrentUser) return <Redirect to="/" />;
+
     return (
       <React.Fragment>
         <img src="../ji1840.jpg" id="background" alt="" />

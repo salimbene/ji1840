@@ -1,10 +1,5 @@
 import React, { Component } from 'react';
-import {
-  getUnits,
-  deleteUnit,
-  updateUnit,
-  addUnit
-} from '../services/unitsService';
+import { getUnits, deleteUnit, updateUnit } from '../services/unitsService';
 import Pagination from './common/Pagination';
 import ListGroup from './common/ListGroup';
 import SearchBox from './common/SearchBox';
@@ -122,6 +117,7 @@ class Units extends Component {
   render() {
     const { length: count } = this.state.units;
     const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
+    const { user } = this.props;
 
     if (count === 0) return <p>No existen unidades funcionales registradas.</p>;
 
@@ -139,13 +135,15 @@ class Units extends Component {
 
         <div className="col">
           <ToastContainer />
-          <button
-            onClick={event => this.handleAddUnit(event)}
-            className="btn btn-primary btn-sm"
-            style={{ marginBottom: 20 }}
-          >
-            Nuevo
-          </button>
+          {user && (
+            <button
+              onClick={event => this.handleAddUnit(event)}
+              className="btn btn-primary btn-sm"
+              style={{ marginBottom: 20 }}
+            >
+              Nuevo
+            </button>
+          )}
           <p>Unidades funcionales registradas: {totalCount}</p>
           <SearchBox value={searchQuery} onChange={this.handleSearch} />
           <UnitsTable

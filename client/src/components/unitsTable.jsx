@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import Table from './common/Table';
 import { Link } from 'react-router-dom';
+import Table from './common/Table';
+import auth from '../services/authService';
 
 class UnitsTable extends Component {
   columns = [
@@ -18,19 +19,27 @@ class UnitsTable extends Component {
     },
     { path: 'floor', label: 'Piso' },
     { path: 'flat', label: 'Puerta' },
-    { path: 'share', label: 'Participación' },
-    {
-      key: 'del',
-      content: unit => (
-        <button
-          onClick={event => this.props.onDelete(event.target.tabIndex)}
-          className="btn btn-danger btn-sm"
-        >
-          Eliminar
-        </button>
-      )
-    }
+    { path: 'share', label: 'Participación' }
   ];
+
+  deleteColumn = {
+    key: 'del',
+    content: unit => (
+      <button
+        onClick={event => this.props.onDelete(event.target.tabIndex)}
+        className="btn btn-danger btn-sm"
+      >
+        Eliminar
+      </button>
+    )
+  };
+
+  constructor() {
+    super();
+    const user = auth.getCurrentUser();
+    if (user & user.isAdmin) this.columns.push(this.deleteColumn);
+  }
+
   render() {
     const { units, onSort, sortColumn } = this.props;
 

@@ -1,23 +1,41 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { Link, NavLink } from 'react-router-dom';
 
-class NavBar extends Component {
-  render() {
-    return (
-      <nav className="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-        <Link className="navbar-brand col-sm-3 col-md-2 mr-0" to="/uni">
-          Consortia
-        </Link>
-        <ul className="navbar-nav px-3">
-          <li className="nav-item text-nowrap">
-            <Link className="nav-link" to="/jkjh">
-              Sign out
-            </Link>
-          </li>
-        </ul>
-      </nav>
-    );
-  }
-}
+const NavBar = ({ user }) => {
+  return (
+    <nav className="navbar nabvar-expand-lg navbar-light bg-light">
+      <Link className="navbar-brand" to="/">
+        Consortia
+      </Link>
+      <div className="collpase navbar-collapse" id="navbarNavAltMarkup">
+        <div className="navbar-nav">
+          {!user && (
+            <React.Fragment>
+              <NavLink className="nav-item nav-link" to="/units">
+                Unidades
+              </NavLink>
+              <NavLink className="nav-item nav-link" to="/login">
+                Login
+              </NavLink>
+              <NavLink className="nav-item nav-link" to="/register">
+                Register
+              </NavLink>
+            </React.Fragment>
+          )}
+          {user && (
+            <React.Fragment>
+              <NavLink className="nav-item nav-link" to="/profile">
+                {user.name}
+              </NavLink>
+              <NavLink className="nav-item nav-link" to="/logout">
+                Log out
+              </NavLink>
+            </React.Fragment>
+          )}
+        </div>
+      </div>
+    </nav>
+  );
+};
 
 export default NavBar;
