@@ -1,51 +1,52 @@
 import React, { Component } from 'react';
-import { getUnits, deleteUnit, updateUnit } from '../services/unitsService';
+import { getUsers, deleteUser, updateUser } from '../services/usersService';
 import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
-import UnitsTable from './UnitsTable';
+import UsersTable from './UsersTable';
 import auth from '../services/authService';
 import { paginate } from '../utils/paginate';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import _ from 'lodash';
 
-class Units extends Component {
+class Users extends Component {
   state = {
-    units: {},
+    users: {},
     pageSize: 10,
     currentPage: 1,
     searchQuery: '',
-    sortColumn: { path: 'fUnit', order: 'asc' },
-    floor: [{ name: '0', id: 0 }, { name: '1', id: 1 }, { name: '2', id: 2 }]
+    sortColumn: { path: 'lastname', order: 'asc' }
   };
 
   async componentDidMount() {
-    const floor = [{ id: '', name: 'all' }, ...this.state.floor];
-    const { data: units } = await getUnits();
-    this.setState({ units, floor, user: auth.getCurrentUser() });
+    // const { data } = await getGenres();
+    // const genres = [{ _id: "", name: "All Genres" }, ...data];
+
+    const { data: users } = await getUsers();
+    this.setState({ users, user: auth.getCurrentUser() });
   }
 
-  handleDelete = unit => {
-    const rollback = this.state.units;
-    const units = this.state.units.filter(u => u._id !== unit._id);
-    this.setState({ units });
+  handleDelete = user => {
+    const rollback = this.state.users;
+    const users = this.state.users.filter(u => u._id !== user._id);
+    this.setState({ users });
 
     try {
-      deleteUnit(unit._id);
+      deleteUser(user._id);
     } catch (ex) {
       if (ex.response && ex.response.status === 404) {
         toast('Something failed!');
-        this.setState({ units: rollback });
+        this.setState({ users: rollback });
       }
     }
   };
 
-  handleUpdate = async unit => {
-    await updateUnit(unit);
-    const units = [...this.state.units];
-    const index = units.indexOf(unit);
-    units[index] = { ...unit };
-    this.setState({ units });
+  handleUpdate = async user => {
+    await updateUser(user);
+    const users = [...this.state.users];
+    const index = users.indexOf(user);
+    users[index] = { ...user };
+    this.setState({ users });
   };
 
   handleSort = sortColumn => {
@@ -61,39 +62,36 @@ class Units extends Component {
     this.setState({ currentPage: page });
   };
 
-  handleFloorSelect = item => {
-    this.setState({ selectedFloor: item, currentPage: 1, searchQuery: '' });
-  };
-
   handleSearch = query => {
-    this.setState({ searchQuery: query, selectedFloor: null, currentPage: 1 });
+    this.setState({ searchQuery: query, selected: null, currentPage: 1 });
   };
 
   getPageData = () => {
     const {
-      units: allUnits,
+      users: allUsers,
       pageSize,
       currentPage,
-      selectedFloor,
+      selected,
       sortColumn,
       searchQuery
     } = this.state;
 
-    let filtered = allUnits;
+    let filtered = allUsers;
+
     if (searchQuery)
-      filtered = allUnits.filter(u =>
+      filtered = allUsers.filter(u =>
         u.field.toLowerCase().startsWidh(searchQuery.toLowerCase())
       );
-    else if (selectedFloor && selectedFloor.id)
-      filtered = allUnits.filter(u => u.floor === selectedFloor.id);
+    else if (selected && selected.id)
+      filtered = allUsers.filter(u => u.floor === selected.id);
 
     const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
 
-    const units = paginate(sorted, currentPage, pageSize);
+    const users = paginate(sorted, currentPage, pageSize);
 
     return {
       totalCount: filtered.length || 0,
-      data: units
+      data: users
     };
   };
 
@@ -101,23 +99,16 @@ class Units extends Component {
     const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
     const { user } = this.state;
 
-    if (user && !user.isAdmin)
-      return (
-        <div className="alert alert-danger" role="alert">
-          Acceso no autorizado.
-        </div>
-      );
-
-    const { totalCount, data: units } = this.getPageData();
+    const { totalCount, data: users } = this.getPageData();
 
     return (
       <div className="row units">
         <div className="col">
           <ToastContainer />
-          <p>Unidades registradas: {totalCount}</p>
+          <p>Usuarios registrados: {totalCount}</p>
           <SearchBox value={searchQuery} onChange={this.handleSearch} />
-          <UnitsTable
-            units={units}
+          <UsersTable
+            users={users}
             onDelete={this.handleDelete}
             onSort={this.handleSort}
             sortColumn={sortColumn}
@@ -144,4 +135,4 @@ class Units extends Component {
   }
 }
 
-export default Units;
+export default Users;

@@ -28,7 +28,7 @@ class RegisterForm extends Form {
     try {
       const response = await register(this.state.data);
       auth.loginWithJwt(response.headers['x-auth-token']);
-      this.props.history.push('/');
+      window.location = '/';
     } catch (ex) {
       if (ex.response && ex.response.status === 400) {
         const errors = { ...this.state.errors };
@@ -36,7 +36,6 @@ class RegisterForm extends Form {
         this.setState({ errors });
       }
     }
-    //Call srv, save and redirect
   };
   render() {
     return (

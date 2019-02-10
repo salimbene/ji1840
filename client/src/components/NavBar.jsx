@@ -3,37 +3,28 @@ import { Link, NavLink } from 'react-router-dom';
 
 const NavBar = ({ user }) => {
   return (
-    <nav className="navbar nabvar-expand-lg navbar-light bg-light">
-      <Link className="navbar-brand" to="/">
+    <nav className="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+      <Link className="navbar-brand col-sm-3 col-md-2 mr-0" to="/">
         Consortia
       </Link>
-      <div className="collpase navbar-collapse" id="navbarNavAltMarkup">
-        <div className="navbar-nav">
-          {!user && (
-            <React.Fragment>
-              <NavLink className="nav-item nav-link" to="/units">
-                Unidades
+      {user && (
+        <React.Fragment>
+          <ul className="navbar-nav px-3">
+            <li className="nav-item text-nowrap">
+              <NavLink className="nav-link" to="/">
+                {user.mail}
               </NavLink>
-              <NavLink className="nav-item nav-link" to="/login">
-                Login
+            </li>
+          </ul>
+          <ul className="navbar-nav px-3">
+            <li className="nav-item text-nowrap">
+              <NavLink className="nav-item" to="/logout">
+                Salir
               </NavLink>
-              <NavLink className="nav-item nav-link" to="/register">
-                Register
-              </NavLink>
-            </React.Fragment>
-          )}
-          {user && (
-            <React.Fragment>
-              <NavLink className="nav-item nav-link" to="/profile">
-                {user.name}
-              </NavLink>
-              <NavLink className="nav-item nav-link" to="/logout">
-                Log out
-              </NavLink>
-            </React.Fragment>
-          )}
-        </div>
-      </div>
+            </li>
+          </ul>
+        </React.Fragment>
+      )}
     </nav>
   );
 };

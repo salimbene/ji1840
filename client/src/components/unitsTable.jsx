@@ -8,9 +8,14 @@ class UnitsTable extends Component {
     {
       path: 'landlord.lastname',
       label: 'Propietario',
-      content: unit => (
-        <Link to={`/users/${unit.landlord.userId}`}>{unit.landlord.name}</Link>
-      )
+      content: unit =>
+        unit.landlord.name !== 'disponible' ? (
+          <Link to={`/users/${unit.landlord.userId}`}>
+            {unit.landlord.name}
+          </Link>
+        ) : (
+          unit.landlord.name
+        )
     },
     {
       path: 'fUnit',
@@ -18,15 +23,16 @@ class UnitsTable extends Component {
       content: unit => <Link to={`/units/${unit._id}`}>{unit.fUnit}</Link>
     },
     { path: 'floor', label: 'Piso' },
-    { path: 'flat', label: 'Puerta' },
-    { path: 'share', label: 'Participación' }
+    { path: 'flat', label: 'Rótulo' },
+    { path: 'sup.total', label: 'Superficie Total' },
+    { path: 'coefficient', label: 'Coeficiente' }
   ];
 
   deleteColumn = {
     key: 'del',
     content: unit => (
       <button
-        onClick={event => this.props.onDelete(event.target.tabIndex)}
+        onClick={event => this.props.onDelete(unit)}
         className="btn btn-danger btn-sm"
       >
         Eliminar
@@ -37,7 +43,7 @@ class UnitsTable extends Component {
   constructor() {
     super();
     const user = auth.getCurrentUser();
-    if (user & user.isAdmin) this.columns.push(this.deleteColumn);
+    if (user && user.isAdmin) this.columns.push(this.deleteColumn);
   }
 
   render() {

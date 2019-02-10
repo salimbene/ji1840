@@ -40,11 +40,10 @@ class LoginForm extends Form {
   };
 
   render() {
-    if (auth.getCurrentUser) return <Redirect to="/" />;
+    if (auth.getCurrentUser()) return <Redirect to="/" />;
 
     return (
       <React.Fragment>
-        <img src="../ji1840.jpg" id="background" alt="" />
         <div className="rounded centered login">
           <form onSubmit={this.handleSubmit}>
             {this.renderInput('username', 'Usuario')}

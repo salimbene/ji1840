@@ -48,8 +48,7 @@ code {
 }
 
 .units {
-  width: 80%;
-  border: 1px gray solid;
+  width: 100%;
 }
 
 .units--form {

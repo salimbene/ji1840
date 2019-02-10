@@ -1,10 +1,14 @@
-const debug = require('debug')('app:mongo');
+const debug = require('debug')('startup:mongo');
 const winston = require('winston');
 const mongoose = require('mongoose');
 const config = require('config');
 
 module.exports = function() {
+  const DB = config.get('db');
+  mongoose.set('useFindAndModify', false);
   mongoose
-    .connect(config.get('db'), { useNewUrlParser: true })
+    .connect(DB, { useNewUrlParser: true })
     .then(() => winston.info('Connected to MongoDB...'));
+
+  debug(`database: ${DB}`);
 };

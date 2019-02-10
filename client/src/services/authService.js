@@ -1,7 +1,6 @@
 import http from './httpService';
 import jwtDecode from 'jwt-decode';
-import { apiUrl } from '../config.json';
-const apiEndpoint = `${apiUrl}/auth`;
+const apiEndpoint = '/auth';
 const tokenKey = 'consortia-token';
 
 //adding x-auth-token, if any, to the headers.
@@ -31,7 +30,7 @@ export function loginWithJwt(jwt) {
 }
 
 export function getJwt() {
-  localStorage.getItem(tokenKey);
+  return localStorage.getItem(tokenKey);
 }
 
 export default {

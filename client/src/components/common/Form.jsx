@@ -24,7 +24,6 @@ class Form extends Component {
   validateProperty = ({ name, value }) => {
     const obj = { [name]: value };
     const schema = { [name]: this.schema[name] };
-
     const { error } = Joi.validate(obj, schema);
 
     return error ? error.details[0].message : null;
@@ -62,7 +61,7 @@ class Form extends Component {
     );
   }
 
-  renderInput(name, label, type = 'text') {
+  renderInput(name, label, type = 'text', readonly = false) {
     const { data, errors } = this.state;
     return (
       <Input
@@ -71,7 +70,9 @@ class Form extends Component {
         value={data[name]}
         label={label}
         onChange={this.handleChange}
+        onFocus={this.handleFocus}
         error={errors[name]}
+        readOnly={readonly}
       />
     );
   }

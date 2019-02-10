@@ -7,10 +7,13 @@ const express = require('express');
 const debug = require('debug')('routes:users');
 const router = express.Router();
 
-router.get('/', async (req, res) => {
+router.get('/', [auth, admin], async (req, res) => {
   const users = await User.find()
-    .select('-password -role -isAdmin')
+    .where('lastname')
+    .ne('DISPONIBLE')
+    .select('-password -isAdmin')
     .sort('lastname');
+  debug(users);
   res.send(users);
 });
 
@@ -29,7 +32,7 @@ router.get('/:id', [auth, admin], async (req, res) => {
   }
 });
 
-router.post('/', [auth], async (req, res) => {
+router.post('/', async (req, res) => {
   //Validation
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
@@ -44,7 +47,6 @@ router.post('/', [auth], async (req, res) => {
       'mail',
       'password',
       'role',
-      'landlord',
       'isAdmin'
     ])
   );
@@ -74,7 +76,6 @@ router.put('/:id', [auth], async (req, res) => {
       firstname: req.body.firstname,
       mail: req.body.mail,
       phone: req.body.phone,
-      propietaryType: req.body.propietaryType,
       role: req.body.role
     },
     { new: true }

@@ -1,7 +1,6 @@
 import http from './httpService';
-import { apiUrl } from '../config.json';
 
-const apiEndpoint = `${apiUrl}/funits`;
+const apiEndpoint = '/funits';
 
 function unitUrl(id) {
   return `${apiEndpoint}/${id}`;
@@ -23,16 +22,11 @@ export function updateUnit(unit) {
   return http.put(unitUrl(unit._id), unit);
 }
 
-export function addUnit(unit) {
-  return http.post(apiEndpoint, unit);
-}
-
 export function saveUnit(unit) {
   if (unit._id) {
     const body = { ...unit };
     delete body._id;
     return http.put(unitUrl(unit._id), body);
   }
-
   return http.post(apiEndpoint, unit);
 }

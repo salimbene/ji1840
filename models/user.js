@@ -24,6 +24,16 @@ const userSchema = mongoose.Schema({
     unique: true,
     required: true
   },
+  phone: {
+    type: String,
+    maxlenght: 30,
+    lowercase: true
+  },
+  notes: {
+    type: String,
+    trim: true
+  },
+  ownership: [{ type: mongoose.Schema.Types.ObjectId, ref: 'funits' }],
   password: {
     type: String,
     minlength: 5,
@@ -37,7 +47,6 @@ const userSchema = mongoose.Schema({
     default: 'Usuario',
     trim: true
   },
-  landlord: { type: Boolean, default: false },
   isAdmin: { type: Boolean, default: false }
 });
 
@@ -67,12 +76,14 @@ function validateUsers(user) {
       .max(255)
       .email()
       .required(),
+    phone: Joi.string().max(30),
+    notes: Joi.string().max(500),
+    ownership: Joi.array(),
     password: Joi.string()
       .min(5)
       .max(255)
       .required(),
     role: Joi.string(),
-    landlord: Joi.boolean(),
     isAdmin: Joi.boolean()
   };
 

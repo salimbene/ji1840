@@ -26,6 +26,7 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', [auth, admin], async (req, res) => {
   //Validation
+  debug(req.body);
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
@@ -35,13 +36,30 @@ router.post('/', [auth, admin], async (req, res) => {
   if (fUnits) return res.status(400).send('Unidad funcional ya registrada.');
 
   fUnits = new FUnit(
-    _.pick(req.body, ['fUnit', 'floor', 'flat', 'share', 'landlord'])
+    _.pick(req.body, [
+      'fUnit',
+      'floor',
+      'flat',
+      'polygon',
+      'sup',
+      'coefficient',
+      'landlord'
+    ])
   );
 
   await fUnits.save();
 
   res.send(
-    _.pick(fUnits, ['_id', 'fUnit', 'floor', 'flat', 'share', 'landlord'])
+    _.pick(fUnits, [
+      '_id',
+      'fUnit',
+      'floor',
+      'flat',
+      'polygon',
+      'sup',
+      'coefficient',
+      'landlord'
+    ])
   );
 });
 
@@ -50,15 +68,18 @@ router.put('/:id', [auth, admin], async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const { fUnit, floor, flat, share, landlord } = req.body;
+  const { fUnit, floor, flat, polygon, sup, coefficient, landlord } = req.body;
+  debug(`Saving document ${req.params.id}`);
 
   const fUnits = await FUnit.findOneAndUpdate(
-    req.params.id,
+    { _id: req.params.id },
     {
       fUnit,
       floor,
       flat,
-      share,
+      polygon,
+      sup,
+      coefficient,
       landlord
     },
     { new: true }
