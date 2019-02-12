@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { getUnits, deleteUnit, updateUnit } from '../services/unitsService';
+import { getUnits, deleteUnit } from '../services/unitsService';
 import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
 import UnitsTable from './UnitsTable';
@@ -40,13 +40,13 @@ class Units extends Component {
     }
   };
 
-  handleUpdate = async unit => {
-    await updateUnit(unit);
-    const units = [...this.state.units];
-    const index = units.indexOf(unit);
-    units[index] = { ...unit };
-    this.setState({ units });
-  };
+  // handleUpdate = async unit => {
+  //   await updateUnit(unit);
+  //   const units = [...this.state.units];
+  //   const index = units.indexOf(unit);
+  //   units[index] = { ...unit };
+  //   this.setState({ units });
+  // };
 
   handleSort = sortColumn => {
     this.setState({ sortColumn });
@@ -80,11 +80,12 @@ class Units extends Component {
     } = this.state;
 
     let filtered = allUnits;
-    if (searchQuery)
+
+    if (searchQuery) {
       filtered = allUnits.filter(u =>
-        u.field.toLowerCase().startsWidh(searchQuery.toLowerCase())
+        u.landlord.name.toLowerCase().startsWith(searchQuery.toLowerCase())
       );
-    else if (selectedFloor && selectedFloor.id)
+    } else if (selectedFloor && selectedFloor.id)
       filtered = allUnits.filter(u => u.floor === selectedFloor.id);
 
     const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);

@@ -33,7 +33,6 @@ const userSchema = mongoose.Schema({
     type: String,
     trim: true
   },
-  ownership: [{ type: mongoose.Schema.Types.ObjectId, ref: 'funits' }],
   password: {
     type: String,
     minlength: 5,
@@ -54,10 +53,9 @@ userSchema.methods.generateAuthToken = function() {
   const token = jwt.sign(
     {
       _id: this._id,
-      name: this.landlord.lastname,
+      name: this.lastname,
       mail: this.mail,
       role: this.role,
-      landlord: this.landlord,
       isAdmin: this.isAdmin
     },
     config.get('jwtPrivateKey')
@@ -76,13 +74,15 @@ function validateUsers(user) {
       .max(255)
       .email()
       .required(),
-    phone: Joi.string().max(30),
-    notes: Joi.string().max(500),
-    ownership: Joi.array(),
+    phone: Joi.string()
+      .allow('')
+      .max(30),
+    notes: Joi.string()
+      .allow('')
+      .max(500),
     password: Joi.string()
       .min(5)
-      .max(255)
-      .required(),
+      .max(255),
     role: Joi.string(),
     isAdmin: Joi.boolean()
   };

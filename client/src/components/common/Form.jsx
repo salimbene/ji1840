@@ -17,7 +17,6 @@ class Form extends Component {
     const errors = {};
 
     for (let item of error.details) errors[item.path[0]] = item.message;
-
     return errors;
   };
 
@@ -77,15 +76,14 @@ class Form extends Component {
     );
   }
 
-  renderSelect(name, label, altName, options) {
+  renderSelect(name, label, field, options) {
     const { data, errors } = this.state;
-
     return (
       <Select
         name={name}
         value={data[name]}
-        altName={altName}
         label={label}
+        field={field}
         options={options}
         onChange={this.handleChange}
         error={errors[name]}

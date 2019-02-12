@@ -24,6 +24,20 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+router.get('/ownedby/:id', async (req, res) => {
+  try {
+    const fUnits = await FUnit.find()
+      .where('landlord.userId')
+      .equals(req.params.id);
+
+    res.send(fUnits);
+  } catch (ex) {
+    res
+      .status(404)
+      .send(`El usuario ${req.params.id} no tiene unidades asignadas.`);
+  }
+});
+
 router.post('/', [auth, admin], async (req, res) => {
   //Validation
   debug(req.body);

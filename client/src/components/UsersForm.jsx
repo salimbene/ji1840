@@ -1,7 +1,9 @@
 import React from 'react';
 import Joi from 'joi-browser';
 import Form from './common/Form';
-import { getUnits } from '../services/unitsService';
+import Table from './common/Table';
+import { getUnits, getUnitsOwnedBy } from '../services/unitsService';
+import { getUser, saveUser } from '../services/usersService';
 
 class UsersForm extends Form {
   state = {
@@ -11,32 +13,17 @@ class UsersForm extends Form {
       mail: '',
       phone: '',
       role: '',
-      notes: '',
-      ownership: [],
-      isAdmin: false,
-      password: ''
+      notes: ''
     },
-    users: [],
+    owned: [],
+    roles: [],
     units: [],
-    errors: {}
+    errors: {},
+    sortColumn: { path: 'fUnit', order: 'asc' }
   };
 
-  roles = [
-    {
-      _id: 0,
-      rol: 'Administrador'
-    },
-    {
-      _id: 1,
-      rol: 'Consejal'
-    },
-    {
-      _id: 2,
-      rol: 'Usuario'
-    }
-  ];
-
   schema = {
+    _id: Joi.string(),
     lastname: Joi.string()
       .max(50)
       .label('Apellido'),
@@ -51,18 +38,13 @@ class UsersForm extends Form {
       .label('Mail'),
     phone: Joi.string()
       .max(30)
+      .allow('')
       .label('Telefono'),
     notes: Joi.string()
       .max(500)
+      .allow('')
       .label('Notas'),
-    ownership: Joi.array().label('Propiedades'),
-    password: Joi.string()
-      .min(5)
-      .max(255)
-      .required()
-      .label('Password'),
-    role: Joi.string().label('Rol'),
-    isAdmin: Joi.boolean()
+    role: Joi.string().label('Rol')
   };
 
   async populateUnits() {
@@ -74,8 +56,39 @@ class UsersForm extends Form {
     try {
       const userId = this.props.match.params.id;
       if (userId === 'new') return;
-      // const { data: user } = await getUser(userId);
-      // this.setState({ data: this.mapToViewModel(user) });
+      const { data: user } = await getUser(userId);
+      this.setState({ data: this.mapToViewModel(user) });
+    } catch (ex) {
+      if (ex.response && ex.response.status === 404)
+        return this.props.history.replace('/not-found');
+    }
+  }
+
+  populateRoles() {
+    const roles = [
+      {
+        _id: '0',
+        role: 'Administrador'
+      },
+      {
+        _id: '1',
+        role: 'Consejal'
+      },
+      {
+        _id: '2',
+        role: 'Usuario'
+      }
+    ];
+    this.setState({ roles });
+  }
+
+  async populateOwnedBy() {
+    try {
+      const userId = this.props.match.params.id;
+      if (userId === 'new') return;
+      const { data: owned } = await getUnitsOwnedBy(userId);
+
+      this.setState({ owned });
     } catch (ex) {
       if (ex.response && ex.response.status === 404)
         return this.props.history.replace('/not-found');
@@ -85,19 +98,30 @@ class UsersForm extends Form {
   async componentDidMount() {
     await this.populateUnits();
     await this.populateUser();
+    await this.populateOwnedBy();
+    this.populateRoles();
   }
+  handleSort = sortColumn => {
+    this.setState({ sortColumn });
+  };
 
   mapToViewModel(user) {
     return {
-      _id: user._id
+      _id: user._id,
+      lastname: user.lastname || '',
+      firstname: user.firstname || '',
+      mail: user.mail,
+      phone: user.phone || '',
+      role: user.role || '',
+      notes: user.notes || ''
     };
   }
 
   doSubmit = async () => {
-    // const user = { ...this.state.data };
+    const user = { ...this.state.data };
 
     try {
-      // await saveUser(user);
+      await saveUser(user);
     } catch (ex) {
       console.log(ex.response);
     }
@@ -106,7 +130,16 @@ class UsersForm extends Form {
     history.push('/users');
   };
 
+  columns = [
+    { path: 'fUnit', label: 'Unidad' },
+    { path: 'floor', label: 'Piso' },
+    { path: 'flat', label: 'Rótulo' },
+    { path: 'sup.total', label: 'Superficie Total' },
+    { path: 'coefficient', label: 'Coeficiente' }
+  ];
+
   render() {
+    const { owned, sortColumn } = this.state;
     return (
       <React.Fragment>
         <h3>
@@ -129,23 +162,26 @@ class UsersForm extends Form {
                 {this.renderInput('phone', 'Telefono')}
               </div>
               <div className="col col-md-2">
-                {this.renderSelect('role', 'Rol', 'rol', this.roles)}
+                {this.renderSelect('role', 'Rol', 'role', this.state.roles)}
               </div>
-              <div className="col ">{this.renderInput('Notas', 'Notas')}</div>
+              <div className="col ">{this.renderInput('notes', 'Notas')}</div>
             </div>
             <div>
-              <p className="text-muted">Propiedades</p>
+              <p className="text-muted">
+                Propiedades
+                <small>
+                  <mark>{` Coeficiente total: ${owned
+                    .reduce((a, c) => a + c.coefficient, 0)
+                    .toPrecision(3)}`}</mark>
+                </small>
+              </p>
             </div>
-            <div className="row">
-              <div className="col col-md-2">
-                {this.renderSelect(
-                  'ownership',
-                  'Unidades',
-                  'fUnit',
-                  this.state.units
-                )}
-              </div>
-            </div>
+            <Table
+              columns={this.columns}
+              data={owned}
+              sortColumn={sortColumn}
+              onSort={this.handleSort}
+            />
             <div className="row">{this.renderButton('Guardar')}</div>
           </form>
         </div>

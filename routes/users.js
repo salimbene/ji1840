@@ -45,7 +45,9 @@ router.post('/', async (req, res) => {
       'lastname',
       'firstname',
       'mail',
+      'phone',
       'password',
+      'notes',
       'role',
       'isAdmin'
     ])
@@ -70,12 +72,13 @@ router.put('/:id', [auth], async (req, res) => {
   if (error) return res.status(400).send(error.details[0].message);
 
   const user = await User.findOneAndUpdate(
-    req.params.id,
+    { _id: req.params.id },
     {
       lastname: req.body.lastname,
       firstname: req.body.firstname,
       mail: req.body.mail,
       phone: req.body.phone,
+      notes: req.body.notes,
       role: req.body.role
     },
     { new: true }

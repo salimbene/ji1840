@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { getUsers, deleteUser, updateUser } from '../services/usersService';
+import { getUsers, deleteUser } from '../services/usersService';
 import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
 import UsersTable from './UsersTable';
@@ -41,21 +41,13 @@ class Users extends Component {
     }
   };
 
-  handleUpdate = async user => {
-    await updateUser(user);
-    const users = [...this.state.users];
-    const index = users.indexOf(user);
-    users[index] = { ...user };
-    this.setState({ users });
-  };
-
   handleSort = sortColumn => {
     this.setState({ sortColumn });
   };
 
   handleAddUnit = () => {
     const { history } = this.props;
-    history.push('/units/new');
+    history.push('/register');
   };
 
   handlePageChange = page => {
@@ -80,7 +72,7 @@ class Users extends Component {
 
     if (searchQuery)
       filtered = allUsers.filter(u =>
-        u.field.toLowerCase().startsWidh(searchQuery.toLowerCase())
+        u.lastname.toLowerCase().startsWith(searchQuery.toLowerCase())
       );
     else if (selected && selected.id)
       filtered = allUsers.filter(u => u.floor === selected.id);

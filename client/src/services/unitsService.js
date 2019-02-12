@@ -14,13 +14,17 @@ export function getUnit(unitId) {
   return http.get(unitUrl(unitId));
 }
 
+export function getUnitsOwnedBy(userId) {
+  return http.get(unitUrl(`ownedby/${userId}`));
+}
+
 export function deleteUnit(unitId) {
   return http.delete(unitUrl(unitId));
 }
 
-export function updateUnit(unit) {
-  return http.put(unitUrl(unit._id), unit);
-}
+// export function updateUnit(unit) {
+//   return http.put(unitUrl(unit._id), unit);
+// }
 
 export function saveUnit(unit) {
   if (unit._id) {

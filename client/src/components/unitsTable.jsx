@@ -6,7 +6,7 @@ import auth from '../services/authService';
 class UnitsTable extends Component {
   columns = [
     {
-      path: 'landlord.lastname',
+      path: 'landlord.name',
       label: 'Propietario',
       content: unit =>
         unit.landlord.name !== 'disponible' ? (
@@ -24,7 +24,11 @@ class UnitsTable extends Component {
     },
     { path: 'floor', label: 'Piso' },
     { path: 'flat', label: 'Rótulo' },
-    { path: 'sup.total', label: 'Superficie Total' },
+    {
+      path: 'sup.total',
+      label: 'Superficie Total',
+      content: unit => unit.sup.total.toPrecision(4)
+    },
     { path: 'coefficient', label: 'Coeficiente' }
   ];
 
@@ -48,7 +52,6 @@ class UnitsTable extends Component {
 
   render() {
     const { units, onSort, sortColumn } = this.props;
-
     return (
       <Table
         columns={this.columns}

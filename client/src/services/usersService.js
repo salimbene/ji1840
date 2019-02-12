@@ -2,20 +2,29 @@ import http from './httpService';
 
 const apiEndpoint = '/users';
 
+function userUrl(id) {
+  return `${apiEndpoint}/${id}`;
+}
+
 export function getUsers() {
   return http.get(apiEndpoint);
 }
 
 export function getUser(userId) {
-  return http.get(`${apiEndpoint}/${userId}`);
+  return http.get(userUrl(userId));
 }
 
 export function deleteUser(userId) {
-  return http.delete(`${apiEndpoint}/${userId}`);
+  return http.delete(userUrl(userId));
 }
 
-export function updateUser(user) {
-  return http.put(apiEndpoint, user);
+export function saveUser(user) {
+  if (user._id) {
+    const body = { ...user };
+    delete body._id;
+    return http.put(userUrl(user._id), body);
+  }
+  return http.post(apiEndpoint, user);
 }
 
 export function register(user) {

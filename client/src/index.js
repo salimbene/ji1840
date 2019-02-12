@@ -11,7 +11,7 @@ import 'font-awesome/css/font-awesome.css';
 
 logger.init();
 
-console.log('superman', process.env.REACT_APP_NAME);
+console.log('process.env.REACT_APP_NAME', process.env.REACT_APP_NAME);
 
 ReactDOM.render(
   <BrowserRouter>

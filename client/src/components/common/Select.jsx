@@ -1,6 +1,7 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
-const Select = ({ name, label, options, altName, error, ...rest }) => {
+const Select = ({ name, label, options, field, error, ...rest }) => {
   return (
     <div className="form-group">
       <label htmlFor={name}>{label}</label>
@@ -8,7 +9,7 @@ const Select = ({ name, label, options, altName, error, ...rest }) => {
         <option value="" />
         {options.map(option => (
           <option key={option._id} value={option._id}>
-            {option[altName]}
+            {option[field]}
           </option>
         ))}
       </select>
@@ -17,6 +18,13 @@ const Select = ({ name, label, options, altName, error, ...rest }) => {
       )}
     </div>
   );
+};
+
+Select.propTypes = {
+  name: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  options: PropTypes.array.isRequired,
+  value: PropTypes.string.isRequired
 };
 
 export default Select;

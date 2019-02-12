@@ -14,7 +14,11 @@ class UsersTable extends Component {
       path: 'firstname',
       label: 'Nombre'
     },
-    { path: 'role', label: 'Rol' },
+    {
+      path: 'role',
+      label: 'Rol',
+      content: user => ['Administrador', 'Consejal', 'Usuario'][user.role]
+    },
     {
       path: 'mail',
       label: 'Mail',
@@ -22,9 +26,8 @@ class UsersTable extends Component {
     },
     { path: 'phone', label: 'Telefono' },
     {
-      path: 'ownership',
-      label: 'Propiedades',
-      content: user => <Link to={`/users/${user._id}`}>{user.lastname}</Link>
+      path: 'notes',
+      label: 'notas'
     }
   ];
 
@@ -47,12 +50,12 @@ class UsersTable extends Component {
   }
 
   render() {
-    const { units, onSort, sortColumn } = this.props;
+    const { users, onSort, sortColumn } = this.props;
 
     return (
       <Table
         columns={this.columns}
-        data={units}
+        data={users}
         sortColumn={sortColumn}
         onSort={onSort}
       />

@@ -110,7 +110,7 @@ class UnitsForm extends Form {
 
     return {
       userId: userId,
-      name: users.find(u => u._id === userId).lastname || 'vacante'
+      name: users.find(u => u._id === userId).lastname || 'disponible'
     };
   };
 

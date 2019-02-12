@@ -1,5 +1,5 @@
 import React from 'react';
-
+import PropTypes from 'prop-types';
 const Input = ({ name, label, error, ...rest }) => {
   return (
     <div className="form-group">
@@ -23,6 +23,12 @@ const Input = ({ name, label, error, ...rest }) => {
       )} */}
     </div>
   );
+};
+
+Input.propTypes = {
+  name: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired
 };
 
 export default Input;
