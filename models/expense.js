@@ -16,10 +16,14 @@ const Expense = mongoose.model('expense', mongoose.Schema(expensesSchema));
 function validateExpenses(expense) {
   debug(expense);
   const schema = {
-    category: Joi.string().required(),
-    concept: Joi.string().required(),
-    type: Joi.string(),
-    ammount: Joi.number(),
+    category: Joi.string()
+      .allow('')
+      .required(),
+    concept: Joi.string()
+      .allow('')
+      .required(),
+    type: Joi.string().required(),
+    ammount: Joi.number().required(),
     user: Joi.object().keys({
       userId: Joi.ObjectId(),
       name: Joi.string()

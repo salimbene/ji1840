@@ -22,11 +22,12 @@ class Expenses extends Form {
       user: '',
       period: 0
     },
+    expenses: {},
     errors: {},
     pageSize: 10,
     currentPage: 1,
     searchQuery: '',
-    sortColumn: { path: 'Date', order: 'asc' }
+    sortColumn: { path: 'type', order: 'asc' }
   };
 
   schema = {
@@ -88,7 +89,7 @@ class Expenses extends Form {
 
   getPageData = () => {
     const {
-      data: allExpenses,
+      expenses: allExpenses,
       pageSize,
       currentPage,
       selected,
@@ -100,7 +101,7 @@ class Expenses extends Form {
 
     if (searchQuery)
       filtered = allExpenses.filter(u =>
-        u.lastname.toLowerCase().startsWith(searchQuery.toLowerCase())
+        u.concept.toLowerCase().startsWith(searchQuery.toLowerCase())
       );
     else if (selected && selected.id)
       filtered = allExpenses.filter(u => u.floor === selected.id);
@@ -117,14 +118,15 @@ class Expenses extends Form {
 
   doSubmit = async () => {
     const expense = { ...this.state.data };
+    console.log(expense);
+    console.log('doSubmit');
+    // try {
+    //   await saveExp(expense);
+    // } catch (ex) {
+    //   console.log(ex.response);
+    // }
 
-    try {
-      await saveExp(expense);
-    } catch (ex) {
-      console.log(ex.response);
-    }
-
-    const { history } = this.props;
+    // const { history } = this.props;
     // history.push('/expenses');
   };
 
@@ -142,7 +144,7 @@ class Expenses extends Form {
                 {this.renderInput('ammount', 'Importe')}
               </div>
               <div className="col">{this.renderInput('period', 'Período')}</div>
-              <div className="col">{this.renderButton('Acceder')}</div>
+              <div className="col">{this.renderButton('Guardar')}</div>
             </div>
             <div className="row">
               <div className="col">
@@ -155,11 +157,31 @@ class Expenses extends Form {
     );
   }
 
-  render() {
+  renderTable() {
+    const { totalCount, data } = this.getPageData();
     const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
-    const { user } = this.state;
+    return (
+      <React.Fragment>
+        <p>Gastos registrados: {totalCount}</p>
+        <SearchBox value={searchQuery} onChange={this.handleSearch} />
+        <ExpensesTable
+          expenses={data}
+          onDelete={this.handleDelete}
+          onSort={this.handleSort}
+          sortColumn={sortColumn}
+        />
+        <Pagination
+          itemsCount={totalCount}
+          pageSize={pageSize}
+          currentPage={currentPage}
+          onPageChange={this.handlePageChange}
+        />
+      </React.Fragment>
+    );
+  }
 
-    const { totalCount, data: expenses } = this.getPageData();
+  render() {
+    // const { user } = this.state;
 
     return (
       <div className="row units">
@@ -170,33 +192,7 @@ class Expenses extends Form {
             <small className="text-muted"> > Detalles</small>
           </h3>
           {this.renderForm()}
-          <p>Gastos registrados: {totalCount}</p>
-          {totalCount && (
-            <React.Fragment>
-              <SearchBox value={searchQuery} onChange={this.handleSearch} />
-              <ExpensesTable
-                expenses={expenses}
-                onDelete={this.handleDelete}
-                onSort={this.handleSort}
-                sortColumn={sortColumn}
-              />
-              <Pagination
-                itemsCount={totalCount}
-                pageSize={pageSize}
-                currentPage={currentPage}
-                onPageChange={this.handlePageChange}
-              />
-            </React.Fragment>
-          )}
-          {user && (
-            <button
-              onClick={event => this.handleAddUnit(event)}
-              className="btn btn-primary btn-sm"
-              style={{ marginBottom: 20 }}
-            >
-              Nuevo
-            </button>
-          )}
+          {this.renderTable()}
         </div>
       </div>
     );
