@@ -1,5 +1,6 @@
 import React from 'react';
 import SideBarItem from './common/SideBarItem';
+import SideSeparator from './common/SideSeparator';
 
 const SideBar = ({ user }) => {
   return (
@@ -17,10 +18,11 @@ const SideBar = ({ user }) => {
         {user && user.isAdmin && (
           <React.Fragment>
             <span>{user.mail}</span>
-            <h6 className="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-              <span>Administración</span>
-            </h6>
-
+            <SideSeparator label="Movimientos" />
+            <ul className="nav flex-column mb-2">
+              <SideBarItem label="Registrar Gastos" to="/expenses" />
+            </ul>
+            <SideSeparator label="Administración" />
             <ul className="nav flex-column mb-2">
               <SideBarItem label="Unidades" to="/units" />
               <SideBarItem label="Usuarios" to="/users" />

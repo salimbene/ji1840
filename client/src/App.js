@@ -5,6 +5,7 @@ import Home from './components/Home';
 import UnitsForm from './components/UnitsForm';
 import Units from './components/Units';
 import Users from './components/Users';
+import Expenses from './components/Expenses';
 import UsersForm from './components/UsersForm';
 import RegisterForm from './components/RegisterForm';
 import LoginForm from './components/LoginForm';
@@ -38,6 +39,8 @@ class App extends Component {
                 <Route path="/register" component={RegisterForm} />
                 <Route path="/login" component={LoginForm} />
                 <Route path="/logout" component={Logout} />
+                {/* <ProtectedRoute path="/expenses/:month" component={Expenses} /> */}
+                <ProtectedRoute path="/expenses" component={Expenses} />
                 <ProtectedRoute path="/units/:id" component={UnitsForm} />
                 <ProtectedRoute path="/units" component={Units} />} />
                 <ProtectedRoute path="/users/:id" component={UsersForm} />} />
