@@ -17,6 +17,7 @@ class Form extends Component {
     const errors = {};
 
     for (let item of error.details) errors[item.path[0]] = item.message;
+    console.log(errors);
     return errors;
   };
 
@@ -24,7 +25,6 @@ class Form extends Component {
     const obj = { [name]: value };
     const schema = { [name]: this.schema[name] };
     const { error } = Joi.validate(obj, schema);
-
     return error ? error.details[0].message : null;
   };
 

@@ -45,7 +45,7 @@ class Users extends Component {
     this.setState({ sortColumn });
   };
 
-  handleAddUnit = () => {
+  handleAddUser = () => {
     const { history } = this.props;
     history.push('/register');
   };
@@ -114,7 +114,7 @@ class Users extends Component {
           />
           {user && (
             <button
-              onClick={event => this.handleAddUnit(event)}
+              onClick={event => this.handleAddUser(event)}
               className="btn btn-primary btn-sm"
               style={{ marginBottom: 20 }}
             >

@@ -1,22 +1,50 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
+import Form from './common/Form';
 import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
 import ExpensesTable from './ExpensesTable';
-import ExpensesForm from './ExpensesForm';
 import { paginate } from '../utils/paginate';
 import { ToastContainer, toast } from 'react-toastify';
 import { getExpenses, deleteExpense } from '../services/expensesService';
 import auth from '../services/authService';
 import 'react-toastify/dist/ReactToastify.css';
+import { saveExp } from '../services/expensesService';
+import Joi from 'joi-browser';
 
-class Expenses extends Component {
+class Expenses extends Form {
   state = {
-    expenses: {},
+    data: {
+      category: '',
+      concept: '',
+      type: '',
+      ammount: 0,
+      user: '',
+      period: 0
+    },
+    errors: {},
     pageSize: 10,
     currentPage: 1,
     searchQuery: '',
-    sortColumn: { path: 'lastname', order: 'asc' }
+    sortColumn: { path: 'Date', order: 'asc' }
+  };
+
+  schema = {
+    _id: Joi.string(),
+    category: Joi.string()
+      .required()
+      .allow('')
+      .label('Rubro'),
+    concept: Joi.string()
+      .required()
+      .allow('')
+      .label('Detalle'),
+    type: Joi.string().label('Tipo'),
+    ammount: Joi.number().label('Importe'),
+    period: Joi.date().label('Periodo'),
+    user: Joi.string()
+      .allow('')
+      .label('Usuario')
   };
 
   async componentDidMount() {
@@ -42,13 +70,12 @@ class Expenses extends Component {
     }
   };
 
-  handleSort = sortColumn => {
-    this.setState({ sortColumn });
+  handleAddExpense = () => {
+    console.log('handleAddExpense');
   };
 
-  handleAddUnit = () => {
-    const { history } = this.props;
-    history.push('/register');
+  handleSort = sortColumn => {
+    this.setState({ sortColumn });
   };
 
   handlePageChange = page => {
@@ -61,7 +88,7 @@ class Expenses extends Component {
 
   getPageData = () => {
     const {
-      expenses: allExpenses,
+      data: allExpenses,
       pageSize,
       currentPage,
       selected,
@@ -80,13 +107,53 @@ class Expenses extends Component {
 
     const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
 
-    const users = paginate(sorted, currentPage, pageSize);
+    const expenses = paginate(sorted, currentPage, pageSize);
 
     return {
       totalCount: filtered.length || 0,
-      data: users
+      data: expenses
     };
   };
+
+  doSubmit = async () => {
+    const expense = { ...this.state.data };
+
+    try {
+      await saveExp(expense);
+    } catch (ex) {
+      console.log(ex.response);
+    }
+
+    const { history } = this.props;
+    // history.push('/expenses');
+  };
+
+  renderForm() {
+    return (
+      <React.Fragment>
+        <div className="border border-info rounded shadow-sm p-3 mb-5 bg-white">
+          <form onSubmit={this.handleSubmit}>
+            <div className="row">
+              <div className="col">
+                {this.renderInput('category', 'Categoría')}
+              </div>
+              <div className="col">{this.renderInput('type', 'Tipo')}</div>
+              <div className="col">
+                {this.renderInput('ammount', 'Importe')}
+              </div>
+              <div className="col">{this.renderInput('period', 'Período')}</div>
+              <div className="col">{this.renderButton('Acceder')}</div>
+            </div>
+            <div className="row">
+              <div className="col">
+                {this.renderInput('concept', 'Concepto')}
+              </div>
+            </div>
+          </form>
+        </div>
+      </React.Fragment>
+    );
+  }
 
   render() {
     const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
@@ -98,21 +165,29 @@ class Expenses extends Component {
       <div className="row units">
         <div className="col">
           <ToastContainer />
-          <ExpensesForm />
+          <h3>
+            Registro de gastos
+            <small className="text-muted"> > Detalles</small>
+          </h3>
+          {this.renderForm()}
           <p>Gastos registrados: {totalCount}</p>
-          <SearchBox value={searchQuery} onChange={this.handleSearch} />
-          {/* <ExpensesTable
-            expenses={expenses}
-            onDelete={this.handleDelete}
-            onSort={this.handleSort}
-            sortColumn={sortColumn}
-          />
-          <Pagination
-            itemsCount={totalCount}
-            pageSize={pageSize}
-            currentPage={currentPage}
-            onPageChange={this.handlePageChange}
-          />
+          {totalCount && (
+            <React.Fragment>
+              <SearchBox value={searchQuery} onChange={this.handleSearch} />
+              <ExpensesTable
+                expenses={expenses}
+                onDelete={this.handleDelete}
+                onSort={this.handleSort}
+                sortColumn={sortColumn}
+              />
+              <Pagination
+                itemsCount={totalCount}
+                pageSize={pageSize}
+                currentPage={currentPage}
+                onPageChange={this.handlePageChange}
+              />
+            </React.Fragment>
+          )}
           {user && (
             <button
               onClick={event => this.handleAddUnit(event)}
@@ -121,7 +196,7 @@ class Expenses extends Component {
             >
               Nuevo
             </button>
-          )} */}
+          )}
         </div>
       </div>
     );
