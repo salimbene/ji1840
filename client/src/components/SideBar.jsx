@@ -21,11 +21,13 @@ const SideBar = ({ user }) => {
             <SideSeparator label="Movimientos" />
             <ul className="nav flex-column mb-2">
               <SideBarItem label="Registrar Gastos" to="/expenses" />
+              <SideBarItem label="Registrar Pagos" to="/payments" />
             </ul>
             <SideSeparator label="Administración" />
             <ul className="nav flex-column mb-2">
               <SideBarItem label="Unidades" to="/units" />
               <SideBarItem label="Usuarios" to="/users" />
+              <SideBarItem label="Proveedores" to="/suppliers" />
             </ul>
           </React.Fragment>
         )}

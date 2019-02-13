@@ -2,16 +2,16 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
-import ExpensesTable from './ExpensesTable';
+import SuppliersTable from './SuppliersTable';
 import auth from '../services/authService';
-import { getExpenses, deleteExpense } from '../services/expensesService';
+import { getSuppliers, deleteSupplier } from '../services/suppliersService';
 import { paginate } from '../utils/paginate';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-class Expenses extends Component {
+class Suppliers extends Component {
   state = {
-    expenses: {},
+    suppliers: {},
     pageSize: 10,
     currentPage: 1,
     searchQuery: '',
@@ -19,21 +19,21 @@ class Expenses extends Component {
   };
 
   async componentDidMount() {
-    const { data: expenses } = await getExpenses();
-    this.setState({ expenses, user: auth.getCurrentUser() });
+    const { data: suppliers } = await getSuppliers();
+    this.setState({ suppliers, user: auth.getCurrentUser() });
   }
 
-  handleDelete = expense => {
-    const rollback = this.state.expenses;
-    const expenses = this.state.expenses.filter(u => u._id !== expense._id);
-    this.setState({ expenses });
+  handleDelete = supplier => {
+    const rollback = this.state.suppliers;
+    const suppliers = this.state.suppliers.filter(u => u._id !== supplier._id);
+    this.setState({ suppliers });
 
     try {
-      deleteExpense(expense._id);
+      deleteSupplier(supplier._id);
     } catch (ex) {
       if (ex.response && ex.response.status === 404) {
         toast('Something failed!');
-        this.setState({ expenses: rollback });
+        this.setState({ suppliers: rollback });
       }
     }
   };
@@ -44,7 +44,7 @@ class Expenses extends Component {
 
   handleAddUnit = () => {
     const { history } = this.props;
-    history.push('/expenses/new');
+    history.push('/supplier/new');
   };
 
   handlePageChange = page => {
@@ -57,27 +57,27 @@ class Expenses extends Component {
 
   getPageData = () => {
     const {
-      expenses: allExpenses,
+      suppliers: allSuppliers,
       pageSize,
       currentPage,
       sortColumn,
       searchQuery
     } = this.state;
 
-    let filtered = allExpenses;
+    let filtered = allSuppliers;
 
     if (searchQuery) {
-      filtered = allExpenses.filter(u =>
-        u.landlord.name.toLowerCase().startsWith(searchQuery.toLowerCase())
+      filtered = allSuppliers.filter(u =>
+        u.name.toLowerCase().startsWith(searchQuery.toLowerCase())
       );
     }
 
     const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
-    const expenses = paginate(sorted, currentPage, pageSize);
+    const suppliers = paginate(sorted, currentPage, pageSize);
 
     return {
       totalCount: filtered.length || 0,
-      data: expenses
+      data: suppliers
     };
   };
 
@@ -92,7 +92,7 @@ class Expenses extends Component {
         </div>
       );
 
-    const { totalCount, data: expenses } = this.getPageData();
+    const { totalCount, data: suppliers } = this.getPageData();
 
     return (
       <div className="row units">
@@ -100,8 +100,8 @@ class Expenses extends Component {
           <ToastContainer />
           <p>Unidades registradas: {totalCount}</p>
           <SearchBox value={searchQuery} onChange={this.handleSearch} />
-          <ExpensesTable
-            expenses={expenses}
+          <SuppliersTable
+            suppliers={suppliers}
             onDelete={this.handleDelete}
             onSort={this.handleSort}
             sortColumn={sortColumn}
@@ -128,4 +128,4 @@ class Expenses extends Component {
   }
 }
 
-export default Expenses;
+export default Suppliers;

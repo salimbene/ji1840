@@ -5,8 +5,13 @@ import Home from './components/Home';
 import UnitsForm from './components/UnitsForm';
 import Units from './components/Units';
 import Users from './components/Users';
-import Expenses from './components/Expenses';
 import UsersForm from './components/UsersForm';
+import Expenses from './components/Expenses';
+import ExpensesForm from './components/ExpensesForm';
+import Payments from './components/Payments';
+import PaymentsForm from './components/PaymentsForm';
+import Suppliers from './components/Suppliers';
+import SuppliersForm from './components/SuppliersForm';
 import RegisterForm from './components/RegisterForm';
 import LoginForm from './components/LoginForm';
 import Logout from './components/Logout';
@@ -39,7 +44,14 @@ class App extends Component {
                 <Route path="/register" component={RegisterForm} />
                 <Route path="/login" component={LoginForm} />
                 <Route path="/logout" component={Logout} />
-                {/* <ProtectedRoute path="/expenses/:month" component={Expenses} /> */}
+                <ProtectedRoute
+                  path="/suppliers/:id"
+                  component={SuppliersForm}
+                />
+                <ProtectedRoute path="/suppliers" component={Suppliers} />
+                <ProtectedRoute path="/payments/:id" component={PaymentsForm} />
+                <ProtectedRoute path="/payments" component={Payments} />
+                <ProtectedRoute path="/expenses/:id" component={ExpensesForm} />
                 <ProtectedRoute path="/expenses" component={Expenses} />
                 <ProtectedRoute path="/units/:id" component={UnitsForm} />
                 <ProtectedRoute path="/units" component={Units} />} />

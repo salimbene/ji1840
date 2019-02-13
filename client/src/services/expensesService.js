@@ -6,8 +6,8 @@ function expUrl(id) {
   return `${apiEndpoint}/${id}`;
 }
 
-export function getExpenses(id) {
-  return http.get(expUrl(id));
+export function getExpenses() {
+  return http.get(apiEndpoint);
 }
 
 export function getExpense(expId) {
@@ -18,7 +18,7 @@ export function deleteExpense(expId) {
   return http.delete(expUrl(expId));
 }
 
-export function saveExp(exp) {
+export function saveExpense(exp) {
   if (exp._id) {
     const body = { ...exp };
     delete body._id;

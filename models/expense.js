@@ -6,15 +6,18 @@ const expensesSchema = mongoose.Schema({
   concept: { type: String, trim: true, required: true },
   type: { type: String, enum: ['A', 'B'], default: 'A', required: true },
   ammount: { type: Number, required: true },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
   period: { type: Date, default: Date.now },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'users',
+    required: true
+  },
   date: { type: Date, default: Date.now }
 });
 
 const Expense = mongoose.model('expense', mongoose.Schema(expensesSchema));
 
 function validateExpenses(expense) {
-  debug(expense);
   const schema = {
     category: Joi.string()
       .allow('')
@@ -24,10 +27,7 @@ function validateExpenses(expense) {
       .required(),
     type: Joi.string().required(),
     ammount: Joi.number().required(),
-    user: Joi.object().keys({
-      userId: Joi.ObjectId(),
-      name: Joi.string()
-    }),
+    userId: Joi.ObjectId(),
     period: Joi.date()
   };
 

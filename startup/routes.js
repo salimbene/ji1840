@@ -2,6 +2,8 @@ const express = require('express');
 // const bodyParser = require('body-parser');
 const fUnits = require('../routes/funits');
 const expenses = require('../routes/expenses');
+const payments = require('../routes/payments');
+const suppliers = require('../routes/suppliers');
 const consortia = require('../routes/consortia');
 const users = require('../routes/users');
 const home = require('../routes/home');
@@ -17,6 +19,8 @@ module.exports = function(app) {
   //Routes
   app.use('/api/funits', fUnits);
   app.use('/api/expenses', expenses);
+  app.use('/api/payments', payments);
+  app.use('/api/suppliers', suppliers);
   app.use('/api/consortia', consortia);
   app.use('/api/users', users);
   app.use('/api/auth', auth);

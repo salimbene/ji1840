@@ -2,16 +2,16 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
-import ExpensesTable from './ExpensesTable';
+import PaymentsTable from './PaymentsTable';
 import auth from '../services/authService';
-import { getExpenses, deleteExpense } from '../services/expensesService';
+import { getPayments, deletePayment } from '../services/paymentsService';
 import { paginate } from '../utils/paginate';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-class Expenses extends Component {
+class Payments extends Component {
   state = {
-    expenses: {},
+    payments: {},
     pageSize: 10,
     currentPage: 1,
     searchQuery: '',
@@ -19,21 +19,21 @@ class Expenses extends Component {
   };
 
   async componentDidMount() {
-    const { data: expenses } = await getExpenses();
-    this.setState({ expenses, user: auth.getCurrentUser() });
+    const { data: payments } = await getPayments();
+    this.setState({ payments, user: auth.getCurrentUser() });
   }
 
-  handleDelete = expense => {
-    const rollback = this.state.expenses;
-    const expenses = this.state.expenses.filter(u => u._id !== expense._id);
-    this.setState({ expenses });
+  handleDelete = payment => {
+    const rollback = this.state.payments;
+    const payments = this.state.payments.filter(u => u._id !== payment._id);
+    this.setState({ payments });
 
     try {
-      deleteExpense(expense._id);
+      deletePayment(payment._id);
     } catch (ex) {
       if (ex.response && ex.response.status === 404) {
         toast('Something failed!');
-        this.setState({ expenses: rollback });
+        this.setState({ payments: rollback });
       }
     }
   };
@@ -44,7 +44,7 @@ class Expenses extends Component {
 
   handleAddUnit = () => {
     const { history } = this.props;
-    history.push('/expenses/new');
+    history.push('/payments/new');
   };
 
   handlePageChange = page => {
@@ -57,27 +57,27 @@ class Expenses extends Component {
 
   getPageData = () => {
     const {
-      expenses: allExpenses,
+      payments: allPayments,
       pageSize,
       currentPage,
       sortColumn,
       searchQuery
     } = this.state;
 
-    let filtered = allExpenses;
+    let filtered = allPayments;
 
     if (searchQuery) {
-      filtered = allExpenses.filter(u =>
-        u.landlord.name.toLowerCase().startsWith(searchQuery.toLowerCase())
+      filtered = allPayments.filter(u =>
+        u.userId.toLowerCase().startsWith(searchQuery.toLowerCase())
       );
     }
 
     const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
-    const expenses = paginate(sorted, currentPage, pageSize);
+    const payments = paginate(sorted, currentPage, pageSize);
 
     return {
       totalCount: filtered.length || 0,
-      data: expenses
+      data: payments
     };
   };
 
@@ -92,7 +92,7 @@ class Expenses extends Component {
         </div>
       );
 
-    const { totalCount, data: expenses } = this.getPageData();
+    const { totalCount, data: payments } = this.getPageData();
 
     return (
       <div className="row units">
@@ -100,8 +100,8 @@ class Expenses extends Component {
           <ToastContainer />
           <p>Unidades registradas: {totalCount}</p>
           <SearchBox value={searchQuery} onChange={this.handleSearch} />
-          <ExpensesTable
-            expenses={expenses}
+          <PaymentsTable
+            payments={payments}
             onDelete={this.handleDelete}
             onSort={this.handleSort}
             sortColumn={sortColumn}
@@ -128,4 +128,4 @@ class Expenses extends Component {
   }
 }
 
-export default Expenses;
+export default Payments;

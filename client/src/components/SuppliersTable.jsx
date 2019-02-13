@@ -3,36 +3,31 @@ import { Link } from 'react-router-dom';
 import Table from './common/Table';
 import auth from '../services/authService';
 
-class ExpensesTable extends Component {
+class SuppliersTable extends Component {
   columns = [
     {
+      path: 'name',
+      label: 'Nombre'
+    },
+    {
       path: 'category',
-      label: 'Categoría'
+      label: 'Rubro'
     },
     {
-      path: 'concept',
-      label: 'Concepto'
+      path: 'contact',
+      label: 'Contacto'
     },
     {
-      path: 'type',
-      label: 'Tipo'
-    },
-    {
-      path: 'ammount',
-      label: 'Importe'
-    },
-    { path: 'date', label: 'Fecha' },
-    {
-      path: 'userId',
-      label: 'Usuario'
+      path: 'comments',
+      label: 'Observaciones'
     }
   ];
 
   deleteColumn = {
     key: 'del',
-    content: expense => (
+    content: supplier => (
       <button
-        onClick={event => this.props.onDelete(expense)}
+        onClick={event => this.props.onDelete(supplier)}
         className="btn btn-danger btn-sm"
       >
         Eliminar
@@ -47,12 +42,12 @@ class ExpensesTable extends Component {
   }
 
   render() {
-    const { expenses, onSort, sortColumn } = this.props;
+    const { supplier, onSort, sortColumn } = this.props;
 
     return (
       <Table
         columns={this.columns}
-        data={expenses}
+        data={supplier}
         sortColumn={sortColumn}
         onSort={onSort}
       />
@@ -60,4 +55,4 @@ class ExpensesTable extends Component {
   }
 }
 
-export default ExpensesTable;
+export default SuppliersTable;
