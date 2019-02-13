@@ -17,7 +17,7 @@ class Form extends Component {
     const errors = {};
 
     for (let item of error.details) errors[item.path[0]] = item.message;
-    console.log(errors);
+    console.log('validate()=', errors);
     return errors;
   };
 
@@ -88,6 +88,19 @@ class Form extends Component {
         onChange={this.handleChange}
         error={errors[name]}
       />
+    );
+  }
+
+  renderOptions(name, options, label) {
+    return (
+      <div classNAme="form-group">
+        <label for={name}>{label}</label>
+        <select class="form-control" id={name}>
+          {options.map(option => (
+            <option>{option}</option>
+          ))}
+        </select>
+      </div>
     );
   }
 }

@@ -27,8 +27,8 @@ const Input = ({ name, label, error, ...rest }) => {
 
 Input.propTypes = {
   name: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired
+  label: PropTypes.string.isRequired
+  // value: PropTypes.string.isRequired //Puede ser number
 };
 
 export default Input;

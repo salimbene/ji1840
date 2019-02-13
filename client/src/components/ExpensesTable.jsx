@@ -2,16 +2,20 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import Table from './common/Table';
 import auth from '../services/authService';
+import { formatDate } from '../utils/dates';
 
 class ExpensesTable extends Component {
   columns = [
     {
-      path: 'category',
-      label: 'Categoría'
+      path: 'concept',
+      label: 'Concepto',
+      content: expense => (
+        <Link to={`/expenses/${expense._id}`}>{expense.concept}</Link>
+      )
     },
     {
-      path: 'concept',
-      label: 'Concepto'
+      path: 'category',
+      label: 'Categoría'
     },
     {
       path: 'type',
@@ -19,12 +23,18 @@ class ExpensesTable extends Component {
     },
     {
       path: 'ammount',
-      label: 'Importe'
+      label: 'Importe',
+      content: expense => `$${expense.ammount.toFixed(2)}`
     },
-    { path: 'date', label: 'Fecha' },
+    {
+      path: 'date',
+      label: 'Fecha',
+      content: expense => formatDate(expense.date)
+    },
     {
       path: 'userId',
-      label: 'Usuario'
+      label: 'Registrado por...',
+      content: expense => expense.userId.lastname
     }
   ];
 

@@ -50,6 +50,9 @@ code {
 .units {
   width: 100%;
 }
+.expenses {
+  width: 80%;
+}
 
 .units--form {
   width: 80%;

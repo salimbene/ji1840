@@ -2,6 +2,8 @@ import React from 'react';
 import Joi from 'joi-browser';
 import Form from './common/Form';
 import { getExpense, saveExpense } from '../services/expensesService';
+import { getLastXMonths } from '../utils/dates';
+import auth from '../services/authService';
 
 class ExpensesForm extends Form {
   state = {
@@ -10,32 +12,38 @@ class ExpensesForm extends Form {
       concept: '',
       type: '',
       ammount: 0,
-      period: 0,
-      userId: ''
+      period: ''
     },
     errors: {}
   };
 
+  typeOptions = ['A', 'B'];
+
+  categoryOptions = [
+    'Mantenimiento',
+    'Servicios',
+    'Impuestos',
+    'Honorarios',
+    'Abonos',
+    'Generales'
+  ];
+
   schema = {
     _id: Joi.string(),
-    category: Joi.string()
-      .allow('')
-      .required()
-      .label('Rubro'),
+    category: Joi.string().label('Rubro'),
     concept: Joi.string()
-      .allow('')
       .required()
       .label('Concepto'),
     type: Joi.string()
+      .valid('A', 'B')
       .required()
       .label('Tipo'),
     ammount: Joi.number()
       .required()
       .label('Importe'),
-    period: Joi.date()
+    period: Joi.string()
       .required()
-      .label('Mes'),
-    userId: Joi.ObjectId()
+      .label('Mes')
   };
 
   async populateExpenses() {
@@ -61,15 +69,15 @@ class ExpensesForm extends Form {
       concept: expense.concept,
       type: expense.type,
       ammount: expense.ammount,
-      period: expense.period,
-      userId: expense.userId
+      period: expense.period
     };
   }
 
   doSubmit = async () => {
     const expense = { ...this.state.data };
-
+    const { _id } = auth.getCurrentUser();
     try {
+      expense.userId = _id;
       await saveExpense(expense);
     } catch (ex) {
       console.log(ex.response);
@@ -86,25 +94,33 @@ class ExpensesForm extends Form {
           Registrar Gasto
           <small className="text-muted"> > Detalles</small>
         </h3>
-        <div className="border border-info rounded shadow-sm p-3 mb-5 bg-white">
+        <div className="border border-info rounded shadow-sm p-3 w-75 md-5 bg-white md-10">
           <form onSubmit={this.handleSubmit}>
             <div className="row">
               <div className="col">
-                {this.renderInput('category', 'Categoría')}
-              </div>
-              <div className="col">
                 {this.renderInput('concept', 'Concepto')}
               </div>
-              <div className="col">{this.renderInput('type', 'Tipo')}</div>
-            </div>
-            <div className="col col-md-2">
-              {this.renderInput('ammount', 'Importe')}
             </div>
             <div className="row">
               <div className="col col-md-2">
-                {this.renderInput('period', 'Mes')}
+                {this.renderInput('ammount', 'Importe')}
+              </div>
+              <div className="col col-md-2">
+                {this.renderSelect('type', 'Tipo', '', this.typeOptions)}
+              </div>
+              <div className="col ">
+                {this.renderSelect(
+                  'category',
+                  'Rubro',
+                  '',
+                  this.categoryOptions
+                )}
+              </div>
+              <div className="col col-md-4">
+                {this.renderSelect('period', 'Mes', '', getLastXMonths(3))}
               </div>
             </div>
+
             <div className="row">{this.renderButton('Guardar')}</div>
           </form>
         </div>

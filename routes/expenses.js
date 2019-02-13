@@ -10,10 +10,7 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
   const expenses = await Expense.find()
-    .populate({
-      path: 'userId',
-      model: User
-    })
+    .populate('userId', '-password -isAdmin', 'User')
     .sort('period');
   res.send(expenses);
 });
@@ -53,11 +50,11 @@ router.put('/:id', [auth, admin], async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const { category, concept, ammount, period, userId } = req.body;
+  const { category, concept, ammount, type, period, userId } = req.body;
 
   const expense = await Expense.findOneAndUpdate(
     { _id: req.params.id },
-    { category, concept, ammount, preiod, userId },
+    { category, concept, ammount, type, period, userId },
     { new: true }
   );
 
