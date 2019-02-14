@@ -1,14 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Select = ({ name, label, options, field, error, ...rest }) => {
+const Select = ({ name, label, options, field, error, getId, ...rest }) => {
   return (
     <div className="form-group">
       <label htmlFor={name}>{label}</label>
       <select name={name} id={name} {...rest} className="form-control">
         <option value="" />
         {options.map((option, index) => (
-          <option key={option._id || index} value={option[field] || option}>
+          <option
+            key={option._id || index}
+            value={option[field] || option}
+            id={option._id || index}
+          >
             {option[field] || option}
           </option>
         ))}

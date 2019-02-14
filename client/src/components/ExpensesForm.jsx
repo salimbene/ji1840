@@ -94,7 +94,7 @@ class ExpensesForm extends Form {
           Registrar Gasto
           <small className="text-muted"> > Detalles</small>
         </h3>
-        <div className="border border-info rounded shadow-sm p-3 w-75 md-5 bg-white md-10">
+        <div className="border border-info rounded shadow-sm p-3 w-75 bg-white md-10">
           <form onSubmit={this.handleSubmit}>
             <div className="row">
               <div className="col">

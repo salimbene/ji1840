@@ -2,32 +2,39 @@ import React from 'react';
 import Joi from 'joi-browser';
 import Form from './common/Form';
 import { getPayment, savePayment } from '../services/paymentsService';
+import { getLastXMonths } from '../utils/dates';
+import { getUsers } from '../services/usersService';
+import { getCurrentUser } from '../services/authService';
 
 class PaymentsForm extends Form {
   state = {
     data: {
-      category: '',
-      concept: '',
-      type: '',
+      userId: '',
       ammount: 0,
-      period: 0,
-      userId: ''
+      comments: '',
+      period: ''
     },
+    users: [],
     errors: {}
   };
 
   schema = {
     _id: Joi.string(),
-    unitId: Joi.ObjectId().label('Unidad'),
-    userId: Joi.ObjectId().label('Usuario'),
+    userId: Joi.string().label('Usuario'),
     ammount: Joi.number()
       .required()
+      .invalid(0)
       .label('Importe'),
     comments: Joi.string()
       .allow('')
       .label('Notas'),
-    period: Joi.date().label('Mes')
+    period: Joi.string().label('Mes')
   };
+
+  async populateUsers() {
+    const { data: users } = await getUsers();
+    this.setState({ users });
+  }
 
   async populatePayments() {
     try {
@@ -42,13 +49,13 @@ class PaymentsForm extends Form {
   }
 
   async componentDidMount() {
+    await this.populateUsers();
     await this.populatePayments();
   }
 
   mapToViewModel(payment) {
     return {
       _id: payment._id,
-      unitId: payment.unitId,
       userId: payment.concept,
       ammount: payment.ammount,
       comments: payment.comments,
@@ -58,15 +65,17 @@ class PaymentsForm extends Form {
 
   doSubmit = async () => {
     const payment = { ...this.state.data };
-
+    const submittedBy = getCurrentUser();
+    payment.submittedBy = submittedBy._id;
+    console.log(this.state.selectUserId);
     try {
-      await savePayment(payment);
+      // await savePayment(payment);
     } catch (ex) {
       console.log(ex.response);
     }
 
-    const { history } = this.props;
-    history.push('/payments');
+    // const { history } = this.props;
+    // history.push('/payments');
   };
 
   render() {
@@ -76,23 +85,27 @@ class PaymentsForm extends Form {
           Registrar Pago
           <small className="text-muted"> > Detalles</small>
         </h3>
-        <div className="border border-info rounded shadow-sm p-3 mb-5 bg-white">
+        <div className="border border-info rounded shadow-sm p-3 w-75 bg-white md-10">
           <form onSubmit={this.handleSubmit}>
             <div className="row">
-              <div className="col">{this.renderInput('unitId', 'Unidad')}</div>
-              <div className="col">{this.renderInput('userId', 'Usuario')}</div>
-              <div className="col">
+              <div className="col col-md-4">
+                {this.renderSelect('period', 'Mes', '', getLastXMonths(3))}
+              </div>
+              <div className="col col-sm-2">
                 {this.renderInput('ammount', 'Importe')}
               </div>
-            </div>
-            <div className="col col-md-2">
-              {this.renderInput('comments', 'Notas')}
-            </div>
-            <div className="row">
-              <div className="col col-md-2">
-                {this.renderInput('period', 'Mes')}
+              <div className="col">
+                {this.renderSelect(
+                  'userId',
+                  'Usuario',
+                  'lastname',
+                  this.state.users
+                )}
               </div>
             </div>
+
+            {this.renderInput('comments', 'Notas')}
+
             <div className="row">{this.renderButton('Guardar')}</div>
           </form>
         </div>

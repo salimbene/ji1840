@@ -3,7 +3,6 @@ const admin = require('../middleware/admin');
 const { Expense, validate } = require('../models/expense');
 const _ = require('lodash');
 const debug = require('debug')('routes:expenses');
-const { User } = require('../models/user');
 
 const express = require('express');
 const router = express.Router();
