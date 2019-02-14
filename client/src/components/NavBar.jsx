@@ -12,7 +12,10 @@ const NavBar = ({ user }) => {
           <ul className="navbar-nav px-3">
             <li className="nav-item text-nowrap">
               <NavLink className="nav-link" to="/">
-                {user.mail}
+                <h4>
+                  Jose Ingenieros 1840
+                  <small class="text-muted">{` Consorcio`}</small>
+                </h4>
               </NavLink>
             </li>
           </ul>

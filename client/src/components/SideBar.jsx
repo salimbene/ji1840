@@ -17,7 +17,10 @@ const SideBar = ({ user }) => {
 
         {user && user.isAdmin && (
           <React.Fragment>
-            <span>{user.mail}</span>
+            <h5>
+              <small class="text-muted">Usuario </small>
+              {user.name}
+            </h5>
             <SideSeparator label="Movimientos" />
             <ul className="nav flex-column mb-2">
               <SideBarItem label="Registrar Gastos" to="/expenses" />
