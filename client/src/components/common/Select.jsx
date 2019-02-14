@@ -28,8 +28,8 @@ const Select = ({ name, label, options, field, error, getId, ...rest }) => {
 Select.propTypes = {
   name: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
-  options: PropTypes.array.isRequired,
-  value: PropTypes.string.isRequired
+  options: PropTypes.array.isRequired
+  // value: PropTypes.string.isRequired // string or number..
 };
 
 export default Select;

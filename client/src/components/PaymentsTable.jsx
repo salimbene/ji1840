@@ -12,6 +12,10 @@ class PaymentsTable extends Component {
       content: payment => payment.userId.lastname
     },
     {
+      path: 'period',
+      label: 'Mes'
+    },
+    {
       path: 'ammount',
       label: 'Importe',
       content: payment => `$${payment.ammount.toFixed(2)}`
@@ -30,7 +34,7 @@ class PaymentsTable extends Component {
     },
     {
       path: 'date',
-      label: 'Fecha',
+      label: 'Registro',
       content: payment => formatDate(payment.date)
     }
   ];

@@ -57,10 +57,6 @@ class Expenses extends Component {
     });
   };
 
-  componentDidUpdate() {
-    console.log(this.state.selectedPeriod);
-  }
-
   handleSort = sortColumn => {
     this.setState({ sortColumn });
   };

@@ -73,7 +73,6 @@ class PaymentsForm extends Form {
     payment.userId = this.state.keys['userIdKey'];
 
     try {
-      console.log(payment);
       await savePayment(payment);
     } catch (ex) {
       console.log(ex.response);

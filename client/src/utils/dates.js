@@ -62,14 +62,13 @@ export function getLastXYears(n = 12) {
 }
 
 export function formatDate(date) {
-  let options = {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  };
-  const response = new Date(date);
-  return response.toLocaleDateString('en-GB'); // 9/17/2016
+  // let options = {
+  //   weekday: 'long',
+  //   year: 'numeric',
+  //   month: 'long',
+  //   day: 'numeric'
+  // };
+  return new Date(date).toLocaleDateString('en-GB'); // 9/17/2016
 }
 
 export default {
