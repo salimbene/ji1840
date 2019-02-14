@@ -141,7 +141,7 @@ class Payments extends Component {
         <div className="row units">
           <div className="col">
             <ToastContainer />
-            <p>Unidades registradas: {totalCount}</p>
+            <p>Pagos registrados: {totalCount}</p>
             <SearchBox value={searchQuery} onChange={this.handleSearch} />
             <PaymentsTable
               payments={payments}

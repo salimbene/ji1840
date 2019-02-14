@@ -10,7 +10,7 @@ export function getSuppliers() {
   return http.get(apiEndpoint);
 }
 
-export function getSuppier(supId) {
+export function getSupplier(supId) {
   return http.get(supUrl(supId));
 }
 

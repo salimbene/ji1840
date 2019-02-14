@@ -18,7 +18,10 @@ const SideBar = ({ user }) => {
         {user && user.isAdmin && (
           <React.Fragment>
             <h5>
-              <small class="text-muted">Usuario </small>
+              <small className="text-muted">
+                Usuario
+                <br />
+              </small>
               {user.name}
             </h5>
             <SideSeparator label="Movimientos" />

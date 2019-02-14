@@ -1,7 +1,7 @@
 import React from 'react';
 import Joi from 'joi-browser';
 import Form from './common/Form';
-import { getSuppier, saveSupplier } from '../services/suppliersService';
+import { getSupplier, saveSupplier } from '../services/suppliersService';
 
 class SuppliersForm extends Form {
   state = {
@@ -34,7 +34,7 @@ class SuppliersForm extends Form {
     try {
       const supplierId = this.props.match.params.id;
       if (supplierId === 'new') return;
-      const { data: supplier } = await getSuppier(supplierId);
+      const { data: supplier } = await getSupplier(supplierId);
       this.setState({ data: this.mapToViewModel(supplier) });
     } catch (ex) {
       if (ex.response && ex.response.status === 404)
@@ -87,9 +87,12 @@ class SuppliersForm extends Form {
                 {this.renderInput('contact', 'Contacto')}
               </div>
             </div>
-            <div className="col col-md-2">
-              {this.renderInput('comments', 'Observaciones')}
+            <div className="row">
+              <div className="col">
+                {this.renderInput('comments', 'Observaciones')}
+              </div>
             </div>
+
             <div className="row">{this.renderButton('Guardar')}</div>
           </form>
         </div>

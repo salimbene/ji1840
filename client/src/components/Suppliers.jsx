@@ -20,6 +20,7 @@ class Suppliers extends Component {
 
   async componentDidMount() {
     const { data: suppliers } = await getSuppliers();
+    console.log(suppliers);
     this.setState({ suppliers, user: auth.getCurrentUser() });
   }
 
@@ -42,9 +43,9 @@ class Suppliers extends Component {
     this.setState({ sortColumn });
   };
 
-  handleAddUnit = () => {
+  handleAddSuppplier = () => {
     const { history } = this.props;
-    history.push('/supplier/new');
+    history.push('/suppliers/new');
   };
 
   handlePageChange = page => {
@@ -74,7 +75,6 @@ class Suppliers extends Component {
 
     const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
     const suppliers = paginate(sorted, currentPage, pageSize);
-
     return {
       totalCount: filtered.length || 0,
       data: suppliers
@@ -98,24 +98,27 @@ class Suppliers extends Component {
       <div className="row units">
         <div className="col">
           <ToastContainer />
-          <p>Unidades registradas: {totalCount}</p>
+          <p>Proveedores registrados: {totalCount}</p>
           <SearchBox value={searchQuery} onChange={this.handleSearch} />
-          <SuppliersTable
-            suppliers={suppliers}
-            onDelete={this.handleDelete}
-            onSort={this.handleSort}
-            sortColumn={sortColumn}
-          />
-
-          <Pagination
-            itemsCount={totalCount}
-            pageSize={pageSize}
-            currentPage={currentPage}
-            onPageChange={this.handlePageChange}
-          />
+          {totalCount && (
+            <React.Fragment>
+              <SuppliersTable
+                suppliers={suppliers}
+                onDelete={this.handleDelete}
+                onSort={this.handleSort}
+                sortColumn={sortColumn}
+              />
+              <Pagination
+                itemsCount={totalCount}
+                pageSize={pageSize}
+                currentPage={currentPage}
+                onPageChange={this.handlePageChange}
+              />
+            </React.Fragment>
+          )}
           {user && (
             <button
-              onClick={event => this.handleAddUnit(event)}
+              onClick={event => this.handleAddSuppplier(event)}
               className="btn btn-primary btn-sm"
               style={{ marginBottom: 20 }}
             >

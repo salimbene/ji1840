@@ -29,7 +29,7 @@ router.post('/', [auth, admin], async (req, res) => {
   if (error) return res.status(400).send(error.details[0].message);
 
   supplier = new Supplier(
-    _.pick(req.body, ['name', 'category', 'contact', 'comments'])
+    _.pick(req.body, ['name', 'category', 'contact', 'comments', 'userId'])
   );
 
   await supplier.save();

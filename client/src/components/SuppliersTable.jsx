@@ -7,7 +7,10 @@ class SuppliersTable extends Component {
   columns = [
     {
       path: 'name',
-      label: 'Nombre'
+      label: 'Nombre',
+      content: supplier => (
+        <Link to={`/suppliers/${supplier._id}`}>{supplier.name}</Link>
+      )
     },
     {
       path: 'category',
@@ -42,12 +45,12 @@ class SuppliersTable extends Component {
   }
 
   render() {
-    const { supplier, onSort, sortColumn } = this.props;
+    const { suppliers, onSort, sortColumn } = this.props;
 
     return (
       <Table
         columns={this.columns}
-        data={supplier}
+        data={suppliers}
         sortColumn={sortColumn}
         onSort={onSort}
       />

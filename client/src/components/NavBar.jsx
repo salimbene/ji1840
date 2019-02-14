@@ -12,10 +12,10 @@ const NavBar = ({ user }) => {
           <ul className="navbar-nav px-3">
             <li className="nav-item text-nowrap">
               <NavLink className="nav-link" to="/">
-                <h4>
+                <h6>
                   Jose Ingenieros 1840
-                  <small class="text-muted">{` Consorcio`}</small>
-                </h4>
+                  <small className="text-muted">{` Consorcio`}</small>
+                </h6>
               </NavLink>
             </li>
           </ul>
