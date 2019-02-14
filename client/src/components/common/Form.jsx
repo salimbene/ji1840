@@ -39,31 +39,20 @@ class Form extends Component {
 
   handleChange = ({ currentTarget: input }) => {
     const errors = { ...this.state.errors };
+    const keys = { ...this.state.keys };
     const errorMessage = this.validateProperty(input);
-    let selectUserId = null;
     if (errorMessage) errors[input.name] = errorMessage;
     else delete errors[input.name];
 
     const data = { ...this.state.data };
-    if (input.options)
-      selectUserId = input.options[input.options.selectedIndex] || null;
     data[input.name] = input.value;
 
-    this.setState({ data, errors, selectUserId });
-  };
+    if (input.options) {
+      const { id } = input.options[input.options.selectedIndex];
+      keys[`${input.name}Key`] = id;
+    }
 
-  handleChangeSelect = ({ currentTarget: input }) => {
-    const errors = { ...this.state.errors };
-    const errorMessage = this.validateProperty(input);
-
-    if (errorMessage) errors[input.name] = errorMessage;
-    else delete errors[input.name];
-
-    const data = { ...this.state.data };
-    const { id: selectedId } = input.options[input.options.selectedIndex];
-    data[input.name] = input.value;
-
-    this.setState({ data, errors, selectUserId });
+    this.setState({ data, errors, keys });
   };
 
   renderButton(label) {

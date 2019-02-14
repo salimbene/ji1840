@@ -68,7 +68,7 @@ class Payments extends Component {
 
     if (searchQuery) {
       filtered = allPayments.filter(u =>
-        u.userId.toLowerCase().startsWith(searchQuery.toLowerCase())
+        u.comments.toLowerCase().startsWith(searchQuery.toLowerCase())
       );
     }
 

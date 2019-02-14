@@ -10,14 +10,17 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   const payments = await Payment.find()
     .populate('userId', '-password -isAdmin', 'User')
-    .populate('submmitedBy', '-password -isAdmin', 'User')
+    .populate('submittedBy', '-password -isAdmin', 'User')
     .sort('userId');
   res.send(payments);
 });
 
 router.get('/:id', async (req, res) => {
   try {
-    const payment = await Payment.findById(req.params.id);
+    const payment = await Payment.findById(req.params.id)
+      .populate('userId', '-password -isAdmin', 'User')
+      .populate('submittedBy', '-password -isAdmin', 'User');
+
     res.send(payment);
   } catch (ex) {
     debug(ex.message);
@@ -32,7 +35,7 @@ router.post('/', [auth, admin], async (req, res) => {
   payment = new Payment(
     _.pick(req.body, [
       'userId',
-      'submmitedBy',
+      'submittedBy',
       'ammount',
       'comments',
       'period',
@@ -68,7 +71,7 @@ router.delete('/:id', [auth, admin], async (req, res) => {
   try {
     const payment = await Payment.findByIdAndRemove(req.params.id);
     res.send(payment);
-    debug(`${payment.month} DELETED ok!`);
+    debug(`${payment._id} DELETED ok!`);
   } catch (ex) {
     debug(ex.message);
     res.status(404).send(`El pago con ID: ${req.params.id} no existe.`);

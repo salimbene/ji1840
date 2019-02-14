@@ -1,27 +1,38 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import Table from './common/Table';
+import { formatDate } from '../utils/dates';
 import auth from '../services/authService';
 
 class PaymentsTable extends Component {
   columns = [
     {
-      path: 'unitId',
-      label: 'Unidad'
-    },
-    {
       path: 'userId',
-      label: 'Usuario'
+      label: 'Usuario',
+      content: payment => payment.userId.lastname
     },
     {
       path: 'ammount',
-      label: 'Importe'
+      label: 'Importe',
+      content: payment => `$${payment.ammount.toFixed(2)}`
     },
     {
       path: 'comments',
-      label: 'Notas'
+      label: 'Notas',
+      content: payment => (
+        <Link to={`/payments/${payment._id}`}>{payment.comments}</Link>
+      )
     },
-    { path: 'date', label: 'Fecha' }
+    {
+      path: 'submittedBy',
+      label: 'Registrado por',
+      content: payment => payment.submittedBy.lastname
+    },
+    {
+      path: 'date',
+      label: 'Fecha',
+      content: payment => formatDate(payment.date)
+    }
   ];
 
   deleteColumn = {

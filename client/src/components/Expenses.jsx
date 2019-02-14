@@ -145,7 +145,7 @@ class Expenses extends Component {
             <div className="row">
               <div className="col text-center">
                 <h4>
-                  <span class="badge badge-pill badge-light">
+                  <span className="badge badge-pill badge-light">
                     Saldo Ordinario
                   </span>
                   <span className="ml-3 badge badge-pill badge-info">
@@ -155,7 +155,7 @@ class Expenses extends Component {
               </div>
               <div className="col text-center">
                 <h4>
-                  <span class="badge badge-pill badge-light">
+                  <span className="badge badge-pill badge-light">
                     Saldo Extraordinario
                   </span>
                   <span className="ml-3 badge badge-pill badge-info">
