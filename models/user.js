@@ -84,7 +84,7 @@ function validateUsers(user) {
       .min(5)
       .max(255),
     balance: Joi.number(),
-    tenant: Joi.string(),
+    tenant: Joi.string().allow(''),
     isLandlord: Joi.boolean(),
     isCouncil: Joi.boolean(),
     isAdmin: Joi.boolean()

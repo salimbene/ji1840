@@ -21,7 +21,7 @@ const NavBar = ({ user }) => {
           </ul>
           <ul className="navbar-nav px-3">
             <li className="nav-item text-nowrap">
-              <NavLink className="nav-item  pl-3" to="/users">
+              <NavLink className="nav-item  pl-3" to={`/users/${user._id}`}>
                 {`${user.mail} `}
                 <i className="fa fa-user-circle" />
               </NavLink>

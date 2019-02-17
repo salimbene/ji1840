@@ -6,17 +6,23 @@ import auth from '../services/authService';
 
 class RegisterForm extends Form {
   state = {
-    data: { username: '', password: '' },
+    data: { mail: '', password: '', firstname: '', lastname: '' },
     errors: {}
   };
 
   schema = {
-    username: Joi.string()
+    lastname: Joi.string()
+      .max(255)
+      .label('Apellido'),
+    firstname: Joi.string()
+      .max(255)
+      .label('Nombre'),
+    mail: Joi.string()
       .min(5)
       .max(255)
       .required()
       .email()
-      .label('Usuario'),
+      .label('Mail'),
     password: Joi.string()
       .min(5)
       .max(255)
@@ -40,11 +46,32 @@ class RegisterForm extends Form {
   render() {
     return (
       <div className="rounded centered registrar">
-        <h1>Registrar Usuario</h1>
+        <div className="row">
+          <h3 className="mx-auto">
+            <i className="fa fa-user-plus mr-3 mb-2" />
+            Registrar Usuario
+          </h3>
+        </div>
         <form onSubmit={this.handleSubmit}>
-          {this.renderInput('username', 'Usuario')}
-          {this.renderInput('password', 'Clave', 'password')}
-          {this.renderButton('Acceder')}
+          <div className="row">
+            <div className="col">
+              {this.renderInput('lastname', 'Apellido')}
+            </div>
+          </div>
+          <div className="row">
+            <div className="col">{this.renderInput('firstname', 'Nombre')}</div>
+          </div>
+          <div className="row">
+            <div className="col">{this.renderInput('mail', 'Mail')}</div>
+          </div>
+          <div className="row">
+            <div className="col">
+              {this.renderInput('password', 'Clave', 'password')}
+            </div>
+          </div>
+          <div className="row">
+            <div className="mx-auto">{this.renderButton('Acceder')}</div>
+          </div>
         </form>
       </div>
     );

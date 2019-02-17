@@ -4,8 +4,9 @@ import Form from './common/Form';
 import Table from './common/Table';
 import { getUnits, getUnitsOwnedBy } from '../services/unitsService';
 import { getUser, getUsers, saveUser } from '../services/usersService';
-
+import { ToastContainer, toast } from 'react-toastify';
 import auth from '../services/authService';
+import 'react-toastify/dist/ReactToastify.css';
 
 class UsersForm extends Form {
   state = {
@@ -24,7 +25,8 @@ class UsersForm extends Form {
     users: [],
     units: [],
     errors: {},
-    sortColumn: { path: 'fUnit', order: 'asc' }
+    sortColumn: { path: 'fUnit', order: 'asc' },
+    currentUser: ''
   };
 
   schema = {
@@ -63,8 +65,9 @@ class UsersForm extends Form {
   }
 
   async populateUsers() {
+    this.currentUser = auth.getCurrentUser();
+    if (!this.currentUser.isCouncil) return;
     const { data: users } = await getUsers();
-    console.log(users);
     this.setState({ users });
   }
 
@@ -95,8 +98,8 @@ class UsersForm extends Form {
 
   async componentDidMount() {
     await this.populateUnits();
-    await this.populateUsers();
     await this.populateUser();
+    await this.populateUsers();
     await this.populateOwnedBy();
   }
 
@@ -105,27 +108,25 @@ class UsersForm extends Form {
   };
 
   mapToViewModel(user) {
-    console.log(user);
     return {
       _id: user._id,
       lastname: user.lastname || '',
       firstname: user.firstname || '',
       mail: user.mail,
       phone: user.phone || '',
-      isCouncil: user.isCouncil || false,
-      isLandlord: user.isLandlord || false,
+      notes: user.notes || '',
       tenant: user.tenant || '',
-      notes: user.notes || ''
+      isCouncil: user.isCouncil || false,
+      isLandlord: user.isLandlord || false
     };
   }
 
   doSubmit = async () => {
     const user = { ...this.state.data };
-
     try {
       await saveUser(user);
     } catch (ex) {
-      console.log(ex.response);
+      console.log(`server says ${ex.response.data}`);
     }
 
     const { history } = this.props;
@@ -150,52 +151,62 @@ class UsersForm extends Form {
 
   render() {
     const { owned, sortColumn } = this.state;
-    const currentUser = auth.getCurrentUser();
-    console.log(currentUser);
+
     return (
       <React.Fragment>
+        <ToastContainer />
         <h3>
           Usuarios
           <small className="text-muted"> > Detalles</small>
         </h3>
-        <div className="border border-info rounded shadow-sm p-3 mb-5 bg-white">
+        <div className="border border-info rounded shadow-sm p-3 mb-5 bg-white w-50">
           <form onSubmit={this.handleSubmit}>
             <div className="row">
               <div className="col">
                 {this.renderInput('lastname', 'Apellido')}
               </div>
+            </div>
+            <div className="row">
               <div className="col">
                 {this.renderInput('firstname', 'Nombre(s)')}
               </div>
+            </div>
+            <div className="row">
               <div className="col">{this.renderInput('mail', 'Mail')}</div>
+            </div>
+            <div className="row">
               <div className="col">{this.renderInput('phone', 'Telefono')}</div>
             </div>
             <div className="row">
               <div className="col">{this.renderTextArea('notes', 'Notas')}</div>
             </div>
-            {currentUser && currentUser.isCouncil && (
+            {this.currentUser && this.currentUser.isCouncil && (
               <React.Fragment>
                 <div className="row  w-75 mx-auto">
                   <p className="h6">Administración</p>
                 </div>
                 <div className="row border border-danger p-3 w-75 mb-3 mx-auto rounded shadow  bg-white">
-                  <div className="col col-md-3">
-                    <div className="pt-4 pl-3">
-                      {this.renderCheck('isCouncil', 'Consejo ')}
+                  <div className="col p-1">
+                    <div className="row">
+                      <div className="col pb-1">
+                        {this.renderCheck('isCouncil', 'Consejo ')}
+                      </div>
                     </div>
-                  </div>
-                  <div className="col col-md-3">
-                    <div className="pt-4">
-                      {this.renderCheck('isLandlord', 'Propietario ')}
+                    <div className="row">
+                      <div className="col  pb-1">
+                        {this.renderCheck('isLandlord', 'Propietario ')}
+                      </div>
                     </div>
-                  </div>
-                  <div className="col">
-                    {this.renderSelect(
-                      'userId',
-                      'Propietario',
-                      'lastname',
-                      this.state.users
-                    )}
+                    <div className="row">
+                      <div className="col">
+                        {this.renderSelect(
+                          'userId',
+                          'Propietario',
+                          'lastname',
+                          this.state.users
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </React.Fragment>
