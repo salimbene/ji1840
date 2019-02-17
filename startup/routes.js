@@ -4,7 +4,7 @@ const fUnits = require('../routes/funits');
 const expenses = require('../routes/expenses');
 const payments = require('../routes/payments');
 const suppliers = require('../routes/suppliers');
-const consortia = require('../routes/consortia');
+const balances = require('../routes/balances');
 const users = require('../routes/users');
 const home = require('../routes/home');
 const auth = require('../routes/auth');
@@ -21,7 +21,7 @@ module.exports = function(app) {
   app.use('/api/expenses', expenses);
   app.use('/api/payments', payments);
   app.use('/api/suppliers', suppliers);
-  app.use('/api/consortia', consortia);
+  app.use('/api/balances', balances);
   app.use('/api/users', users);
   app.use('/api/auth', auth);
   app.use('/', home);

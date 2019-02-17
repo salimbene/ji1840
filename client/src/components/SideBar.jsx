@@ -3,6 +3,7 @@ import SideBarItem from './common/SideBarItem';
 import SideSeparator from './common/SideSeparator';
 
 const SideBar = ({ user }) => {
+  console.log('user', user);
   return (
     <nav className="col-md-2 d-none d-md-block bg-light sidebar">
       <div className="sidebar-sticky">
@@ -15,15 +16,18 @@ const SideBar = ({ user }) => {
           </React.Fragment>
         )}
 
-        {user && user.isAdmin && (
+        {user && (
           <React.Fragment>
-            <h5>
-              <small className="text-muted">
-                Usuario
-                <br />
-              </small>
-              {user.name}
-            </h5>
+            <SideSeparator label="Expensas" />
+            <ul className="nav flex-column mb-2">
+              <SideBarItem label="Mes Actual" to="/current" />
+              <SideBarItem label="Historial" to="/history" />
+            </ul>
+          </React.Fragment>
+        )}
+
+        {user && user.isCouncil && (
+          <React.Fragment>
             <SideSeparator label="Movimientos" />
             <ul className="nav flex-column mb-2">
               <SideBarItem label="Registrar Gastos" to="/expenses" />
@@ -31,9 +35,10 @@ const SideBar = ({ user }) => {
             </ul>
             <SideSeparator label="Administración" />
             <ul className="nav flex-column mb-2">
+              <SideBarItem label="Expensas" to="/periods" />
+              <SideBarItem label="Proveedores" to="/suppliers" />
               <SideBarItem label="Unidades" to="/units" />
               <SideBarItem label="Usuarios" to="/users" />
-              <SideBarItem label="Proveedores" to="/suppliers" />
             </ul>
           </React.Fragment>
         )}

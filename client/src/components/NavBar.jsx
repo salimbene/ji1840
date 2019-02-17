@@ -21,8 +21,12 @@ const NavBar = ({ user }) => {
           </ul>
           <ul className="navbar-nav px-3">
             <li className="nav-item text-nowrap">
-              <NavLink className="nav-item" to="/logout">
-                Salir
+              <NavLink className="nav-item  pl-3" to="/users">
+                {`${user.mail} `}
+                <i className="fa fa-user-circle" />
+              </NavLink>
+              <NavLink className="nav-item pl-3" to="/logout">
+                <i className="fa fa-sign-out" />
               </NavLink>
             </li>
           </ul>

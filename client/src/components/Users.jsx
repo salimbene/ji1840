@@ -23,7 +23,7 @@ class Users extends Component {
     // const genres = [{ _id: "", name: "All Genres" }, ...data];
 
     const { data: users } = await getUsers();
-    this.setState({ users, user: auth.getCurrentUser() });
+    this.setState({ users, currentUser: auth.getCurrentUser() });
   }
 
   handleDelete = user => {
@@ -89,7 +89,7 @@ class Users extends Component {
 
   render() {
     const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
-    const { user } = this.state;
+    const { currentUser } = this.state;
 
     const { totalCount, data: users } = this.getPageData();
 
@@ -112,7 +112,7 @@ class Users extends Component {
             currentPage={currentPage}
             onPageChange={this.handlePageChange}
           />
-          {user && (
+          {currentUser && currentUser.isAdmin && (
             <button
               onClick={event => this.handleAddUser(event)}
               className="btn btn-primary btn-sm"

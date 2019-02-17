@@ -3,7 +3,9 @@ import Joi from 'joi-browser';
 import Form from './common/Form';
 import Table from './common/Table';
 import { getUnits, getUnitsOwnedBy } from '../services/unitsService';
-import { getUser, saveUser } from '../services/usersService';
+import { getUser, getUsers, saveUser } from '../services/usersService';
+
+import auth from '../services/authService';
 
 class UsersForm extends Form {
   state = {
@@ -12,11 +14,14 @@ class UsersForm extends Form {
       firstname: '',
       mail: '',
       phone: '',
-      role: '',
+      tenant: '',
+      isCouncil: false,
+      isLandlord: false,
+      balance: 0,
       notes: ''
     },
     owned: [],
-    roles: [],
+    users: [],
     units: [],
     errors: {},
     sortColumn: { path: 'fUnit', order: 'asc' }
@@ -44,12 +49,23 @@ class UsersForm extends Form {
       .max(500)
       .allow('')
       .label('Notas'),
-    role: Joi.string().label('Rol')
+    isCouncil: Joi.boolean().label('Consejo'),
+    isLandlord: Joi.boolean().label('Propietario'),
+    tenant: Joi.string()
+      .allow('')
+      .label('Inquilino'),
+    balance: Joi.number().label('Balance')
   };
 
   async populateUnits() {
     const { data: units } = await getUnits();
     this.setState({ units });
+  }
+
+  async populateUsers() {
+    const { data: users } = await getUsers();
+    console.log(users);
+    this.setState({ users });
   }
 
   async populateUser() {
@@ -62,24 +78,6 @@ class UsersForm extends Form {
       if (ex.response && ex.response.status === 404)
         return this.props.history.replace('/not-found');
     }
-  }
-
-  populateRoles() {
-    const roles = [
-      {
-        _id: '0',
-        role: 'Administrador'
-      },
-      {
-        _id: '1',
-        role: 'Consejal'
-      },
-      {
-        _id: '2',
-        role: 'Usuario'
-      }
-    ];
-    this.setState({ roles });
   }
 
   async populateOwnedBy() {
@@ -97,22 +95,26 @@ class UsersForm extends Form {
 
   async componentDidMount() {
     await this.populateUnits();
+    await this.populateUsers();
     await this.populateUser();
     await this.populateOwnedBy();
-    this.populateRoles();
   }
+
   handleSort = sortColumn => {
     this.setState({ sortColumn });
   };
 
   mapToViewModel(user) {
+    console.log(user);
     return {
       _id: user._id,
       lastname: user.lastname || '',
       firstname: user.firstname || '',
       mail: user.mail,
       phone: user.phone || '',
-      role: user.role || '',
+      isCouncil: user.isCouncil || false,
+      isLandlord: user.isLandlord || false,
+      tenant: user.tenant || '',
       notes: user.notes || ''
     };
   }
@@ -130,16 +132,26 @@ class UsersForm extends Form {
     history.push('/users');
   };
 
-  columns = [
+  columnsUnits = [
     { path: 'fUnit', label: 'Unidad' },
     { path: 'floor', label: 'Piso' },
     { path: 'flat', label: 'Rótulo' },
-    { path: 'sup.total', label: 'Superficie Total' },
+    { path: 'sup.total', label: 'Superficie' },
+    { path: 'coefficient', label: 'Coeficiente' }
+  ];
+
+  columnsAccount = [
+    { path: 'fUnit', label: 'Unidad' },
+    { path: 'floor', label: 'Piso' },
+    { path: 'flat', label: 'Rótulo' },
+    { path: 'sup.total', label: 'Superficie' },
     { path: 'coefficient', label: 'Coeficiente' }
   ];
 
   render() {
     const { owned, sortColumn } = this.state;
+    const currentUser = auth.getCurrentUser();
+    console.log(currentUser);
     return (
       <React.Fragment>
         <h3>
@@ -156,17 +168,46 @@ class UsersForm extends Form {
                 {this.renderInput('firstname', 'Nombre(s)')}
               </div>
               <div className="col">{this.renderInput('mail', 'Mail')}</div>
+              <div className="col">{this.renderInput('phone', 'Telefono')}</div>
             </div>
             <div className="row">
-              <div className="col col-md-2">
-                {this.renderInput('phone', 'Telefono')}
-              </div>
-              <div className="col col-md-2">
-                {this.renderSelect('role', 'Rol', 'role', this.state.roles)}
-              </div>
-              <div className="col ">{this.renderInput('notes', 'Notas')}</div>
+              <div className="col">{this.renderTextArea('notes', 'Notas')}</div>
             </div>
-            <div>
+            {currentUser && currentUser.isCouncil && (
+              <React.Fragment>
+                <div className="row  w-75 mx-auto">
+                  <p className="h6">Administración</p>
+                </div>
+                <div className="row border border-danger p-3 w-75 mb-3 mx-auto rounded shadow  bg-white">
+                  <div className="col col-md-3">
+                    <div className="pt-4 pl-3">
+                      {this.renderCheck('isCouncil', 'Consejo ')}
+                    </div>
+                  </div>
+                  <div className="col col-md-3">
+                    <div className="pt-4">
+                      {this.renderCheck('isLandlord', 'Propietario ')}
+                    </div>
+                  </div>
+                  <div className="col">
+                    {this.renderSelect(
+                      'userId',
+                      'Propietario',
+                      'lastname',
+                      this.state.users
+                    )}
+                  </div>
+                </div>
+              </React.Fragment>
+            )}
+
+            <div className="row">{this.renderButton('Guardar')}</div>
+          </form>
+        </div>
+        <div className="row">
+          <div className="col">
+            {' '}
+            <div className="border border-info p-3 mb-3 mx-auto rounded shadow bg-white">
               <p className="text-muted">
                 Propiedades
                 <small>
@@ -175,15 +216,27 @@ class UsersForm extends Form {
                     .toPrecision(3)}`}</mark>
                 </small>
               </p>
+              <Table
+                columns={this.columnsUnits}
+                data={owned}
+                sortColumn={sortColumn}
+                onSort={this.handleSort}
+                viewOnly={true}
+              />
             </div>
-            <Table
-              columns={this.columns}
-              data={owned}
-              sortColumn={sortColumn}
-              onSort={this.handleSort}
-            />
-            <div className="row">{this.renderButton('Guardar')}</div>
-          </form>
+          </div>
+          <div className="col">
+            <div className="border border-info p-3 mb-3 mx-auto rounded shadow bg-white">
+              <p className="text-muted">Movimientos</p>
+              <Table
+                columns={this.columnsAccount}
+                data={owned}
+                sortColumn={sortColumn}
+                onSort={this.handleSort}
+                viewOnly={true}
+              />
+            </div>
+          </div>
         </div>
       </React.Fragment>
     );

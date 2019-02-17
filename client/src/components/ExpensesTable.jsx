@@ -8,10 +8,7 @@ class ExpensesTable extends Component {
   columns = [
     {
       path: 'concept',
-      label: 'Concepto',
-      content: expense => (
-        <Link to={`/expenses/${expense._id}`}>{expense.concept}</Link>
-      )
+      label: 'Concepto'
     },
     {
       path: 'category',
@@ -50,21 +47,35 @@ class ExpensesTable extends Component {
     )
   };
 
+  conceptColumn = {
+    path: 'concept',
+    label: 'Concepto',
+    content: expense => (
+      <Link to={`/expenses/${expense._id}`}>{expense.concept}</Link>
+    )
+  };
+
   constructor() {
     super();
     const user = auth.getCurrentUser();
-    if (user && user.isAdmin) this.columns.push(this.deleteColumn);
+    if (user && user.isAdmin) {
+      this.columns.push(this.deleteColumn);
+    }
   }
 
   render() {
-    const { expenses, onSort, sortColumn } = this.props;
+    const { expenses, onSort, sortColumn, viewOnly, caption } = this.props;
+
+    if (!viewOnly) this.columns[0] = this.conceptColumn;
 
     return (
       <Table
-        columns={this.columns}
+        columns={!viewOnly ? this.columns : this.columns.slice(0, 4)}
         data={expenses}
         sortColumn={sortColumn}
         onSort={onSort}
+        viewOnly={viewOnly}
+        caption={caption}
       />
     );
   }

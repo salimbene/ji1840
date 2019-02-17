@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-const Input = ({ name, label, error, ...rest }) => {
+const TextArea = ({ name, label, error, ...rest }) => {
   return (
     <div className="form-group">
-      <label className="label" htmlFor={name}>
+      <label className="label " htmlFor={name}>
         {label}
       </label>
-      <input
+      <textarea
         {...rest}
         name={name}
         id={name}
@@ -14,7 +14,6 @@ const Input = ({ name, label, error, ...rest }) => {
           form-control form-control-sm 
           ${error && 'is-invalid'}
         `}
-        placeholder={label}
       />
       {(error && <div className="invalid-feedback">{error}</div>) || (
         <div className="hidden">fix</div>
@@ -26,10 +25,10 @@ const Input = ({ name, label, error, ...rest }) => {
   );
 };
 
-Input.propTypes = {
+TextArea.propTypes = {
   name: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired
   // value: PropTypes.string.isRequired //Puede ser number
 };
 
-export default Input;
+export default TextArea;

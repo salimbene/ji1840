@@ -7,7 +7,7 @@ const express = require('express');
 const debug = require('debug')('routes:users');
 const router = express.Router();
 
-router.get('/', [auth, admin], async (req, res) => {
+router.get('/', [auth], async (req, res) => {
   const users = await User.find()
     .where('lastname')
     .ne('DISPONIBLE')
@@ -22,9 +22,11 @@ router.get('/me', auth, async (req, res) => {
   res.send(user);
 });
 
-router.get('/:id', [auth, admin], async (req, res) => {
+router.get('/:id', [auth], async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.params.id).select(
+      '-password -isAdmin'
+    );
     res.send(user);
   } catch (ex) {
     debug(ex.message);
@@ -48,7 +50,10 @@ router.post('/', async (req, res) => {
       'phone',
       'password',
       'notes',
-      'role',
+      'balance',
+      'tenant',
+      'isLandlord',
+      'isCouncil',
       'isAdmin'
     ])
   );
@@ -71,15 +76,32 @@ router.put('/:id', [auth], async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
+  const {
+    lastname,
+    fistname,
+    mail,
+    phone,
+    notes,
+    balance,
+    tenant,
+    isLandlord,
+    isCouncil,
+    isAdmin
+  } = req.body;
+
   const user = await User.findOneAndUpdate(
     { _id: req.params.id },
     {
-      lastname: req.body.lastname,
-      firstname: req.body.firstname,
-      mail: req.body.mail,
-      phone: req.body.phone,
-      notes: req.body.notes,
-      role: req.body.role
+      lastname,
+      fistname,
+      mail,
+      phone,
+      notes,
+      balance,
+      tenant,
+      isLandlord,
+      isCouncil,
+      isAdmin
     },
     { new: true }
   );

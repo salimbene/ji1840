@@ -2,13 +2,14 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const config = require('config');
 const Joi = require('joi');
-// const debug = require('debug')('model:users');
+const debug = require('debug')('model:users');
 
 const userSchema = mongoose.Schema({
   lastname: {
     type: String,
     maxlenght: 50,
     uppercase: true,
+    default: '',
     trim: true
   },
   firstname: {
@@ -40,12 +41,10 @@ const userSchema = mongoose.Schema({
     required: true,
     trim: true
   },
-  role: {
-    type: String,
-    enum: ['Administrador', 'Consejal', 'Usuario'],
-    default: 'Usuario',
-    trim: true
-  },
+  balance: { type: Number, default: 0 },
+  tenant: { type: String, default: '' },
+  isLandlord: { type: Boolean, default: false },
+  isCouncil: { type: Boolean, default: false },
   isAdmin: { type: Boolean, default: false }
 });
 
@@ -55,7 +54,8 @@ userSchema.methods.generateAuthToken = function() {
       _id: this._id,
       name: this.lastname,
       mail: this.mail,
-      role: this.role,
+      isLandlord: this.isLandlord,
+      isCouncil: this.isCouncil,
       isAdmin: this.isAdmin
     },
     config.get('jwtPrivateKey')
@@ -83,7 +83,10 @@ function validateUsers(user) {
     password: Joi.string()
       .min(5)
       .max(255),
-    role: Joi.string(),
+    balance: Joi.number(),
+    tenant: Joi.string(),
+    isLandlord: Joi.boolean(),
+    isCouncil: Joi.boolean(),
     isAdmin: Joi.boolean()
   };
 

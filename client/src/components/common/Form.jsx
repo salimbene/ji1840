@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import Joi from 'joi-browser';
 import Input from './Input';
 import Select from './Select';
+import TextArea from './TextArea';
+import Check from './Check';
 
 class Form extends Component {
   state = {
@@ -55,6 +57,12 @@ class Form extends Component {
     this.setState({ data, errors, keys });
   };
 
+  handleCheck = e => {
+    const data = { ...this.state.data };
+    data[e.target.name] = e.target.checked;
+    this.setState({ data });
+  };
+
   renderButton(label) {
     return (
       <button
@@ -81,6 +89,21 @@ class Form extends Component {
       />
     );
   }
+  renderTextArea(name, label, type = 'text', readonly = false) {
+    const { data, errors } = this.state;
+    return (
+      <TextArea
+        type={type}
+        name={name}
+        value={data[name]}
+        label={label}
+        onChange={this.handleChange}
+        onFocus={this.handleFocus}
+        error={errors[name]}
+        readOnly={readonly}
+      />
+    );
+  }
 
   renderSelect(name, label, field, options) {
     const { data, errors } = this.state;
@@ -93,6 +116,18 @@ class Form extends Component {
         options={options}
         onChange={this.handleChange}
         error={errors[name]}
+      />
+    );
+  }
+
+  renderCheck(name, label) {
+    const { data } = this.state;
+    return (
+      <Check
+        name={name}
+        label={label}
+        onChange={this.handleCheck}
+        checked={data[name]}
       />
     );
   }

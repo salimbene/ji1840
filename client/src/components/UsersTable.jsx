@@ -14,20 +14,19 @@ class UsersTable extends Component {
       path: 'firstname',
       label: 'Nombre'
     },
-    {
-      path: 'role',
-      label: 'Rol',
-      content: user => ['Administrador', 'Consejal', 'Usuario'][user.role]
-    },
+    { path: 'phone', label: 'Telefono' },
     {
       path: 'mail',
       label: 'Mail',
       content: user => <Link to={`/users/${user._id}`}>{user.mail}</Link>
     },
-    { path: 'phone', label: 'Telefono' },
     {
-      path: 'notes',
-      label: 'notas'
+      path: 'isCouncil',
+      label: 'Consejo'
+    },
+    {
+      path: 'isLandlord',
+      label: 'Propietario'
     }
   ];
 
@@ -45,8 +44,9 @@ class UsersTable extends Component {
 
   constructor() {
     super();
-    const user = auth.getCurrentUser();
-    if (user && user.isAdmin) this.columns.push(this.deleteColumn);
+    const currentUser = auth.getCurrentUser();
+    if (currentUser && currentUser.isAdmin)
+      this.columns.push(this.deleteColumn);
   }
 
   render() {

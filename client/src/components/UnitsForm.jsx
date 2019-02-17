@@ -53,7 +53,7 @@ class UnitsForm extends Form {
 
   async populateUsers() {
     const { data: users } = await getUsers();
-    this.setState({ users });
+    // this.setState({ users });
   }
 
   async populateUnits() {

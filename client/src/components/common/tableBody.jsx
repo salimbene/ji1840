@@ -2,6 +2,12 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 class TableBody extends Component {
   renderCell = (item, column) => {
+    if (typeof item[column.path] === 'boolean')
+      return item[column.path] ? (
+        <i className="fa fa-check-square-o" aria-hidden="true" />
+      ) : (
+        <i className="fa fa-square-o" aria-hidden="true" />
+      );
     if (column.content) return column.content(item);
     return _.get(item, column.path);
   };
