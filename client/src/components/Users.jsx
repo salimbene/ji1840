@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { getUsers, deleteUser } from '../services/usersService';
 import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
+import SimpleModal from './common/SimpleModal';
 import UsersTable from './UsersTable';
 import auth from '../services/authService';
 import { paginate } from '../utils/paginate';
@@ -10,13 +11,19 @@ import 'react-toastify/dist/ReactToastify.css';
 import _ from 'lodash';
 
 class Users extends Component {
-  state = {
-    users: {},
-    pageSize: 10,
-    currentPage: 1,
-    searchQuery: '',
-    sortColumn: { path: 'lastname', order: 'asc' }
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      users: {},
+      pageSize: 10,
+      currentPage: 1,
+      searchQuery: '',
+      sortColumn: { path: 'lastname', order: 'asc' },
+      modal: false
+    };
+
+    this.toggleDelete = this.toggleDelete.bind(this);
+  }
 
   async componentDidMount() {
     // const { data } = await getGenres();
@@ -26,19 +33,21 @@ class Users extends Component {
     this.setState({ users, currentUser: auth.getCurrentUser() });
   }
 
-  handleDelete = user => {
+  handleDelete = () => {
+    const { selectedUser } = this.state;
     const rollback = this.state.users;
-    const users = this.state.users.filter(u => u._id !== user._id);
+    const users = this.state.users.filter(u => u._id !== selectedUser._id);
     this.setState({ users });
 
     try {
-      deleteUser(user._id);
+      deleteUser(selectedUser._id);
     } catch (ex) {
       if (ex.response && ex.response.status === 404) {
         toast('Something failed!');
         this.setState({ users: rollback });
       }
     }
+    this.toggleDelete();
   };
 
   handleSort = sortColumn => {
@@ -87,6 +96,13 @@ class Users extends Component {
     };
   };
 
+  toggleDelete(user) {
+    this.setState(prevState => ({
+      modal: !prevState.modal,
+      selectedUser: user
+    }));
+  }
+
   render() {
     const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
     const { currentUser } = this.state;
@@ -94,35 +110,44 @@ class Users extends Component {
     const { totalCount, data: users } = this.getPageData();
 
     return (
-      <div className="row units">
-        <div className="col">
-          <ToastContainer />
-          <p>Usuarios registrados: {totalCount}</p>
-          <SearchBox value={searchQuery} onChange={this.handleSearch} />
-          <UsersTable
-            users={users}
-            onDelete={this.handleDelete}
-            onSort={this.handleSort}
-            sortColumn={sortColumn}
-          />
+      <React.Fragment>
+        <SimpleModal
+          isOpen={this.state.modal}
+          toggle={this.toggleDelete}
+          title="Eliminar usuario"
+          label="Eliminar"
+          action={this.handleDelete}
+        />
+        <div className="row units">
+          <div className="col">
+            <ToastContainer />
+            <p>Usuarios registrados: {totalCount}</p>
+            <SearchBox value={searchQuery} onChange={this.handleSearch} />
+            <UsersTable
+              users={users}
+              onDelete={this.toggleDelete}
+              onSort={this.handleSort}
+              sortColumn={sortColumn}
+            />
 
-          <Pagination
-            itemsCount={totalCount}
-            pageSize={pageSize}
-            currentPage={currentPage}
-            onPageChange={this.handlePageChange}
-          />
-          {currentUser && currentUser.isAdmin && (
-            <button
-              onClick={event => this.handleAddUser(event)}
-              className="btn btn-primary btn-sm"
-              style={{ marginBottom: 20 }}
-            >
-              Nuevo
-            </button>
-          )}
+            <Pagination
+              itemsCount={totalCount}
+              pageSize={pageSize}
+              currentPage={currentPage}
+              onPageChange={this.handlePageChange}
+            />
+            {currentUser && currentUser.isAdmin && (
+              <button
+                onClick={event => this.handleAddUser(event)}
+                className="btn btn-primary btn-sm"
+                style={{ marginBottom: 20 }}
+              >
+                Nuevo
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      </React.Fragment>
     );
   }
 }

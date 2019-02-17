@@ -16,10 +16,11 @@ class UnitsForm extends Form {
       uncovered: 0,
       semi: 0,
       coefficient: 0,
-      userId: ''
+      lastname: ''
     },
     users: [],
-    errors: {}
+    errors: {},
+    keys: {}
   };
 
   schema = {
@@ -46,14 +47,14 @@ class UnitsForm extends Form {
     coefficient: Joi.number()
       .required()
       .label('Share'),
-    userId: Joi.string()
+    lastname: Joi.string()
       .required()
       .label('Propietario') //No validation
   };
 
   async populateUsers() {
     const { data: users } = await getUsers();
-    // this.setState({ users });
+    this.setState({ users });
   }
 
   async populateUnits() {
@@ -61,7 +62,8 @@ class UnitsForm extends Form {
       const unitId = this.props.match.params.id;
       if (unitId === 'new') return;
       const { data: unit } = await getUnit(unitId);
-      this.setState({ data: this.mapToViewModel(unit) });
+      const keys = { lastnameKey: unit.landlord.userId._id };
+      this.setState({ data: this.mapToViewModel(unit), keys });
     } catch (ex) {
       if (ex.response && ex.response.status === 404)
         return this.props.history.replace('/not-found');
@@ -85,7 +87,7 @@ class UnitsForm extends Form {
       uncovered: unit.sup.uncovered,
       semi: unit.sup.semi,
       coefficient: unit.coefficient,
-      userId: unit.landlord.userId
+      lastname: unit.landlord.name
     };
   }
 
@@ -104,13 +106,12 @@ class UnitsForm extends Form {
   };
 
   parseLandlord = fUnit => {
-    const { users } = this.state;
-    const userId = fUnit.userId || '5c58ae683ce66232d93fff7c';
-    delete fUnit.userId;
+    const lastname = fUnit.lastname;
+    delete fUnit.lastname;
 
     return {
-      userId: userId,
-      name: users.find(u => u._id === userId).lastname || 'disponible'
+      userId: this.state.keys['lastnameKey'],
+      name: lastname
     };
   };
 
@@ -136,7 +137,7 @@ class UnitsForm extends Form {
     try {
       await saveUnit(fUnit);
     } catch (ex) {
-      console.log(ex.response);
+      console.log('..server says ', ex.response.data);
     }
 
     const { history } = this.props;
@@ -146,11 +147,8 @@ class UnitsForm extends Form {
   render() {
     return (
       <React.Fragment>
-        <h3>
-          Unidades Funcionales/Complementarias
-          <small className="text-muted"> > Detalles</small>
-        </h3>
         <div className="border border-info rounded shadow-sm p-3 mb-5 bg-white">
+          <p className="text-muted">Unidad funcional / complementaria</p>
           <form onSubmit={this.handleSubmit}>
             <div className="row">
               <div className="col">{this.renderInput('fUnit', 'Unidad')}</div>
@@ -170,7 +168,7 @@ class UnitsForm extends Form {
               </div>
               <div className="col">
                 {this.renderSelect(
-                  'userId',
+                  'lastname',
                   'Propietario',
                   'lastname',
                   this.state.users

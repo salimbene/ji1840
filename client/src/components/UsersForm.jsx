@@ -4,9 +4,7 @@ import Form from './common/Form';
 import Table from './common/Table';
 import { getUnits, getUnitsOwnedBy } from '../services/unitsService';
 import { getUser, getUsers, saveUser } from '../services/usersService';
-import { ToastContainer, toast } from 'react-toastify';
 import auth from '../services/authService';
-import 'react-toastify/dist/ReactToastify.css';
 
 class UsersForm extends Form {
   state = {
@@ -149,17 +147,11 @@ class UsersForm extends Form {
     { path: 'coefficient', label: 'Coeficiente' }
   ];
 
-  render() {
-    const { owned, sortColumn } = this.state;
-
+  renderForm() {
     return (
       <React.Fragment>
-        <ToastContainer />
-        <h3>
-          Usuarios
-          <small className="text-muted"> > Detalles</small>
-        </h3>
-        <div className="border border-info rounded shadow-sm p-3 mb-5 bg-white w-50">
+        <div className="border border-info rounded shadow-sm p-3 mb-5 bg-white">
+          <p className="text-muted">Datos de usuario</p>
           <form onSubmit={this.handleSubmit}>
             <div className="row">
               <div className="col">
@@ -189,22 +181,26 @@ class UsersForm extends Form {
                   <div className="col p-1">
                     <div className="row">
                       <div className="col pb-1">
-                        {this.renderCheck('isCouncil', 'Consejo ')}
+                        {this.renderCheck(
+                          'isCouncil',
+                          'Es miembro del consejo '
+                        )}
                       </div>
                     </div>
                     <div className="row">
                       <div className="col  pb-1">
-                        {this.renderCheck('isLandlord', 'Propietario ')}
+                        {this.renderCheck('isLandlord', 'Es propietario')}
                       </div>
                     </div>
                     <div className="row">
                       <div className="col">
-                        {this.renderSelect(
-                          'userId',
-                          'Propietario',
-                          'lastname',
-                          this.state.users
-                        )}
+                        {!this.state.data.isLandlord &&
+                          this.renderSelect(
+                            'userId',
+                            'Vincular propietario:',
+                            'lastname',
+                            this.state.users
+                          )}
                       </div>
                     </div>
                   </div>
@@ -215,39 +211,76 @@ class UsersForm extends Form {
             <div className="row">{this.renderButton('Guardar')}</div>
           </form>
         </div>
+      </React.Fragment>
+    );
+  }
+
+  renderProps(owned, sortColumn) {
+    return (
+      <React.Fragment>
+        <div className="border border-info p-3 mb-3 mx-auto rounded shadow bg-white">
+          <p className="text-muted">
+            Propiedades
+            <small>
+              <mark>{` Coeficiente total: ${owned
+                .reduce((a, c) => a + c.coefficient, 0)
+                .toPrecision(3)}`}</mark>
+            </small>
+          </p>
+          <Table
+            columns={this.columnsUnits}
+            data={owned}
+            sortColumn={sortColumn}
+            onSort={this.handleSort}
+            viewOnly={true}
+          />
+        </div>
+      </React.Fragment>
+    );
+  }
+
+  renderMovs(owned, sortColumn) {
+    return (
+      <React.Fragment>
+        <div className="border border-info p-3 mb-3 mx-auto rounded shadow bg-white">
+          <p className="text-muted">Movimientos</p>
+          <Table
+            columns={this.columnsAccount}
+            data={owned}
+            sortColumn={sortColumn}
+            onSort={this.handleSort}
+            viewOnly={true}
+          />
+        </div>
+      </React.Fragment>
+    );
+  }
+
+  renderStats() {
+    return (
+      <React.Fragment>
+        <div className="border border-info p-3 mb-3 mx-auto rounded shadow bg-white">
+          <p className="text-muted">Balance</p>
+          <h3>Saldo</h3>
+        </div>
+      </React.Fragment>
+    );
+  }
+  render() {
+    const { owned, sortColumn } = this.state;
+
+    return (
+      <React.Fragment>
         <div className="row">
+          <div className="col">{this.renderForm()}</div>
           <div className="col">
-            {' '}
-            <div className="border border-info p-3 mb-3 mx-auto rounded shadow bg-white">
-              <p className="text-muted">
-                Propiedades
-                <small>
-                  <mark>{` Coeficiente total: ${owned
-                    .reduce((a, c) => a + c.coefficient, 0)
-                    .toPrecision(3)}`}</mark>
-                </small>
-              </p>
-              <Table
-                columns={this.columnsUnits}
-                data={owned}
-                sortColumn={sortColumn}
-                onSort={this.handleSort}
-                viewOnly={true}
-              />
-            </div>
+            {this.renderStats()}
+            {this.renderProps(owned, sortColumn)}
+            {this.renderMovs(owned, sortColumn)}
           </div>
-          <div className="col">
-            <div className="border border-info p-3 mb-3 mx-auto rounded shadow bg-white">
-              <p className="text-muted">Movimientos</p>
-              <Table
-                columns={this.columnsAccount}
-                data={owned}
-                sortColumn={sortColumn}
-                onSort={this.handleSort}
-                viewOnly={true}
-              />
-            </div>
-          </div>
+        </div>
+        <div className="row">
+          <div className="col" />
         </div>
       </React.Fragment>
     );

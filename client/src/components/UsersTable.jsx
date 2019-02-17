@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import Table from './common/Table';
+import SimpleModal from './common/SimpleModal';
 import auth from '../services/authService';
 
 class UsersTable extends Component {
@@ -53,12 +54,14 @@ class UsersTable extends Component {
     const { users, onSort, sortColumn } = this.props;
 
     return (
-      <Table
-        columns={this.columns}
-        data={users}
-        sortColumn={sortColumn}
-        onSort={onSort}
-      />
+      <React.Fragment>
+        <Table
+          columns={this.columns}
+          data={users}
+          sortColumn={sortColumn}
+          onSort={onSort}
+        />
+      </React.Fragment>
     );
   }
 }
