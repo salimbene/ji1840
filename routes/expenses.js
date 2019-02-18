@@ -24,6 +24,11 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+router.get('/period/:id', async (req, res) => {
+  const expense = await Expense.find({ period: req.params.id }).sort('-date');
+  res.send(expense);
+});
+
 router.post('/', [auth, admin], async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);

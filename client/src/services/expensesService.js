@@ -9,6 +9,9 @@ function expUrl(id) {
 export function getExpenses() {
   return http.get(apiEndpoint);
 }
+export function getExpensesByPeriod(period) {
+  return http.get(`${apiEndpoint}/${period}`);
+}
 
 export function getExpense(expId) {
   return http.get(expUrl(expId));

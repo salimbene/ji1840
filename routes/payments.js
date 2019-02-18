@@ -1,6 +1,7 @@
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 const { Payment, validate } = require('../models/payment');
+const { User } = require('../models/user');
 const _ = require('lodash');
 const debug = require('debug')('routes:payments');
 
@@ -49,6 +50,16 @@ router.post('/', [auth, admin], async (req, res) => {
   );
 
   await payment.save();
+
+  const { userId, ammount } = req.body;
+
+  const user = await User.findOneAndUpdate(
+    { _id: userId },
+    { $inc: { balance: ammount } },
+    { new: true }
+  );
+
+  debug(user);
 
   res.send(payment);
 });
