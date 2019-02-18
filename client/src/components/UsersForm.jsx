@@ -1,9 +1,12 @@
 import React from 'react';
 import Joi from 'joi-browser';
+import _ from 'lodash';
 import Form from './common/Form';
 import Table from './common/Table';
 import { getUnits, getUnitsOwnedBy } from '../services/unitsService';
 import { getUser, getUsers, saveUser } from '../services/usersService';
+import { getPaymentsByuserId } from '../services/paymentsService';
+import { formatDate } from '../utils/dates';
 import auth from '../services/authService';
 
 class UsersForm extends Form {
@@ -19,11 +22,13 @@ class UsersForm extends Form {
       balance: 0,
       notes: ''
     },
+    payments: [],
     owned: [],
     users: [],
     units: [],
     errors: {},
-    sortColumn: { path: 'fUnit', order: 'asc' },
+    sortUnits: { path: 'fUnit', order: 'asc' },
+    sortPayments: { path: 'date', order: 'dec' },
     currentUser: ''
   };
 
@@ -94,15 +99,31 @@ class UsersForm extends Form {
     }
   }
 
+  async populatePayments() {
+    const { _id } = this.state.data;
+
+    try {
+      const { data: payments } = await getPaymentsByuserId(_id);
+      this.setState({ payments });
+    } catch (ex) {
+      console.log(ex.response.data);
+    }
+  }
+
   async componentDidMount() {
     await this.populateUnits();
     await this.populateUser();
     await this.populateUsers();
     await this.populateOwnedBy();
+    await this.populatePayments();
   }
 
-  handleSort = sortColumn => {
-    this.setState({ sortColumn });
+  handleUnitSort = sortUnits => {
+    this.setState({ sortUnits });
+  };
+
+  handlePaymentSort = sortPayments => {
+    this.setState({ sortPayments });
   };
 
   mapToViewModel(user) {
@@ -115,7 +136,8 @@ class UsersForm extends Form {
       notes: user.notes || '',
       tenant: user.tenant || '',
       isCouncil: user.isCouncil || false,
-      isLandlord: user.isLandlord || false
+      isLandlord: user.isLandlord || false,
+      balance: user.balance
     };
   }
 
@@ -124,7 +146,7 @@ class UsersForm extends Form {
     try {
       await saveUser(user);
     } catch (ex) {
-      console.log(`server says ${ex.response.data}`);
+      alert(`server says ${ex.response.data}`);
     }
 
     const { history } = this.props;
@@ -135,16 +157,30 @@ class UsersForm extends Form {
     { path: 'fUnit', label: 'Unidad' },
     { path: 'floor', label: 'Piso' },
     { path: 'flat', label: 'Rótulo' },
-    { path: 'sup.total', label: 'Superficie' },
-    { path: 'coefficient', label: 'Coeficiente' }
+    {
+      path: 'sup.total',
+      label: 'Superficie',
+      content: u => (
+        <p>
+          {u.sup.total}m<sup>2</sup>
+        </p>
+      )
+    },
+    {
+      path: 'coefficient',
+      label: 'Coeficiente'
+    }
   ];
 
-  columnsAccount = [
-    { path: 'fUnit', label: 'Unidad' },
-    { path: 'floor', label: 'Piso' },
-    { path: 'flat', label: 'Rótulo' },
-    { path: 'sup.total', label: 'Superficie' },
-    { path: 'coefficient', label: 'Coeficiente' }
+  columnsPayments = [
+    { path: 'period', label: 'Periodo' },
+    { path: 'comments', label: 'Detalle' },
+    {
+      path: 'ammount',
+      label: 'Importe',
+      content: pay => `$${pay.ammount.toFixed(2)}`
+    },
+    { path: 'date', label: 'Fecha', content: pay => formatDate(pay.date) }
   ];
 
   renderForm() {
@@ -196,7 +232,7 @@ class UsersForm extends Form {
                       <div className="col">
                         {!this.state.data.isLandlord &&
                           this.renderSelect(
-                            'userId',
+                            'tenant',
                             'Vincular propietario:',
                             'lastname',
                             this.state.users
@@ -231,7 +267,7 @@ class UsersForm extends Form {
             columns={this.columnsUnits}
             data={owned}
             sortColumn={sortColumn}
-            onSort={this.handleSort}
+            onSort={this.handleUnitSort}
             viewOnly={true}
           />
         </div>
@@ -239,16 +275,16 @@ class UsersForm extends Form {
     );
   }
 
-  renderMovs(owned, sortColumn) {
+  renderMovs(payments, sortColumn) {
     return (
       <React.Fragment>
         <div className="border border-info p-3 mb-3 mx-auto rounded shadow bg-white">
           <p className="text-muted">Movimientos</p>
           <Table
-            columns={this.columnsAccount}
-            data={owned}
+            columns={this.columnsPayments}
+            data={payments}
             sortColumn={sortColumn}
-            onSort={this.handleSort}
+            onSort={this.handlePaymentSort}
             viewOnly={true}
           />
         </div>
@@ -257,17 +293,30 @@ class UsersForm extends Form {
   }
 
   renderStats() {
+    const { balance } = this.state.data;
     return (
       <React.Fragment>
         <div className="border border-info p-3 mb-3 mx-auto rounded shadow bg-white">
           <p className="text-muted">Balance</p>
-          <h3>Saldo</h3>
+          <h3>
+            Saldo
+            <span className="badge badge-primary ml-2">
+              {`$${balance.toFixed(2)}`}
+            </span>
+          </h3>
         </div>
       </React.Fragment>
     );
   }
+  getSortedData = (data, sortColumn) => {
+    const sorted = _.orderBy(data, [sortColumn.path], [sortColumn.order]);
+    return sorted;
+  };
   render() {
-    const { owned, sortColumn } = this.state;
+    const { owned, payments, sortUnits, sortPayments } = this.state;
+
+    const sortedPayments = this.getSortedData(payments, sortPayments);
+    const sortedUnits = this.getSortedData(owned, sortUnits);
 
     return (
       <React.Fragment>
@@ -275,8 +324,8 @@ class UsersForm extends Form {
           <div className="col">{this.renderForm()}</div>
           <div className="col">
             {this.renderStats()}
-            {this.renderProps(owned, sortColumn)}
-            {this.renderMovs(owned, sortColumn)}
+            {this.renderProps(sortedUnits, sortUnits)}
+            {this.renderMovs(sortedPayments, sortPayments)}
           </div>
         </div>
         <div className="row">

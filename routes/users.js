@@ -53,8 +53,7 @@ router.post('/', async (req, res) => {
       'balance',
       'tenant',
       'isLandlord',
-      'isCouncil',
-      'isAdmin'
+      'isCouncil'
     ])
   );
 
@@ -85,8 +84,7 @@ router.put('/:id', [auth], async (req, res) => {
     balance,
     tenant,
     isLandlord,
-    isCouncil,
-    isAdmin
+    isCouncil
   } = req.body;
 
   const user = await User.findOneAndUpdate(
@@ -100,8 +98,7 @@ router.put('/:id', [auth], async (req, res) => {
       balance,
       tenant,
       isLandlord,
-      isCouncil,
-      isAdmin
+      isCouncil
     },
     { new: true }
   );

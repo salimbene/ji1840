@@ -28,11 +28,13 @@ const userSchema = mongoose.Schema({
   phone: {
     type: String,
     maxlenght: 30,
-    lowercase: true
+    lowercase: true,
+    default: ''
   },
   notes: {
     type: String,
-    trim: true
+    trim: true,
+    default: ''
   },
   password: {
     type: String,
@@ -83,7 +85,7 @@ function validateUsers(user) {
     password: Joi.string()
       .min(5)
       .max(255),
-    balance: Joi.number(),
+    balance: Joi.number().allow(0),
     tenant: Joi.string().allow(''),
     isLandlord: Joi.boolean(),
     isCouncil: Joi.boolean(),

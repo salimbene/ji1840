@@ -10,6 +10,10 @@ export function getPayments() {
   return http.get(apiEndpoint);
 }
 
+export function getPaymentsByuserId(userId) {
+  return http.get(`${apiEndpoint}/user/${userId}`);
+}
+
 export function getPayment(payId) {
   return http.get(payUrl(payId));
 }
