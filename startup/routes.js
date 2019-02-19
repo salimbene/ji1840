@@ -1,6 +1,7 @@
 const express = require('express');
 // const bodyParser = require('body-parser');
 const fUnits = require('../routes/funits');
+const pdetails = require('../routes/pdetails');
 const expenses = require('../routes/expenses');
 const payments = require('../routes/payments');
 const suppliers = require('../routes/suppliers');
@@ -17,6 +18,7 @@ module.exports = function(app) {
   // // parse application/json
   // app.use(bodyParser.json());
   //Routes
+  app.use('/api/pdetails', pdetails);
   app.use('/api/funits', fUnits);
   app.use('/api/expenses', expenses);
   app.use('/api/payments', payments);

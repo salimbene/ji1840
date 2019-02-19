@@ -17,6 +17,14 @@ router.get('/', [auth], async (req, res) => {
   res.send(users);
 });
 
+router.get('/landlords', async (req, res) => {
+  const users = await User.find({ isLandlord: true })
+    .select('-password -isAdmin')
+    .sort('lastname');
+  debug(users);
+  res.send(users);
+});
+
 router.get('/me', auth, async (req, res) => {
   const user = await User.findById(req.user._id).select('-password');
   res.send(user);

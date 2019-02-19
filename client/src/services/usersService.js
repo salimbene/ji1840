@@ -10,6 +10,10 @@ export function getUsers() {
   return http.get(apiEndpoint);
 }
 
+export function getLandlords() {
+  return http.get(`${apiEndpoint}/landlords`);
+}
+
 export function getUser(userId) {
   return http.get(userUrl(userId));
 }
