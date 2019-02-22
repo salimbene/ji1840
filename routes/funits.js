@@ -4,12 +4,13 @@ const debug = require('debug')('routes:funits');
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 
-const { FUnit, validate } = require('../models/funit');
+const { FUnit, validate, getTotalCoef } = require('../models/funit');
 const express = require('express');
 const router = express.Router();
 
 router.get('/', async (req, res) => {
   const fUnits = await FUnit.find().sort('fUnit');
+
   res.send(fUnits);
 });
 

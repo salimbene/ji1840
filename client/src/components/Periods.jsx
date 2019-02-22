@@ -99,7 +99,7 @@ class Periods extends Component {
 
     landlords.map(async (user, index) => {
       data.userId = user._id;
-      console.log('map', data);
+      console.log('map', data.userId);
       const { data: ownedUnits } = await getUnitsOwnedBy(user._id);
       const coefficient =
         ownedUnits.reduce((a, c) => a + c.coefficient, 0) * 100;

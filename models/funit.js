@@ -23,8 +23,21 @@ const functionalUnitsSchema = mongoose.Schema({
   }
 });
 
-const FUnit = mongoose.model('fUnit', functionalUnitsSchema);
+function getTotalCoef() {
+  functionalUnitsSchema.mapReduce(
+    function() {
+      emit(this.landlord.userId, this.coefficient);
+    },
+    (keyUserIDs, valuesCoefficients) => Array.sum(valuesCoefficients),
+    {
+      out: 'totals'
+    }
+  );
 
+  return token;
+}
+
+const FUnit = mongoose.model('fUnit', functionalUnitsSchema);
 // Joi validation processes client input from the API, separated from mongoose
 function validateFUnits(fUnit) {
   const schema = {
@@ -52,6 +65,7 @@ function validateFUnits(fUnit) {
   return Joi.validate(fUnit, schema);
 }
 
+exports.getTotalCoef = getTotalCoef;
 exports.FUnit = FUnit;
 exports.functionalUnitsSchema = functionalUnitsSchema;
 exports.validate = validateFUnits;

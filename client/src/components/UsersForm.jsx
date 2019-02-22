@@ -26,6 +26,7 @@ class UsersForm extends Form {
     owned: [],
     users: [],
     units: [],
+    keys: {},
     errors: {},
     sortUnits: { path: 'fUnit', order: 'asc' },
     sortPayments: { path: 'date', order: 'dec' },
@@ -79,7 +80,8 @@ class UsersForm extends Form {
       const userId = this.props.match.params.id;
       if (userId === 'new') return;
       const { data: user } = await getUser(userId);
-      this.setState({ data: this.mapToViewModel(user) });
+      const keys = { tenantKey: user.tenant };
+      this.setState({ data: this.mapToViewModel(user), keys });
     } catch (ex) {
       if (ex.response && ex.response.status === 404)
         return this.props.history.replace('/not-found');
@@ -143,6 +145,9 @@ class UsersForm extends Form {
 
   doSubmit = async () => {
     const user = { ...this.state.data };
+
+    user.tenant = this.state.keys['tenantKey'];
+
     try {
       await saveUser(user);
     } catch (ex) {
@@ -233,7 +238,7 @@ class UsersForm extends Form {
                         {!this.state.data.isLandlord &&
                           this.renderSelect(
                             'tenant',
-                            'Vincular propietario:',
+                            'Inquilino de:',
                             'lastname',
                             this.state.users
                           )}
