@@ -16,7 +16,9 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/pdetails/:id', async (req, res) => {
-  const pdetails = await PDetails.find({ period: req.params.id }).sort('-date');
+  const pdetails = await PDetails.find({ period: req.params.id })
+    .populate('userId', '-password -isAdmin', 'User')
+    .sort('-date');
   res.send(pdetails);
 });
 

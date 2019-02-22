@@ -1,4 +1,5 @@
 const express = require('express');
+const compression = require('compression');
 // const bodyParser = require('body-parser');
 const fUnits = require('../routes/funits');
 const pdetails = require('../routes/pdetails');
@@ -13,6 +14,7 @@ const error = require('../middleware/error');
 
 module.exports = function(app) {
   app.use(express.json());
+  app.use(compression());
   // parse application/x-www-form-urlencoded
   // app.use(bodyParser.urlencoded({ extended: false }));
   // // parse application/json
