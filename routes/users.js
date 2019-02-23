@@ -59,6 +59,7 @@ router.post('/', async (req, res) => {
       'password',
       'notes',
       'balance',
+      'coefficient',
       'tenant',
       'isLandlord',
       'isCouncil'
@@ -90,6 +91,7 @@ router.put('/:id', [auth], async (req, res) => {
     phone,
     notes,
     balance,
+    coefficient,
     tenant,
     isLandlord,
     isCouncil
@@ -104,6 +106,7 @@ router.put('/:id', [auth], async (req, res) => {
       phone,
       notes,
       balance,
+      coefficient,
       tenant,
       isLandlord,
       isCouncil

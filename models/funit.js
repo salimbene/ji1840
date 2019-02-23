@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
+const debug = require('debug')('models:funits');
 const Joi = require('joi');
 
 const functionalUnitsSchema = mongoose.Schema({
@@ -23,21 +25,25 @@ const functionalUnitsSchema = mongoose.Schema({
   }
 });
 
-function getTotalCoef() {
-  functionalUnitsSchema.mapReduce(
-    function() {
-      emit(this.landlord.userId, this.coefficient);
-    },
-    (keyUserIDs, valuesCoefficients) => Array.sum(valuesCoefficients),
-    {
-      out: 'totals'
-    }
-  );
+const FUnit = mongoose.model('fUnit', functionalUnitsSchema);
 
-  return token;
+async function getCoefficient(userId) {
+  // userId = new ObjectId('5c5f833d1a2db7ad5ddeaeaf')
+  const coef = await FUnit.aggregate(
+    [
+      { $match: { 'landlord.userId': new ObjectId(userId) } },
+      { $group: { _id: '$landlord.userId', coef: { $sum: '$coefficient' } } }
+    ],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
+    }
+  ).then(results => results);
+  return coef[0];
 }
 
-const FUnit = mongoose.model('fUnit', functionalUnitsSchema);
 // Joi validation processes client input from the API, separated from mongoose
 function validateFUnits(fUnit) {
   const schema = {
@@ -65,7 +71,7 @@ function validateFUnits(fUnit) {
   return Joi.validate(fUnit, schema);
 }
 
-exports.getTotalCoef = getTotalCoef;
 exports.FUnit = FUnit;
 exports.functionalUnitsSchema = functionalUnitsSchema;
 exports.validate = validateFUnits;
+exports.getCoefficient = getCoefficient;
