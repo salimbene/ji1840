@@ -1,21 +1,45 @@
 import React from 'react';
+import { ToastContainer, toast } from 'react-toastify';
 import Joi from 'joi-browser';
+import _ from 'lodash';
+import SimpleModal from './common/SimpleModal';
+import Table from './common/Table';
 import Form from './common/Form';
 import { getModel, saveModel } from '../services/pmodelsServices';
+import { getUnits, getUnitsOwnedBy } from '../services/unitsService';
+import auth from '../services/authService';
+import 'react-toastify/dist/ReactToastify.css';
 
 class ModelsForm extends Form {
-  state = {
-    data: {
-      label: '',
-      fUnits: [],
-      coefficient: 0
-    },
-    errors: {}
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      data: {
+        label: '',
+        fUnits: [],
+        coefficient: 0,
+        selectedUnit: ''
+      },
+      sortUnits: { path: 'fUnit', order: 'asc' },
+      units: [],
+      owned: [],
+      errors: {},
+      keys: {},
+      modal: false
+    };
+
+    const user = auth.getCurrentUser();
+    if (user && user.isAdmin) this.columnsUnits.push(this.deleteColumn);
+
+    this.toggleDelete = this.toggleDelete.bind(this);
+  }
 
   schema = {
     _id: Joi.string(),
     label: Joi.string()
+      .required()
+      .label('Nombre'),
+    selectedUnit: Joi.string()
       .required()
       .label('Nombre'),
     fUnits: Joi.array()
@@ -25,6 +49,11 @@ class ModelsForm extends Form {
       .required()
       .label('Coeficiente')
   };
+
+  async populateUnits() {
+    const { data: units } = await getUnits();
+    this.setState({ units });
+  }
 
   async populateModels() {
     try {
@@ -40,15 +69,15 @@ class ModelsForm extends Form {
 
   async componentDidMount() {
     await this.populateModels();
+    await this.populateUnits();
   }
 
   mapToViewModel(model) {
     return {
       _id: model._id,
-      name: model.name,
-      category: model.category,
-      contact: model.contact,
-      comments: model.comments
+      label: model.label,
+      fUnits: model.fUnits,
+      coefficient: model.coefficient
     };
   }
 
@@ -65,9 +94,122 @@ class ModelsForm extends Form {
     history.push('/models');
   };
 
-  render() {
+  handleUnitSort = sortUnits => {
+    this.setState({ sortUnits });
+  };
+
+  handleAddUnit = () => {
+    const { selectedUnitKey } = this.state.keys;
+    const { units, data } = this.state;
+
+    const selectedUnit = units.find(e => {
+      return e._id === selectedUnitKey;
+    });
+
+    let newUnits = data.fUnits;
+    newUnits.push(selectedUnit);
+    this.setState({ fUnits: newUnits });
+    console.log(this.state);
+  };
+
+  columnsUnits = [
+    { path: 'fUnit', label: 'Unidad' },
+    { path: 'floor', label: 'Piso' },
+    { path: 'flat', label: 'Rótulo' },
+    {
+      path: 'sup.total',
+      label: 'Superficie',
+      content: u => (
+        <p>
+          {u.sup.total}m<sup>2</sup>
+        </p>
+      )
+    },
+    {
+      path: 'coefficient',
+      label: 'Coeficiente'
+    }
+  ];
+
+  deleteColumn = {
+    key: 'del',
+    content: model => (
+      <button
+        onClick={event => this.toggleDelete(model)}
+        className="btn btn-danger btn-sm"
+      >
+        Eliminar
+      </button>
+    )
+  };
+
+  toggleDelete(unit) {
+    this.setState(prevState => ({
+      modal: !prevState.modal,
+      selectedUnit: unit
+    }));
+  }
+
+  handleDelete = () => {
+    console.log('delete');
+    // const { selectedUser } = this.state;
+    // const rollback = this.state.models;
+    // const models = this.state.models.filter(u => u._id !== selectedUser._id);
+    // this.setState({ models });
+
+    // try {
+    //   // deleteUser(selectedUser._id);
+    // } catch (ex) {
+    //   if (ex.response && ex.response.status === 404) {
+    //     toast('Something failed!');
+    //     this.setState({ models: rollback });
+    //   }
+    // }
+    this.toggleDelete();
+  };
+
+  renderProps(owned, sortColumn) {
     return (
       <React.Fragment>
+        <div className="border border-info p-3 mb-3 mx-auto rounded shadow bg-white">
+          <p className="text-muted">
+            Propiedades
+            <small>
+              <mark>{` Coeficiente total: ${owned
+                .reduce((a, c) => a + c.coefficient, 0)
+                .toPrecision(3)}`}</mark>
+            </small>
+          </p>
+          <Table
+            columns={this.columnsUnits}
+            onDelete={this.toggleDelete}
+            data={owned}
+            sortColumn={sortColumn}
+            onSort={this.handleUnitSort}
+          />
+        </div>
+      </React.Fragment>
+    );
+  }
+
+  getSortedData = (data, sortColumn) => {
+    const sorted = _.orderBy(data, [sortColumn.path], [sortColumn.order]);
+    return sorted;
+  };
+
+  render() {
+    const { sortUnits, data } = this.state;
+    const sortedUnits = this.getSortedData(data.fUnits, sortUnits);
+    return (
+      <React.Fragment>
+        <ToastContainer />
+        <SimpleModal
+          isOpen={this.state.modal}
+          toggle={this.toggleDelete}
+          title="Eliminar asignacion"
+          label="Eliminar"
+          action={this.handleDelete}
+        />
         <h3>
           Registrar Modelo lala
           <small className="text-muted"> > Detalles</small>
@@ -75,20 +217,30 @@ class ModelsForm extends Form {
         <div className="border border-info rounded shadow-sm p-3 mb-5 bg-white">
           <form onSubmit={this.handleSubmit}>
             <div className="row">
-              <div className="col">{this.renderInput('name', 'Nombre')}</div>
+              <div className="col">{this.renderInput('label', 'Nombre')}</div>
               <div className="col">
-                {this.renderInput('category', 'Categoria')}
+                {this.renderSelect(
+                  'selectedUnit',
+                  'Unidades',
+                  'fUnit',
+                  this.state.units
+                )}
               </div>
-              <div className="col">
-                {this.renderInput('contact', 'Contacto')}
+              <div className="col-2">
+                <button
+                  onClick={event => this.handleAddUnit(event)}
+                  className="btn btn-primary btn-sm"
+                  style={{ marginBottom: 20 }}
+                >
+                  +
+                </button>
               </div>
             </div>
             <div className="row">
               <div className="col">
-                {this.renderInput('comments', 'Observaciones')}
+                {this.renderProps(sortedUnits, sortUnits)}
               </div>
             </div>
-
             <div className="row">{this.renderButton('Guardar')}</div>
           </form>
         </div>

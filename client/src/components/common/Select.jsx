@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Select = ({ name, label, options, field, error, getId, ...rest }) => {
+const Select = ({ name, label, field, options, error, ...rest }) => {
   return (
     <div className="form-group">
       <label htmlFor={name}>{label}</label>

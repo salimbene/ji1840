@@ -25,7 +25,6 @@ class Form extends Component {
   validateProperty = ({ name, value }) => {
     const obj = { [name]: value };
     const schema = { [name]: this.schema[name] };
-
     const { error } = Joi.validate(obj, schema);
     return error ? error.details[0].message : null;
   };
@@ -105,15 +104,15 @@ class Form extends Component {
     );
   }
 
-  renderSelect(name, label, field, options) {
+  renderSelect(name, label, field, options = false) {
     const { data, errors } = this.state;
     return (
       <Select
         name={name}
-        value={data[name]}
         label={label}
         field={field}
         options={options}
+        value={data[name]}
         onChange={this.handleChange}
         error={errors[name]}
       />

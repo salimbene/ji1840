@@ -3,7 +3,15 @@ import PropTypes from 'prop-types';
 import TableHeader from './TableHeader';
 import TableBody from './TableBody';
 
-const Table = ({ columns, sortColumn, onSort, data, viewOnly, caption }) => {
+const Table = ({
+  columns,
+  sortColumn,
+  onSort,
+  data,
+  viewOnly,
+  caption,
+  ...rest
+}) => {
   return (
     <table className={`table table-hover  ${viewOnly ? 'table-sm' : 'table'}`}>
       {caption ? <caption>{caption}</caption> : null}

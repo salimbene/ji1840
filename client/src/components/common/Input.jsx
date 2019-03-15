@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 const Input = ({ name, label, error, value, ...rest }) => {
   return (
     <div className="form-group m-1">
-      {/* <label className="label" htmlFor={name}>
+      <label className="label" htmlFor={name}>
         {label}
-      </label> */}
+      </label>
       <input
         {...rest}
         name={name}

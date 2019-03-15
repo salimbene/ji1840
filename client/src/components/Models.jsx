@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
-import ModelsForm from './ModelsForm';
+import SimpleModal from './common/SimpleModal';
+import ModelsTable from './ModelsTable';
 import auth from '../services/authService';
 import { getModels, deleteModel } from '../services/pmodelsServices';
 import { paginate } from '../utils/paginate';
@@ -10,34 +11,24 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 class Models extends Component {
-  state = {
-    models: {},
-    pageSize: 10,
-    currentPage: 1,
-    searchQuery: '',
-    sortColumn: { path: 'type', order: 'asc' }
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      models: {},
+      pageSize: 10,
+      currentPage: 1,
+      searchQuery: '',
+      sortColumn: { path: 'type', order: 'asc' },
+      modal: false
+    };
+
+    this.toggleDelete = this.toggleDelete.bind(this);
+  }
 
   async componentDidMount() {
-    console.log('componentDidMount models');
     const { data: models } = await getModels();
     this.setState({ models, user: auth.getCurrentUser() });
   }
-
-  handleDelete = model => {
-    const rollback = this.state.models;
-    const models = this.state.models.filter(u => u._id !== model._id);
-    this.setState({ models });
-
-    try {
-      deleteModel(model._id);
-    } catch (ex) {
-      if (ex.response && ex.response.status === 404) {
-        toast('Something failed!');
-        this.setState({ models: rollback });
-      }
-    }
-  };
 
   handleSort = sortColumn => {
     this.setState({ sortColumn });
@@ -54,6 +45,30 @@ class Models extends Component {
 
   handleSearch = query => {
     this.setState({ searchQuery: query, currentPage: 1 });
+  };
+
+  toggleDelete(unit) {
+    this.setState(prevState => ({
+      modal: !prevState.modal,
+      selectedUnit: unit
+    }));
+  }
+
+  handleDelete = () => {
+    const { selectedUser } = this.state;
+    const rollback = this.state.models;
+    const models = this.state.models.filter(u => u._id !== selectedUser._id);
+    this.setState({ models });
+
+    try {
+      // deleteUser(selectedUser._id);
+    } catch (ex) {
+      if (ex.response && ex.response.status === 404) {
+        toast('Something failed!');
+        this.setState({ models: rollback });
+      }
+    }
+    this.toggleDelete();
   };
 
   getPageData = () => {
@@ -95,38 +110,47 @@ class Models extends Component {
     const { totalCount, data: models } = this.getPageData();
 
     return (
-      <div className="row units">
-        <div className="col">
-          <ToastContainer />
-          <p>Modelos registrados: {totalCount}</p>
-          <SearchBox value={searchQuery} onChange={this.handleSearch} />
-          {totalCount && (
-            <React.Fragment>
-              <ModelsForm
-                models={models}
-                onDelete={this.handleDelete}
-                onSort={this.handleSort}
-                sortColumn={sortColumn}
-              />
-              <Pagination
-                itemsCount={totalCount}
-                pageSize={pageSize}
-                currentPage={currentPage}
-                onPageChange={this.handlePageChange}
-              />
-            </React.Fragment>
-          )}
-          {user && (
-            <button
-              onClick={event => this.handleAddModel(event)}
-              className="btn btn-primary btn-sm"
-              style={{ marginBottom: 20 }}
-            >
-              Nuevo
-            </button>
-          )}
+      <React.Fragment>
+        <ToastContainer />
+        <SimpleModal
+          isOpen={this.state.modal}
+          toggle={this.toggleDelete}
+          title="Eliminar asignacion"
+          label="Eliminar"
+          action={this.handleDelete}
+        />
+        <div className="row units">
+          <div className="col">
+            <p>Modelos registrados: {totalCount}</p>
+            <SearchBox value={searchQuery} onChange={this.handleSearch} />
+            {totalCount && (
+              <React.Fragment>
+                <ModelsTable
+                  models={models}
+                  onDelete={this.toggleDelete}
+                  onSort={this.handleSort}
+                  sortColumn={sortColumn}
+                />
+                <Pagination
+                  itemsCount={totalCount}
+                  pageSize={pageSize}
+                  currentPage={currentPage}
+                  onPageChange={this.handlePageChange}
+                />
+              </React.Fragment>
+            )}
+            {user && (
+              <button
+                onClick={event => this.handleAddModel(event)}
+                className="btn btn-primary btn-sm"
+                style={{ marginBottom: 20 }}
+              >
+                Nuevo
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      </React.Fragment>
     );
   }
 }
