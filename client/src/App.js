@@ -20,6 +20,8 @@ import Logout from './components/Logout';
 import NotFound from './components/NotFound';
 import SideBar from './components/SideBar';
 import NavBar from './components/NavBar';
+import ModelsForm from './components/ModelsForm';
+import Models from './components/Models';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import auth from './services/authService';
 import 'react-toastify/dist/ReactToastify.css';
@@ -51,7 +53,8 @@ class App extends Component {
                   component={SuppliersForm}
                 />
                 <ProtectedRoute path="/suppliers" component={Suppliers} />
-                {/* <ProtectedRoute path="/periods/:id" component={PaymentsForm} /> */}
+                <ProtectedRoute path="/models/:id" component={ModelsForm} />
+                <ProtectedRoute path="/models" component={Models} />
                 <ProtectedRoute path="/current" component={CurrentMonth} />
                 <ProtectedRoute path="/periods" component={Periods} />
                 <ProtectedRoute path="/payments/:id" component={PaymentsForm} />

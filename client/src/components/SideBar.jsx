@@ -39,6 +39,7 @@ const SideBar = ({ user }) => {
               <SideBarItem label="Proveedores" to="/suppliers" />
               <SideBarItem label="Unidades" to="/units" />
               <SideBarItem label="Usuarios" to="/users" />
+              <SideBarItem label="Modelos" to="/models" />
             </ul>
           </React.Fragment>
         )}

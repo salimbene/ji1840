@@ -21,7 +21,7 @@ router.get('/landlords', async (req, res) => {
   const users = await User.find({ isLandlord: true })
     .select('-password -isAdmin')
     .sort('lastname');
-  debug(users);
+  // debug(users);
   res.send(users);
 });
 
@@ -83,6 +83,14 @@ router.put('/:id', [auth], async (req, res) => {
   //Validation
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
+
+  // const user = await User.findOneAndUpdate(
+  //   { _id: userId },
+  //   { $inc: { balance: ammount } },
+  //   { new: true }
+  // );
+
+  // const { coef } = await getCoefficient('5c5f833d1a2db7ad5ddeaeaf');
 
   const {
     lastname,
