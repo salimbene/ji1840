@@ -1,7 +1,7 @@
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 const { PDetails, validate } = require('../models/pdetails');
-const { User } = require('../models/user');
+// const { User } = require('../models/user');
 const _ = require('lodash');
 const debug = require('debug')('routes:payments');
 
@@ -11,14 +11,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   const pdetails = await PDetails.find()
     .populate('userId', '-password -isAdmin', 'User')
-    .sort('userId');
-  res.send(pdetails);
-});
-
-router.get('/pdetails/:id', async (req, res) => {
-  const pdetails = await PDetails.find({ period: req.params.id })
-    .populate('userId', '-password -isAdmin', 'User')
-    .sort('-date');
+    .sort('period');
   res.send(pdetails);
 });
 
@@ -47,16 +40,13 @@ router.post('/', [auth, admin], async (req, res) => {
   pdetails = new PDetails(
     _.pick(req.body, [
       'period',
+      'model',
       'userId',
-      'coefficient',
-      'debtA',
-      'expenseA',
-      'interestA',
-      'debtB',
-      'expenseB',
-      'interestB',
-      'isSettledA',
-      'isSettledB'
+      'expenses',
+      'extra',
+      'debt',
+      'int',
+      'isOpen'
     ])
   );
 
@@ -72,32 +62,26 @@ router.put('/:id', [auth, admin], async (req, res) => {
 
   const {
     period,
+    model,
     userId,
-    coefficient,
-    debtA,
-    expenseA,
-    interestA,
-    debtB,
-    expenseB,
-    interestB,
-    isSettledA,
-    isSettledB
+    expenses,
+    extra,
+    debt,
+    int,
+    isOpen
   } = req.body;
 
   const pdetails = await PDetails.findOneAndUpdate(
     { _id: req.params.id },
     {
       period,
+      model,
       userId,
-      coefficient,
-      debtA,
-      expenseA,
-      interestA,
-      debtB,
-      expenseB,
-      interestB,
-      isSettledA,
-      isSettledB
+      expenses,
+      extra,
+      debt,
+      int,
+      isOpen
     },
     { new: true }
   );

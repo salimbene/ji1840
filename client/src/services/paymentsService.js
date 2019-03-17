@@ -6,6 +6,11 @@ function payUrl(id) {
   return `${apiEndpoint}/${id}`;
 }
 
+export async function getTotalPayments(period) {
+  const { data } = await http.get(`${apiEndpoint}/period/${period}`);
+  return data;
+}
+
 export function getPayments() {
   return http.get(apiEndpoint);
 }

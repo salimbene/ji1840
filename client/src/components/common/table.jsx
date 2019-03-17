@@ -13,7 +13,11 @@ const Table = ({
   ...rest
 }) => {
   return (
-    <table className={`table table-hover  ${viewOnly ? 'table-sm' : 'table'}`}>
+    <table
+      className={`table table-hover  table-sm ${
+        viewOnly ? 'table-sm' : 'table'
+      }`}
+    >
       {caption ? <caption>{caption}</caption> : null}
       <TableHeader columns={columns} sortColumn={sortColumn} onSort={onSort} />
       <TableBody data={data} columns={columns} />

@@ -3,9 +3,7 @@ import PropTypes from 'prop-types';
 const Input = ({ name, label, error, value, ...rest }) => {
   return (
     <div className="form-group m-1">
-      <label className="label" htmlFor={name}>
-        {label}
-      </label>
+      <label htmlFor={name}>{label}</label>
       <input
         {...rest}
         name={name}
@@ -15,7 +13,7 @@ const Input = ({ name, label, error, value, ...rest }) => {
           form-control form-control-sm 
           ${error ? 'is-invalid' : value && 'is-valid'}
         `}
-        placeholder={label}
+        placeholder={`Ingrese el ${label} aquí`}
       />
       {(error && <div className="invalid-feedback">{error}</div>) || (
         <div className="hidden">fix</div>

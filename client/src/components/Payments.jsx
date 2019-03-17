@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
-import Select from './common/Select';
+import PeriodSelector from './common/PeriodSelector';
 import PaymentsTable from './PaymentsTable';
 import auth from '../services/authService';
 import { getPayments, deletePayment } from '../services/paymentsService';
-import { getLastXYears, getCurrentPeriod, monthLabels } from '../utils/dates';
+import { getCurrentPeriod } from '../utils/dates';
 import { paginate } from '../utils/paginate';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -105,6 +105,7 @@ class Payments extends Component {
 
   render() {
     const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
+    const { month, year } = this.state;
     const { user } = this.state;
 
     if (user && !user.isAdmin)
@@ -118,26 +119,11 @@ class Payments extends Component {
 
     return (
       <React.Fragment>
-        <div className="row">
-          <div className="col col-md-2">
-            <Select
-              name="month"
-              label="Mes"
-              value={this.state.month}
-              options={monthLabels}
-              onChange={this.handlePeriodSelect}
-            />
-          </div>
-          <div className="col col-md-2">
-            <Select
-              name="year"
-              label="Año"
-              value={this.state.year}
-              options={getLastXYears(5)}
-              onChange={this.handlePeriodSelect}
-            />
-          </div>
-        </div>
+        <PeriodSelector
+          months={month}
+          years={year}
+          handlePeriod={this.handlePeriodSelect}
+        />
         <div className="row units">
           <div className="col">
             <ToastContainer />

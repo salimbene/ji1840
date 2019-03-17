@@ -10,7 +10,6 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
   const fUnits = await FUnit.find().sort('fUnit');
-  debug(fUnits);
   res.send(fUnits);
 });
 

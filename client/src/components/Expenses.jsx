@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
-import Select from './common/Select';
+import PeriodSelector from './common/PeriodSelector';
 import ExpensesTable from './ExpensesTable';
 import auth from '../services/authService';
 import { getExpenses, deleteExpense } from '../services/expensesService';
-import { getLastXYears, getCurrentPeriod, monthLabels } from '../utils/dates';
+import { getCurrentPeriod } from '../utils/dates';
 import { paginate } from '../utils/paginate';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -104,6 +104,7 @@ class Expenses extends Component {
 
   render() {
     const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
+    const { month, year } = this.state;
     const { user } = this.state;
 
     if (user && !user.isAdmin)
@@ -117,51 +118,11 @@ class Expenses extends Component {
 
     return (
       <React.Fragment>
-        <div className="row">
-          <div className="col col-md-2">
-            <Select
-              name="month"
-              label="Mes"
-              value={this.state.month}
-              options={monthLabels}
-              onChange={this.handlePeriodSelect}
-            />
-          </div>
-          <div className="col col-md-2">
-            <Select
-              name="year"
-              label="Año"
-              value={this.state.year}
-              options={getLastXYears(5)}
-              onChange={this.handlePeriodSelect}
-            />
-          </div>
-
-          <div className="col border border-light rounded-pill shadow-sm p-3 mt-3 mr-3 ml-1 bg-white h-75 d-inline-block">
-            <div className="row">
-              <div className="col text-center">
-                <h4>
-                  <span className="badge badge-pill badge-light">
-                    Saldo Ordinario
-                  </span>
-                  <span className="ml-3 badge badge-pill badge-info">
-                    $0.00
-                  </span>
-                </h4>
-              </div>
-              <div className="col text-center">
-                <h4>
-                  <span className="badge badge-pill badge-light">
-                    Saldo Extraordinario
-                  </span>
-                  <span className="ml-3 badge badge-pill badge-info">
-                    $0.00
-                  </span>
-                </h4>
-              </div>
-            </div>
-          </div>
-        </div>
+        <PeriodSelector
+          months={month}
+          years={year}
+          handlePeriod={this.handlePeriodSelect}
+        />
         <div className="row">
           <div className="col">
             <ToastContainer />

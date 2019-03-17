@@ -41,12 +41,20 @@ code {
   background: rgba(255, 255, 255, 0.1);
 }
 
+.adjust {
+  display: table;
+  margin: 0;
+}
+
 .registrar {
   padding: 20px;
   width: 400px;
   background: rgba(255, 255, 255, 0.1);
 }
 
+.models {
+  width: 50%;
+}
 .units {
   width: 100%;
 }

@@ -7,7 +7,7 @@ const pModelSchema = mongoose.Schema({
   fUnits: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'users',
+      ref: 'funits',
       required: true
     }
   ],

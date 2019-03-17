@@ -4,6 +4,7 @@ import Input from './Input';
 import Select from './Select';
 import TextArea from './TextArea';
 import Check from './Check';
+import ListGroup from './ListGroup';
 
 class Form extends Component {
   state = {
@@ -18,7 +19,10 @@ class Form extends Component {
     if (!error) return null;
     const errors = {};
 
-    for (let item of error.details) errors[item.path[0]] = item.message;
+    for (let item of error.details) {
+      console.log(`Validating ${item.path[0]}: ${item.message}`);
+      errors[item.path[0]] = item.message;
+    }
     return errors;
   };
 
@@ -140,6 +144,20 @@ class Form extends Component {
             <option>{option}</option>
           ))}
         </select>
+      </div>
+    );
+  }
+
+  renderListGroup(items, textProp, valueProp, onItemSelect, selected) {
+    return (
+      <div>
+        <ListGroup
+          items={items}
+          textProperty={textProp}
+          valueProperty={valueProp}
+          onItemSelect={onItemSelect}
+          selectedItem={selected}
+        />
       </div>
     );
   }

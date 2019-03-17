@@ -8,6 +8,7 @@ import Users from './components/Users';
 import UsersForm from './components/UsersForm';
 import CurrentMonth from './components/CurrentMonth';
 import Periods from './components/Periods';
+import PeriodsForm from './components/PeriodsForm';
 import Expenses from './components/Expenses';
 import ExpensesForm from './components/ExpensesForm';
 import Payments from './components/Payments';
@@ -53,6 +54,8 @@ class App extends Component {
                   component={SuppliersForm}
                 />
                 <ProtectedRoute path="/suppliers" component={Suppliers} />
+                <ProtectedRoute path="/periods/:id" component={PeriodsForm} />
+                <ProtectedRoute path="/periods" component={Periods} />
                 <ProtectedRoute path="/models/:id" component={ModelsForm} />
                 <ProtectedRoute path="/models" component={Models} />
                 <ProtectedRoute path="/current" component={CurrentMonth} />

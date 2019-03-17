@@ -1,351 +1,160 @@
 import React, { Component } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
 import _ from 'lodash';
-import Table from './common/Table';
-import Select from './common/Select';
-import { getCurrentPeriod, formatDate } from '../utils/dates';
-import { getExpenses } from '../services/expensesService';
-import { getLandlords } from '../services/usersService';
-import { getUnitsOwnedBy } from '../services/unitsService';
-import { savePDetails, getPDetailsByPeriod } from '../services/pdetailsService';
+import Pagination from './common/Pagination';
+import SearchBox from './common/SearchBox';
+import SimpleModal from './common/SimpleModal';
+import auth from '../services/authService';
+import PeriodsTable from './PeriodsTable';
+import { getPeriods, deletePeriod } from '../services/periodsService.js';
+import { paginate } from '../utils/paginate';
+import 'react-toastify/dist/ReactToastify.css';
 
 class Periods extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: {},
-      users: [],
-      expenses: [],
-      pdetails: [],
-      sortExpenses: { path: 'date', order: 'dec' },
-      sortPDetails: { path: 'userId', order: 'dec' },
-      currentPeriod: `${getCurrentPeriod().month} ${getCurrentPeriod().year}`
-    };
-    this.openPeriod = this.openPeriod.bind(this);
-  }
-
-  async populatePeriod() {
-    const { currentPeriod } = this.state;
-    const { data: pdetails } = await getPDetailsByPeriod(currentPeriod);
-    console.log('popu period', pdetails);
-    this.setState(prevState => ({ pdetails }));
-  }
-  async populateExpenses() {
-    const { currentPeriod } = this.state;
-    const { data: expenses } = await getExpenses(currentPeriod);
-    this.setState(prevState => ({ expenses }));
-  }
-
-  async populateLandlords() {
-    let data = [];
-    const { data: landlords } = await getLandlords();
-
-    const typeA = 30000;
-    const typeB = 1500;
-    const intA = 1;
-    const intB = 1;
-
-    landlords.map(async (user, index) => {
-      const { data: ownedUnits } = await getUnitsOwnedBy(user._id);
-      const coefficient = (
-        ownedUnits.reduce((a, c) => a + c.coefficient, 0) * 100
-      ).toPrecision(3);
-
-      const { lastname } = user;
-      const expenseA = ((coefficient * typeA) / 100).toPrecision(3);
-      const expenseB = typeB.toPrecision(3);
-      const interestA = intA.toPrecision(3);
-      const interestB = intB.toPrecision(3);
-      const total = expenseA + expenseB + intA + intB;
-
-      data.push({
-        coefficient,
-        lastname,
-        expenseA,
-        expenseB,
-        interestA,
-        interestB,
-        total
-      });
-    });
-
-    console.log('populandlord', data);
-  }
-
-  componentDidMount() {
-    this.populateExpenses();
-    this.populateLandlords();
-    this.populatePeriod();
-  }
-
-  async openPeriod(typeA = 30000, typeB = 1500, intA = 0, intB = 0) {
-    const { data: landlords } = await getLandlords();
-    const { currentPeriod } = this.state;
-    const pDetails = [];
-    // const {data} = await newPeriod()
-
-    const data = {
-      period: currentPeriod,
-      userId: '',
-      coefficient: 0,
-      debtA: 0,
-      expenseA: 0,
-      interestA: 0,
-      debtB: 0,
-      expenseB: 0,
-      interestB: 0,
-      isSettledA: false,
-      isSettledB: false
+      periods: {},
+      pageSize: 10,
+      currentPage: 1,
+      searchQuery: '',
+      modal: false,
+      sortColumn: { path: 'date', order: 'dec' }
     };
 
-    landlords.map(async (user, index) => {
-      data.userId = user._id;
-      console.log('map', data.userId);
-      const { data: ownedUnits } = await getUnitsOwnedBy(user._id);
-      const coefficient =
-        ownedUnits.reduce((a, c) => a + c.coefficient, 0) * 100;
-      data.coefficient = coefficient;
-      data.debtA = 0; //fetch
-      data.expenseA = (coefficient * 30000) / 100;
-      data.interestA = data.debtB = 0; // calc //fetch
-      data.expenseB = typeB;
-      data.interestB = 0; //calc
+    this.toggleDelete = this.toggleDelete.bind(this);
+  }
 
-      console.log('try', data.userId);
-      try {
-        // const { data: pdetails } = await savePDetails(data);
-        pDetails.push(data);
-      } catch (ex) {
-        console.log(ex.response.data);
+  toggleDelete(model) {
+    this.setState(prevState => ({
+      modal: !prevState.modal,
+      selectedPeriod: model
+    }));
+  }
+
+  async componentDidMount() {
+    const { data: periods } = await getPeriods();
+    console.log(periods);
+    this.setState({ periods, user: auth.getCurrentUser() });
+  }
+
+  handleDelete = period => {
+    const { selectedPeriod } = this.state;
+    const { periods: rollback } = this.state;
+
+    // const periods = this.state.periods.filter(
+    //   u => u._id !== selectedPeriod._id
+    // );
+
+    // this.setState({ periods });
+
+    try {
+      console.log(selectedPeriod);
+      // deleteModel(selectedPeriod._id);
+    } catch (ex) {
+      if (ex.response && ex.response.status === 404) {
+        toast(ex.response.data);
+        this.setState({ models: rollback });
       }
-    });
-
-    console.log('pDetails', pDetails);
-  }
-
-  renderDateControls() {
-    return (
-      <React.Fragment>
-        <p className="text-muted">Periodo Actual</p>
-        <div className="row">
-          <div className="col" />
-          <div className="col">
-            <button onClick={this.openPeriod}>Nuevo Periodo</button>
-          </div>
-        </div>
-      </React.Fragment>
-    );
-  }
-
-  columnsExpenses = [
-    {
-      path: 'concept',
-      label: 'Detalle'
-    },
-    {
-      path: 'category',
-      label: 'Rubro'
-    },
-    {
-      path: 'ammount',
-      label: 'Importe',
-      content: exp => `$${exp.ammount.toFixed(2)}`
-    },
-    {
-      path: 'type',
-      label: 'Tipo'
-    },
-    { path: 'date', label: 'Fecha', content: exp => formatDate(exp.date) }
-  ];
-
-  // {
-  //   period: Joi.string().required(),
-  //   userId: Joi.ObjectId().required(),
-  //   coefficient: Joi.number().required(),
-  //   debtA: Joi.number().required(),
-  //   expenseA: Joi.number().required(),
-  //   interestA: Joi.number().required(),
-  //   debtB: Joi.number().required(),
-  //   expenseB: Joi.number().required(),
-  //   interestB: Joi.number().required(),
-  //   isSettledA: Joi.boolean().required(),
-  //   isSettledB: Joi.boolean().required()
-  // }
-
-  columnPDetails = [
-    {
-      path: 'userId',
-      label: 'Usuario',
-      content: user => <p>{user.userId.lastname}</p>
-    },
-    {
-      path: 'coefficient',
-      label: '%',
-      content: v => `${v.coefficient.toFixed(3)}`
-    },
-    {
-      path: 'debtA',
-      label: 'Deuda',
-      content: v => `$${v.debtA.toFixed(2)}`
-    },
-    {
-      path: 'expenseA',
-      label: 'Ordinarias',
-      content: v => `$${v.expenseA.toFixed(2)}`
-    },
-    {
-      path: 'interestA',
-      label: 'Int. x Mora',
-      content: v => `$${v.interestA.toFixed(2)}`
-    },
-    {
-      path: 'isSettledA',
-      label: '¿Pago A?'
-    },
-    {
-      path: 'debtB',
-      label: 'Deuda',
-      content: v => `$${v.debtB.toFixed(2)}`
-    },
-    {
-      path: 'expenseB',
-      label: 'Extra.',
-      content: v => `$${v.expenseB.toFixed(2)}`
-    },
-    {
-      path: 'interestB',
-      label: 'Int. x Mora',
-      content: v => `$${v.interestB.toFixed(2)}`
-    },
-    {
-      path: 'isSettledB',
-      label: '¿Pago B?'
-    },
-    {
-      path: 'total',
-      label: 'Total'
     }
-  ];
-
-  handleExpensesSort = sortExpenses => {
-    this.setState({ sortExpenses });
+    this.toggleDelete();
   };
 
-  handlePayingSort = sortPaying => {
-    this.setState({ sortPaying });
+  handleSort = sortColumn => {
+    this.setState({ sortColumn });
   };
 
-  handlePDetailsSort = sortPDetails => {
-    this.setState({ sortPDetails });
+  handleAddPeriod = () => {
+    const { history } = this.props;
+    history.push('/periods/new');
   };
 
-  getSortedData = (data, sortColumn) => {
-    const sorted = _.orderBy(data, [sortColumn.path], [sortColumn.order]);
-    return sorted;
+  handlePageChange = page => {
+    this.setState({ currentPage: page });
   };
 
-  renderTable(label, data, columns, sortColumn, handleSort) {
-    return (
-      <React.Fragment>
-        <div className="border border-info p-3 mb-3 mx-auto rounded shadow bg-white">
-          <p className="text-muted">{label}</p>
-          <Table
-            data={data}
-            columns={columns}
-            sortColumn={sortColumn}
-            onSort={handleSort}
-            viewOnly={true}
-          />
-        </div>
-      </React.Fragment>
-    );
-  }
+  handleSearch = query => {
+    this.setState({ searchQuery: query, currentPage: 1 });
+  };
 
-  renderListStats(label, data) {
-    return (
-      <React.Fragment>
-        <div className="border border-info p-3 mb-3 mx-auto rounded shadow bg-white">
-          <p className="text-muted">{label}</p>
-          <ul className="list-group">
-            {data.map((i, index) => (
-              <li
-                key={index}
-                className="list-group-item d-flex justify-content-between align-items-center"
-              >
-                {i.label}
-                <span
-                  className={`badge badge-${
-                    i.value < 0 ? 'danger' : 'primary'
-                  } badge-pill`}
-                >
-                  {`$${i.value.toFixed(2)}`}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </React.Fragment>
-    );
-  }
+  getPageData = () => {
+    const {
+      periods: allPeriods,
+      pageSize,
+      currentPage,
+      sortColumn,
+      searchQuery
+    } = this.state;
+
+    let filtered = allPeriods;
+
+    if (searchQuery) {
+      filtered = allPeriods.filter(u =>
+        u.period.toLowerCase().startsWith(searchQuery.toLowerCase())
+      );
+    }
+
+    const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
+    const periods = paginate(sorted, currentPage, pageSize);
+    return {
+      totalCount: filtered.length || 0,
+      data: periods
+    };
+  };
 
   render() {
-    const { expenses, pdetails, sortExpenses, sortPDetails } = this.state;
+    const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
+    const { user } = this.state;
 
-    const sortedExpenses = this.getSortedData(expenses, sortExpenses);
-    const sortedPDetails = this.getSortedData(pdetails, sortPDetails);
+    if (user && !user.isAdmin)
+      return (
+        <div className="alert alert-danger" role="alert">
+          Acceso no autorizado.
+        </div>
+      );
+
+    const { totalCount, data: periods } = this.getPageData();
 
     return (
       <React.Fragment>
-        <div className="row">
-          <div className="col">{this.renderDateControls()}</div>
-        </div>
-        <div className="row">
+        <ToastContainer />
+        <SimpleModal
+          isOpen={this.state.modal}
+          toggle={this.toggleDelete}
+          title="Eliminar periodo"
+          label="Eliminar"
+          action={this.handleDelete}
+        />
+        <div className="row units">
           <div className="col">
-            {/* {this.renderTable(
-              'Liquidación',
-              sortedPeriod,
-              this.columnsPeriod,
-              sortPeriod,
-              this.handlePeriodSort
-            )} */}
-          </div>
-        </div>
-        <div className="row">
-          <div className="col">
-            {this.renderListStats('Expensas Ordinarias', [
-              { label: 'Saldo Ordinarias', value: -10 },
-              { label: 'Recaudación del mes', value: 232 },
-              { label: 'Erogaciones', value: 232 },
-              { label: 'Nuevo Saldo', value: 232 }
-            ])}
-          </div>
-          <div className="col">
-            {this.renderListStats('Expensas Extraordinarias', [
-              { label: 'Saldo Extraordinarias', value: -10 },
-              { label: 'Recaudación del mes', value: 232 },
-              { label: 'Erogaciones', value: 232 },
-              { label: 'Nuevo Saldo', value: 232 }
-            ])}
-          </div>
-        </div>
-        <div className="row">
-          <div className="col">
-            {this.renderTable(
-              'Gastos',
-              sortedExpenses,
-              this.columnsExpenses,
-              sortExpenses,
-              this.handleExpensesSort
+            <p>Períodos registrados: {totalCount}</p>
+            <SearchBox value={searchQuery} onChange={this.handleSearch} />
+            {totalCount ? (
+              <React.Fragment>
+                <PeriodsTable
+                  periods={periods}
+                  onDelete={this.toggleDelete}
+                  onSort={this.handleSort}
+                  sortColumn={sortColumn}
+                />
+                <Pagination
+                  itemsCount={totalCount}
+                  pageSize={pageSize}
+                  currentPage={currentPage}
+                  onPageChange={this.handlePageChange}
+                />
+              </React.Fragment>
+            ) : (
+              ''
             )}
-          </div>
-        </div>
-        <div className="row">
-          <div className="col">
-            {this.renderTable(
-              'Expensas',
-              sortedPDetails,
-              this.columnPDetails,
-              sortPDetails,
-              this.handlePDetailsSort
+            {user && (
+              <button
+                onClick={event => this.handleAddPeriod(event)}
+                className="btn btn-primary btn-sm"
+                style={{ marginBottom: 20 }}
+              >
+                Nuevo
+              </button>
             )}
           </div>
         </div>

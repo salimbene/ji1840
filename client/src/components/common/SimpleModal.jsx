@@ -19,7 +19,7 @@ const SimpleModal = ({ isOpen, toggle, className, title, label, action }) => {
       <ModalBody>
         <React.Fragment>
           <Alert color="danger">
-            ¡ATENCIÓN!
+            ¡ATENCIÓN! <i className="fa fa-surprise" />
             <hr />
             <p>
               <i className="fa fa-exclamation-circle mr-1" />

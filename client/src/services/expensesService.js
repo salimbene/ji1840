@@ -6,6 +6,11 @@ function expUrl(id) {
   return `${apiEndpoint}/${id}`;
 }
 
+export async function getTotalExpenses(period) {
+  const { data } = await http.get(`${apiEndpoint}/period/${period}`);
+  return data;
+}
+
 export function getExpenses() {
   return http.get(apiEndpoint);
 }

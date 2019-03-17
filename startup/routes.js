@@ -3,6 +3,7 @@ const compression = require('compression');
 // const bodyParser = require('body-parser');
 const fUnits = require('../routes/funits');
 const pmodels = require('../routes/pmodels');
+const periods = require('../routes/periods');
 const pdetails = require('../routes/pdetails');
 const expenses = require('../routes/expenses');
 const payments = require('../routes/payments');
@@ -21,8 +22,9 @@ module.exports = function(app) {
   // // parse application/json
   // app.use(bodyParser.json());
   //Routes
-  app.use('/api/pmodels', pmodels);
   app.use('/api/pdetails', pdetails);
+  app.use('/api/periods', periods);
+  app.use('/api/pmodels', pmodels);
   app.use('/api/funits', fUnits);
   app.use('/api/expenses', expenses);
   app.use('/api/payments', payments);

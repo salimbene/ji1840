@@ -1,15 +1,34 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import Table from './common/Table';
-import SimpleModal from './common/SimpleModal';
 import auth from '../services/authService';
 
 class ModelsTable extends Component {
+  constructor() {
+    super();
+    const currentUser = auth.getCurrentUser();
+    if (currentUser && currentUser.isAdmin)
+      this.columns.push(this.deleteColumn);
+  }
+
   columns = [
     {
       path: 'label',
-      label: 'Nombre'
-      // content: user => <Link to={`/users/${user._id}`}>{user.lastname}</Link>
+      label: 'Nombre',
+      content: m => <Link to={`/models/${m._id}`}>{m.label}</Link>
+    },
+    {
+      path: 'fUnit',
+      label: 'Unidades',
+      content: m => (
+        <span className="badge badge-info">
+          {m.fUnits.length === 1
+            ? m.fUnits[0].fUnit
+            : m.fUnits
+                .reduce((prev, current) => `${(prev += current.fUnit)},`, '')
+                .slice(0, -1)}
+        </span>
+      )
     },
     {
       path: 'coefficient',
@@ -29,21 +48,14 @@ class ModelsTable extends Component {
     )
   };
 
-  constructor() {
-    super();
-    const currentUser = auth.getCurrentUser();
-    if (currentUser && currentUser.isAdmin)
-      this.columns.push(this.deleteColumn);
-  }
-
   render() {
-    const { users, onSort, sortColumn } = this.props;
+    const { models, onSort, sortColumn } = this.props;
 
     return (
       <React.Fragment>
         <Table
           columns={this.columns}
-          data={users}
+          data={models}
           sortColumn={sortColumn}
           onSort={onSort}
         />

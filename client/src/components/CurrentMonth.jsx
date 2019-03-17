@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
-import _ from 'lodash';
 import { ToastContainer, toast } from 'react-toastify';
-import Pagination from './common/Pagination';
-import { paginate } from '../utils/paginate';
-import auth from '../services/authService';
-import { getLastXYears, getCurrentPeriod, monthLabels } from '../utils/dates';
-import 'react-toastify/dist/ReactToastify.css';
-import Select from './common/Select';
+import _ from 'lodash';
 import ExpensesTable from './ExpensesTable';
+import Pagination from './common/Pagination';
+import auth from '../services/authService';
 import { getExpenses, deleteExpense } from '../services/expensesService';
+import { paginate } from '../utils/paginate';
+import { getCurrentPeriod } from '../utils/dates';
+import 'react-toastify/dist/ReactToastify.css';
 
 class CurrentMonth extends Component {
   state = {

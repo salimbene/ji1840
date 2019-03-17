@@ -21,6 +21,23 @@ const paymentsSchema = mongoose.Schema({
 
 const Payment = mongoose.model('payment', mongoose.Schema(paymentsSchema));
 
+async function getPeriodPayments(period) {
+  // userId = new ObjectId('5c5f833d1a2db7ad5ddeaeaf')
+  const total = await Payment.aggregate(
+    [
+      { $match: { period } },
+      { $group: { _id: '$period', total: { $sum: `$ammount` } } }
+    ],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
+    }
+  ).then(results => results);
+  return total[0];
+}
+
 function validatePayments(payment) {
   const schema = {
     userId: Joi.ObjectId().required(),
@@ -33,5 +50,6 @@ function validatePayments(payment) {
   return Joi.validate(payment, schema);
 }
 
+exports.PeriodPaymentsTotal = getPeriodPayments;
 exports.Payment = Payment;
 exports.validate = validatePayments;

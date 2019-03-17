@@ -8,8 +8,7 @@ const express = require('express');
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-  const pmodel = await PModel.find();
-  // .populate('userId', '-password -isAdmin', 'User')
+  const pmodel = await PModel.find().populate('fUnits', '', 'fUnit');
   // .sort('userId');
   res.send(pmodel);
 });
@@ -17,9 +16,9 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const pmodel = await PModel.findById(req.params.id).populate(
-      'userId',
-      '-password -isAdmin',
-      'User'
+      'fUnits',
+      '',
+      'fUnit'
     );
 
     res.send(pmodel);

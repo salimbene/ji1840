@@ -24,6 +24,24 @@ const expensesSchema = mongoose.Schema({
 
 const Expense = mongoose.model('expense', mongoose.Schema(expensesSchema));
 
+async function getPeriodExpenses(period) {
+  // userId = new ObjectId('5c5f833d1a2db7ad5ddeaeaf')
+  debug(period);
+  const total = await Expense.aggregate(
+    [
+      { $match: { period } },
+      { $group: { _id: '$type', total: { $sum: '$ammount' } } }
+    ],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
+    }
+  ).then(results => results);
+  return total;
+}
+
 function validateExpenses(expense) {
   const schema = {
     category: Joi.string().required(),
@@ -39,5 +57,6 @@ function validateExpenses(expense) {
   return Joi.validate(expense, schema);
 }
 
+exports.TotalExpenses = getPeriodExpenses;
 exports.Expense = Expense;
 exports.validate = validateExpenses;

@@ -15,7 +15,7 @@ class Models extends Component {
     super(props);
     this.state = {
       models: {},
-      pageSize: 10,
+      pageSize: 7,
       currentPage: 1,
       searchQuery: '',
       sortColumn: { path: 'type', order: 'asc' },
@@ -47,24 +47,26 @@ class Models extends Component {
     this.setState({ searchQuery: query, currentPage: 1 });
   };
 
-  toggleDelete(unit) {
+  toggleDelete(model) {
     this.setState(prevState => ({
       modal: !prevState.modal,
-      selectedUnit: unit
+      selectedModel: model
     }));
   }
 
   handleDelete = () => {
-    const { selectedUser } = this.state;
+    const { selectedModel } = this.state;
     const rollback = this.state.models;
-    const models = this.state.models.filter(u => u._id !== selectedUser._id);
+
+    const models = this.state.models.filter(u => u._id !== selectedModel._id);
+
     this.setState({ models });
 
     try {
-      // deleteUser(selectedUser._id);
+      deleteModel(selectedModel._id);
     } catch (ex) {
       if (ex.response && ex.response.status === 404) {
-        toast('Something failed!');
+        toast(ex.response.data);
         this.setState({ models: rollback });
       }
     }
@@ -84,12 +86,13 @@ class Models extends Component {
 
     if (searchQuery) {
       filtered = allModels.filter(u =>
-        u.name.toLowerCase().startsWith(searchQuery.toLowerCase())
+        u.label.toLowerCase().startsWith(searchQuery.toLowerCase())
       );
     }
 
     const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
     const models = paginate(sorted, currentPage, pageSize);
+
     return {
       totalCount: filtered.length || 0,
       data: models
@@ -97,8 +100,7 @@ class Models extends Component {
   };
 
   render() {
-    const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
-    const { user } = this.state;
+    const { pageSize, currentPage, sortColumn, searchQuery, user } = this.state;
 
     if (user && !user.isAdmin)
       return (
@@ -119,7 +121,7 @@ class Models extends Component {
           label="Eliminar"
           action={this.handleDelete}
         />
-        <div className="row units">
+        <div className="row models">
           <div className="col">
             <p>Modelos registrados: {totalCount}</p>
             <SearchBox value={searchQuery} onChange={this.handleSearch} />

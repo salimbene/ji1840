@@ -1,6 +1,6 @@
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
-const { Payment, validate } = require('../models/payment');
+const { Payment, PeriodPaymentsTotal, validate } = require('../models/payment');
 const { User } = require('../models/user');
 const _ = require('lodash');
 const debug = require('debug')('routes:payments');
@@ -16,9 +16,10 @@ router.get('/', async (req, res) => {
   res.send(payments);
 });
 
-router.get('/user/:id', async (req, res) => {
-  const payments = await Payment.find({ userId: req.params.id }).sort('-date');
-  res.send(payments);
+router.get('/period/:id', async (req, res) => {
+  const total = await PeriodPaymentsTotal(req.params.id);
+  debug(req.params.id, total);
+  res.send(total);
 });
 
 router.get('/:id', async (req, res) => {

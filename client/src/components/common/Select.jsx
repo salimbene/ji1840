@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 
 const Select = ({ name, label, field, options, error, ...rest }) => {
   return (
-    <div className="form-group">
-      <label htmlFor={name}>{label}</label>
+    <div className="form-group m-1">
+      <label className="label" htmlFor={name}>
+        {label}
+      </label>
       <select
         name={name}
         id={name}

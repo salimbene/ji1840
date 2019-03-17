@@ -13,7 +13,7 @@ router.get('/', [auth], async (req, res) => {
     .ne('DISPONIBLE')
     .select('-password -isAdmin')
     .sort('lastname');
-  debug(users);
+  // debug(users);
   res.send(users);
 });
 
