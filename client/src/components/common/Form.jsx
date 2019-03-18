@@ -20,7 +20,7 @@ class Form extends Component {
     const errors = {};
 
     for (let item of error.details) {
-      console.log(`Validating ${item.path[0]}: ${item.message}`);
+      // console.log(`Validating ${item.path[0]}: ${item.message}`);
       errors[item.path[0]] = item.message;
     }
     return errors;

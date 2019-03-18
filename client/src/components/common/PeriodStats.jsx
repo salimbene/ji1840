@@ -13,7 +13,7 @@ const PeriodStats = ({ totalA, totalB, totalIncome }) => {
                   totalA < 0 ? 'badge-danger' : 'badge-info'
                 } badge-pill ml-2`}
               >
-                {`$${totalA.toFixed(2)}`}
+                {`$${Number(totalA).toFixed(2)}`}
               </span>
             </li>
             <li className="list-group-item d-flex justify-content-between align-items-center">
@@ -23,7 +23,7 @@ const PeriodStats = ({ totalA, totalB, totalIncome }) => {
                   totalB < 0 ? 'badge-danger' : 'badge-info'
                 } badge-pill ml-2`}
               >
-                {`$${totalB.toFixed(2)}`}
+                {`$${Number(totalB).toFixed(2)}`}
               </span>
             </li>
             <li className="list-group-item d-flex justify-content-between align-items-center">
@@ -33,7 +33,17 @@ const PeriodStats = ({ totalA, totalB, totalIncome }) => {
                   totalIncome < 0 ? 'badge-danger' : 'badge-info'
                 } badge-pill ml-2`}
               >
-                {`$${totalIncome.toFixed(2)}`}
+                {`$${Number(totalIncome).toFixed(2)}`}
+              </span>
+            </li>
+            <li className="list-group-item d-flex justify-content-between align-items-center">
+              <mark>Saldo Mes</mark>
+              <span
+                className={`badge ${
+                  totalIncome < 0 ? 'badge-danger' : 'badge-success'
+                } badge-pill ml-2`}
+              >
+                {`$${Number(totalIncome - totalA - totalB).toFixed(2)}`}
               </span>
             </li>
           </ul>

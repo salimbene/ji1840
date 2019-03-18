@@ -8,7 +8,17 @@ function expUrl(id) {
 
 export async function getTotalExpenses(period) {
   const { data } = await http.get(`${apiEndpoint}/period/${period}`);
-  return data;
+
+  let totalA = 0;
+  let totalB = 0;
+  data.length !== 0 &&
+    data !== null &&
+    data.forEach(element => {
+      if (element._id === 'A') totalA = element.total;
+      if (element._id === 'B') totalB = element.total;
+    });
+
+  return { totalA, totalB };
 }
 
 export function getExpenses() {

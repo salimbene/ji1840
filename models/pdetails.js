@@ -6,7 +6,7 @@ const periodDetailsSchema = mongoose.Schema({
   period: { type: String, trim: true, required: true },
   model: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'pmodels',
+    ref: 'pmodel',
     required: true
   },
   userId: {
@@ -18,7 +18,7 @@ const periodDetailsSchema = mongoose.Schema({
   extra: { type: Number, default: 0 }, //monto fijo adicional
   debt: { type: Number, default: 0 }, //calculo segun pagos no realizados
   int: { type: Number, default: 0 }, //calculo segun interes por deuda
-  isOpen: { type: Boolean, default: true },
+  isPayed: { type: Boolean, default: false },
   date: { type: Date, default: Date.now }
 });
 
@@ -33,7 +33,7 @@ function validatePeriodDetailsSchema(pdetails) {
     extra: Joi.number().required(),
     debt: Joi.number().required(),
     int: Joi.number().required(),
-    isOpen: Joi.boolean().required()
+    isPayed: Joi.boolean().required()
   };
 
   return Joi.validate(pdetails, schema);

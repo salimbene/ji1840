@@ -8,7 +8,11 @@ function payUrl(id) {
 
 export async function getTotalPayments(period) {
   const { data } = await http.get(`${apiEndpoint}/period/${period}`);
-  return data;
+  if (typeof data === 'object') return data;
+  return {
+    _id: period,
+    total: 0
+  };
 }
 
 export function getPayments() {

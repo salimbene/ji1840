@@ -1,6 +1,8 @@
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 const { Period, validate } = require('../models/period');
+const { PDetails } = require('../models/pdetails');
+const { PModel } = require('../models/pmodel');
 // const { User } = require('../models/user');
 const _ = require('lodash');
 const debug = require('debug')('routes:periods');
@@ -34,22 +36,40 @@ router.post('/', [auth, admin], async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  let period = await Period.findOne({ period: req.body.period });
-  if (period) return res.status(400).send('Período ya registrado.');
+  let periodEntry = await Period.findOne({ period: req.body.period });
+  if (periodEntry) return res.status(400).send('Período ya registrado.');
 
-  period = new Period(
+  periodEntry = new Period(
     _.pick(req.body, [
       'period',
       'userId',
       'totalA',
       'totalB',
       'totalIncome',
-      'isClosed',
-      'date'
+      'isClosed'
     ])
   );
 
-  await period.save();
+  await periodEntry.save();
+  const { period: currentPeriod, userId, totalA, totalB } = periodEntry;
+  const pmodels = await PModel.find(); //.populate('fUnits', '', 'fUnit');
+
+  pmodels.forEach(async model => {
+    const { _id, coefficient } = model;
+    const pdetails = new PDetails({
+      period: currentPeriod,
+      model: _id,
+      userId: userId,
+      expenses: totalA * coefficient, //calcular,
+      extra: totalB / pmodels.length, //calcular,
+      debt: 0, //calcular,
+      int: 0, // calcular,
+      isPayed: false
+    });
+
+    await pdetails.save();
+    debug(pdetails);
+  });
 
   // const { userId, ammount } = req.body;
   // const user = await User.findOneAndUpdate(
@@ -59,7 +79,7 @@ router.post('/', [auth, admin], async (req, res) => {
   // );
   // debug(user);
 
-  res.send(period);
+  res.send(periodEntry);
 });
 
 router.put('/:id', [auth, admin], async (req, res) => {

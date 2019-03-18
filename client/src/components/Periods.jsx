@@ -34,7 +34,6 @@ class Periods extends Component {
 
   async componentDidMount() {
     const { data: periods } = await getPeriods();
-    console.log(periods);
     this.setState({ periods, user: auth.getCurrentUser() });
   }
 
@@ -121,7 +120,7 @@ class Periods extends Component {
         <SimpleModal
           isOpen={this.state.modal}
           toggle={this.toggleDelete}
-          title="Eliminar periodo"
+          title="Eliminar periodooo"
           label="Eliminar"
           action={this.handleDelete}
         />

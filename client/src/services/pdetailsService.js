@@ -13,10 +13,11 @@ export function getPDetails() {
 export function getPDetailsByuserId(userId) {
   return http.get(`${apiEndpoint}/user/${userId}`);
 }
+
 export function getPDetailsByPeriod(period) {
-  console.log(`${apiEndpoint}/pdetails/${period}`);
-  return http.get(`${apiEndpoint}/pdetails/${period}`);
+  return http.get(`${apiEndpoint}/${period}`);
 }
+
 export function getPDetail(id) {
   return http.get(url(id));
 }

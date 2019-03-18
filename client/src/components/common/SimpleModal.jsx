@@ -10,7 +10,15 @@ import {
 
 const closeBtn = <i className="fa fa-times-circle" />;
 
-const SimpleModal = ({ isOpen, toggle, className, title, label, action }) => {
+const SimpleModal = ({
+  isOpen,
+  toggle,
+  className,
+  title,
+  label,
+  action,
+  formData
+}) => {
   return (
     <Modal isOpen={isOpen} toggle={toggle} className={className}>
       <ModalHeader toggle={toggle} close={closeBtn}>
@@ -26,6 +34,10 @@ const SimpleModal = ({ isOpen, toggle, className, title, label, action }) => {
               Esta acción no se puede desahacer.
             </p>
           </Alert>
+          {formData &&
+            formData.map((d, i) => {
+              return <h5 key={i}>{d}</h5>;
+            })}
         </React.Fragment>
       </ModalBody>
       <ModalFooter>

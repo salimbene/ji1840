@@ -11,17 +11,20 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   const pdetails = await PDetails.find()
     .populate('userId', '-password -isAdmin', 'User')
+    .populate('model', '', 'pmodel')
     .sort('period');
   res.send(pdetails);
 });
 
 router.get('/:id', async (req, res) => {
   try {
-    const pdetails = await PDetails.findById(req.params.id).populate(
-      'userId',
-      '-password -isAdmin',
-      'User'
-    );
+    const pdetails = await PDetails.find()
+      .where('period')
+      .equals(req.params.id)
+      .populate('userId', '-password -isAdmin', 'User')
+      .populate('model', '', 'pmodel')
+      .populate('model.fUnits', '', 'fUnit')
+      .sort('isPayed');
 
     res.send(pdetails);
   } catch (ex) {
@@ -46,7 +49,7 @@ router.post('/', [auth, admin], async (req, res) => {
       'extra',
       'debt',
       'int',
-      'isOpen'
+      'isPayed'
     ])
   );
 
@@ -68,7 +71,7 @@ router.put('/:id', [auth, admin], async (req, res) => {
     extra,
     debt,
     int,
-    isOpen
+    isPayed
   } = req.body;
 
   const pdetails = await PDetails.findOneAndUpdate(
@@ -81,7 +84,7 @@ router.put('/:id', [auth, admin], async (req, res) => {
       extra,
       debt,
       int,
-      isOpen
+      isPayed
     },
     { new: true }
   );
