@@ -43,11 +43,11 @@ class PeriodsForm extends Form {
     const { selectedDetail } = this.state;
     const { details: rollback } = this.state;
 
-    // const periods = this.state.periods.filter(
-    //   u => u._id !== selectedDetail._id
-    // );
+    const periods = this.state.periods.filter(
+      u => u._id !== selectedDetail._id
+    );
 
-    // this.setState({ periods });
+    this.setState({ periods });
 
     try {
       console.log('selectedDetail', selectedDetail);
@@ -209,21 +209,20 @@ class PeriodsForm extends Form {
   render() {
     const { totalA, totalB, totalIncome } = this.state.data;
     const { year, month, details, modal, selectedDetail } = this.state;
+    console.log('selectedDetail', selectedDetail);
     return (
       <React.Fragment>
         <ToastContainer />
-        <SimpleModal
-          isOpen={modal}
-          toggle={this.toggleRegister}
-          title="Registar pago"
-          label="Confirmar"
-          action={this.handleRegister}
-          formData={
-            selectedDetail &&
-            selectedDetail.model &&
-            selectedDetail.model.fUnits
-          }
-        />
+        {selectedDetail && selectedDetail.model && (
+          <SimpleModal
+            isOpen={modal}
+            toggle={this.toggleRegister}
+            title="Registrar pago"
+            label="Confirmar"
+            action={this.handleRegister}
+            formData={selectedDetail.model.userId}
+          />
+        )}
         <div className="border border-info rounded shadow-sm p-3 mt-5 bg-white adjust">
           <form onSubmit={this.handleSubmit}>
             <PeriodSelector

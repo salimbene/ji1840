@@ -31,6 +31,13 @@ class ModelsTable extends Component {
       )
     },
     {
+      path: 'userId',
+      label: 'Usuario',
+      content: m => (
+        <Link to={`/users/${m.userId._id}`}>{m.userId.lastname}</Link>
+      )
+    },
+    {
       path: 'coefficient',
       label: 'Coeficiente'
     }

@@ -19,25 +19,29 @@ const SimpleModal = ({
   action,
   formData
 }) => {
+  const { lastname, balance } = formData;
   return (
     <Modal isOpen={isOpen} toggle={toggle} className={className}>
       <ModalHeader toggle={toggle} close={closeBtn}>
-        {title}
+        <h1 className="display-4">{title}</h1>
       </ModalHeader>
       <ModalBody>
         <React.Fragment>
+          <strong>Atención</strong>
+          <i className="fa fa-surprise" />
+          <p className="lead">
+            {`El usuario `}
+            <mark>{lastname}</mark>
+            {` posee `}
+            <mark>{`$${Number(balance).toFixed(2)}`}</mark>
+            {` en su cuenta. Si confirma la operación se debitará el pago de su cuenta.`}
+          </p>
           <Alert color="danger">
-            ¡ATENCIÓN! <i className="fa fa-surprise" />
-            <hr />
             <p>
               <i className="fa fa-exclamation-circle mr-1" />
               Esta acción no se puede desahacer.
             </p>
           </Alert>
-          {formData &&
-            formData.map((d, i) => {
-              return <h5 key={i}>{d}</h5>;
-            })}
         </React.Fragment>
       </ModalBody>
       <ModalFooter>

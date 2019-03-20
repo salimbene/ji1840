@@ -22,8 +22,17 @@ router.get('/:id', async (req, res) => {
       .where('period')
       .equals(req.params.id)
       .populate('userId', '-password -isAdmin', 'User')
-      .populate('model', '', 'pmodel')
-      .populate('model.fUnits', '', 'fUnit')
+      .populate([
+        {
+          path: 'model',
+          model: 'pmodel',
+          populate: {
+            path: 'userId',
+            model: 'User',
+            select: '-password -isAdmin'
+          }
+        }
+      ])
       .sort('isPayed');
 
     res.send(pdetails);

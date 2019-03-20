@@ -7,6 +7,7 @@ import Table from './common/Table';
 import Form from './common/Form';
 import { getModel, saveModel } from '../services/pmodelsServices';
 import { getUnits } from '../services/unitsService';
+import { getUsers } from '../services/usersService';
 import auth from '../services/authService';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -18,10 +19,12 @@ class ModelsForm extends Form {
         label: '',
         fUnits: [],
         coefficient: 0,
+        userId: '',
         selectedUnit: ''
       },
       sortUnits: { path: 'fUnit', order: 'asc' },
       units: [],
+      users: [],
       errors: {},
       keys: {},
       modal: false
@@ -38,9 +41,13 @@ class ModelsForm extends Form {
     label: Joi.string()
       .required()
       .label('Nombre'),
+    userId: Joi.string().label('Usuario'),
     selectedUnit: Joi.string()
       .required()
-      .label('Nombre'),
+      .label('Unidad seleccionada'),
+    // selectedUser: Joi.string()
+    //   .required()
+    //   .label('Usuario seleccionado'),
     fUnits: Joi.array()
       .required()
       .label('Unidades'),
@@ -53,13 +60,18 @@ class ModelsForm extends Form {
     const { data: units } = await getUnits();
     this.setState({ units });
   }
+  async populateUsers() {
+    const { data: users } = await getUsers();
+    this.setState({ users });
+  }
 
   async populateModels() {
     try {
       const modelId = this.props.match.params.id;
       if (modelId === 'new') return;
       const { data: model } = await getModel(modelId);
-      this.setState({ data: this.mapToViewModel(model) });
+      const keys = { userIdKey: model.userId._id };
+      this.setState({ data: this.mapToViewModel(model), keys });
     } catch (ex) {
       if (ex.response && ex.response.status === 404)
         return this.props.history.replace('/not-found');
@@ -69,22 +81,30 @@ class ModelsForm extends Form {
   async componentDidMount() {
     await this.populateModels();
     await this.populateUnits();
+    await this.populateUsers();
   }
 
   mapToViewModel(model) {
     return {
       _id: model._id,
+      userId: model.userId.lastname,
       label: model.label,
       fUnits: model.fUnits,
-      coefficient: model.coefficient
+      coefficient: model.coefficient,
+      selectedUnit: 'DUMMY-UNIT'
     };
   }
 
   doSubmit = async () => {
     const model = { ...this.state.data };
+    const { users } = this.state;
+    const { userIdKey } = this.state.keys;
 
     //selectedUnit no existe en mongo
     delete model.selectedUnit;
+    model.userId = users.find(e => {
+      return e._id === userIdKey;
+    })._id;
 
     try {
       await saveModel(model);
@@ -205,7 +225,7 @@ class ModelsForm extends Form {
   };
 
   render() {
-    const { sortUnits, data } = this.state;
+    const { sortUnits, data, users, units } = this.state;
     const sortedUnits = this.getSortedData(data.fUnits, sortUnits);
 
     return (
@@ -227,12 +247,7 @@ class ModelsForm extends Form {
             </div>
             <div className="row ">
               <div className="col-sm-4">
-                {this.renderSelect(
-                  'selectedUnit',
-                  'Unidades',
-                  'fUnit',
-                  this.state.units
-                )}
+                {this.renderSelect('selectedUnit', 'Unidades', 'fUnit', units)}
                 <button
                   type="button"
                   onClick={event => this.handleAddModel(event)}
@@ -240,6 +255,9 @@ class ModelsForm extends Form {
                 >
                   Asignar
                 </button>
+              </div>
+              <div className="col-sm-4">
+                {this.renderSelect('userId', 'Usuario', 'lastname', users)}
               </div>
               <div className="col align-self-center">
                 <mark>{` Coeficiente total: ${data.coefficient}`}</mark>

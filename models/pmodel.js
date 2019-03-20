@@ -1,6 +1,7 @@
 const debug = require('debug')('models:pmodels');
-const Joi = require('joi');
+// const ObjectId = mongoose.Types.ObjectId;
 const mongoose = require('mongoose');
+const Joi = require('joi');
 
 const pModelSchema = mongoose.Schema({
   label: { type: String, trim: true, required: true },
@@ -11,6 +12,7 @@ const pModelSchema = mongoose.Schema({
       required: true
     }
   ],
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
   coefficient: { type: Number, required: true }
 });
 
@@ -20,6 +22,7 @@ function validatepModelSchema(pdetails) {
   const schema = {
     label: Joi.string().required(),
     fUnits: Joi.array().required(),
+    userId: Joi.ObjectId().required(),
     coefficient: Joi.number().required()
   };
 
