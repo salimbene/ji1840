@@ -62,7 +62,6 @@ class PeriodsDTable extends Component {
 
   render() {
     const { data, onSort, sortColumn } = this.props;
-    console.log('rendertable', data);
     return (
       <Table
         columns={this.columns}

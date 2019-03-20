@@ -68,41 +68,15 @@ router.post('/', [auth, admin], async (req, res) => {
 });
 
 router.put('/:id', [auth, admin], async (req, res) => {
+  debug(req.body);
   //Validation
   const { error } = validate(req.body);
+  debug(error.details[0].message);
+
+  // El problema es que model y userid es "populados", tendria que ver como traer los Ids....
   if (error) return res.status(400).send(error.details[0].message);
 
-  const {
-    period,
-    model,
-    userId,
-    expenses,
-    extra,
-    debt,
-    int,
-    isPayed
-  } = req.body;
-
-  const pdetails = await PDetails.findOneAndUpdate(
-    { _id: req.params.id },
-    {
-      period,
-      model,
-      userId,
-      expenses,
-      extra,
-      debt,
-      int,
-      isPayed
-    },
-    { new: true }
-  );
-
-  if (!pdetails)
-    return res
-      .status(404)
-      .send(`La liquidación con ID: ${req.params.id} no existe.`);
-
+  debug(req.body);
   // const { userId } = req.body;
   // const payment = 0;
   // const user = await User.findOneAndUpdate(
@@ -113,7 +87,38 @@ router.put('/:id', [auth, admin], async (req, res) => {
 
   // debug(user);
 
-  res.send(pdetails);
+  // const {
+  //   period,
+  //   model,
+  //   userId,
+  //   expenses,
+  //   extra,
+  //   debt,
+  //   int,
+  //   isPayed
+  // } = req.body;
+
+  // const pdetails = await PDetails.findOneAndUpdate(
+  //   { _id: req.params.id },
+  //   {
+  //     period,
+  //     model,
+  //     userId,
+  //     expenses,
+  //     extra,
+  //     debt,
+  //     int,
+  //     isPayed
+  //   },
+  //   { new: true }
+  // );
+
+  // if (!pdetails)
+  //   return res
+  //     .status(404)
+  //     .send(`La liquidación con ID: ${req.params.id} no existe.`);
+
+  // res.send(pdetails);
 });
 
 router.delete('/:id', [auth, admin], async (req, res) => {

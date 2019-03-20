@@ -9,7 +9,7 @@ import PeriodsDTable from './PeriodsDTable';
 import { getPeriod, savePeriod } from '../services/periodsService';
 import { getTotalPayments } from '../services/paymentsService';
 import { getTotalExpenses } from '../services/expensesService';
-import { getPDetailsByPeriod } from '../services/pdetailsService';
+import { getPDetailsByPeriod, savePDetails } from '../services/pdetailsService';
 import auth from '../services/authService';
 import { getCurrentPeriod } from '../utils/dates';
 
@@ -41,21 +41,21 @@ class PeriodsForm extends Form {
 
   handleRegister = detail => {
     const { selectedDetail } = this.state;
-    const { details: rollback } = this.state;
 
-    const periods = this.state.periods.filter(
-      u => u._id !== selectedDetail._id
-    );
+    // console.log('handleRegister');
+    // const periods = this.state.periods.filter(
+    //   u => u._id !== selectedDetail._id
+    // );
 
-    this.setState({ periods });
+    // this.setState({ periods });
 
     try {
       console.log('selectedDetail', selectedDetail);
-      // deleteModel(selectedDetail._id);
+      savePDetails(selectedDetail);
     } catch (ex) {
+      console.log('ex', ex);
       if (ex.response && ex.response.status === 404) {
         toast(ex.response.data);
-        this.setState({ details: rollback });
       }
     }
     this.toggleRegister();
@@ -130,7 +130,6 @@ class PeriodsForm extends Form {
     try {
       const details = await getPDetailsByPeriod(period);
       this.setState({ details });
-      console.log(this.state);
     } catch (ex) {
       if (ex.response && ex.response.status === 404) {
         toast(ex.response.data);
@@ -209,7 +208,6 @@ class PeriodsForm extends Form {
   render() {
     const { totalA, totalB, totalIncome } = this.state.data;
     const { year, month, details, modal, selectedDetail } = this.state;
-    console.log('selectedDetail', selectedDetail);
     return (
       <React.Fragment>
         <ToastContainer />

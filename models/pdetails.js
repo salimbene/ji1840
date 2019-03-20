@@ -26,7 +26,7 @@ const PDetails = mongoose.model('pdetails', periodDetailsSchema);
 
 function validatePeriodDetailsSchema(pdetails) {
   const schema = {
-    period: Joi.ObjectId().required(),
+    period: Joi.string().required(),
     model: Joi.ObjectId().required(),
     userId: Joi.ObjectId().required(),
     expenses: Joi.number().required(),
