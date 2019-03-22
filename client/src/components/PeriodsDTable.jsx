@@ -37,7 +37,7 @@ class PeriodsDTable extends Component {
         `$${Number(m.expenses + m.extra + m.debt + m.int).toFixed(2)}`
     },
     {
-      path: 'isOpen',
+      path: 'isPayed',
       label: 'Pagó'
     }
   ];
@@ -48,6 +48,7 @@ class PeriodsDTable extends Component {
       <button
         onClick={event => this.props.onRegister(model)}
         className="btn btn-light btn-sm"
+        disabled={model.isPayed}
       >
         Pagó
       </button>

@@ -87,18 +87,23 @@ router.put('/:id', [auth, admin], async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
+  // let periodEntry = await Period.findOne({ period: req.body.period });
+  // if (periodEntry) return res.status(400).send('Período ya registrado.');
+
   const { period, userId, totalA, totalB, totalIncome, isClosed } = req.body;
 
-  const periods = await Period.findOneAndUpdate(
-    { _id: req.params.id },
-    { period, userId, totalA, totalB, totalIncome, isClosed },
-    { new: true }
-  );
+  let periods;
 
-  if (!periods)
-    return res
-      .status(404)
-      .send(`El período con ID: ${req.params.id} no existe.`);
+  try {
+    periods = await Period.findOneAndUpdate(
+      { _id: req.params.id },
+      { period, userId, totalA, totalB, totalIncome, isClosed },
+      { new: true }
+    );
+  } catch (ex) {
+    debug(ex.errmsg);
+    return res.status(400).send(ex.errmsg);
+  }
 
   res.send(periods);
 });

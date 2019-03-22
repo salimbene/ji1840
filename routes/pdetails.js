@@ -1,9 +1,9 @@
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 const { PDetails, validate } = require('../models/pdetails');
-// const { User } = require('../models/user');
+const { User } = require('../models/user');
 const _ = require('lodash');
-const debug = require('debug')('routes:payments');
+const debug = require('debug')('routes:pdetails');
 
 const express = require('express');
 const router = express.Router();
@@ -13,6 +13,8 @@ router.get('/', async (req, res) => {
     .populate('userId', '-password -isAdmin', 'User')
     .populate('model', '', 'pmodel')
     .sort('period');
+
+  debug(pdetails);
   res.send(pdetails);
 });
 
@@ -33,6 +35,7 @@ router.get('/:id', async (req, res) => {
           }
         }
       ])
+      .select('-date -__v')
       .sort('isPayed');
 
     res.send(pdetails);
@@ -68,57 +71,33 @@ router.post('/', [auth, admin], async (req, res) => {
 });
 
 router.put('/:id', [auth, admin], async (req, res) => {
-  debug(req.body);
   //Validation
   const { error } = validate(req.body);
-  debug(error.details[0].message);
 
   // El problema es que model y userid es "populados", tendria que ver como traer los Ids....
   if (error) return res.status(400).send(error.details[0].message);
 
   debug(req.body);
-  // const { userId } = req.body;
-  // const payment = 0;
-  // const user = await User.findOneAndUpdate(
-  //   { _id: userId },
-  //   { $dec: { balance: payment } },
-  //   { new: true }
-  // );
+  const { userId, expenses, extra, debt, int } = req.body;
+  const payment = expenses + extra + debt + int;
 
-  // debug(user);
+  const user = await User.findOneAndUpdate(
+    { _id: userId },
+    { $inc: { balance: payment * -1 } },
+    { new: true }
+  );
 
-  // const {
-  //   period,
-  //   model,
-  //   userId,
-  //   expenses,
-  //   extra,
-  //   debt,
-  //   int,
-  //   isPayed
-  // } = req.body;
+  debug(user.lastname, 'Se debitó:', payment * -1);
 
-  // const pdetails = await PDetails.findOneAndUpdate(
-  //   { _id: req.params.id },
-  //   {
-  //     period,
-  //     model,
-  //     userId,
-  //     expenses,
-  //     extra,
-  //     debt,
-  //     int,
-  //     isPayed
-  //   },
-  //   { new: true }
-  // );
+  const { isPayed } = req.body;
+  const pdetails = await PDetails.findOneAndUpdate(
+    { _id: req.params.id },
+    { isPayed },
+    { new: true }
+  );
+  debug(pdetails);
 
-  // if (!pdetails)
-  //   return res
-  //     .status(404)
-  //     .send(`La liquidación con ID: ${req.params.id} no existe.`);
-
-  // res.send(pdetails);
+  res.send(pdetails);
 });
 
 router.delete('/:id', [auth, admin], async (req, res) => {

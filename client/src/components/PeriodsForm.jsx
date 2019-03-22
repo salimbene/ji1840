@@ -30,6 +30,11 @@ class PeriodsForm extends Form {
       errors: {}
     };
     this.toggleRegister = this.toggleRegister.bind(this);
+    this.togglePeriod = this.togglePeriod.bind(this);
+  }
+
+  togglePeriod() {
+    this.setState(prevState => ({ modal: !prevState.modal }));
   }
 
   toggleRegister(detail) {
@@ -39,7 +44,7 @@ class PeriodsForm extends Form {
     }));
   }
 
-  handleRegister = detail => {
+  handleRegister = async detail => {
     const { selectedDetail } = this.state;
 
     // console.log('handleRegister');
@@ -50,8 +55,9 @@ class PeriodsForm extends Form {
     // this.setState({ periods });
 
     try {
-      console.log('selectedDetail', selectedDetail);
-      savePDetails(selectedDetail);
+      const details = this.MapToMongoModel(selectedDetail);
+      const res = await savePDetails(details);
+      console.log(res);
     } catch (ex) {
       console.log('ex', ex);
       if (ex.response && ex.response.status === 404) {
@@ -60,6 +66,14 @@ class PeriodsForm extends Form {
     }
     this.toggleRegister();
   };
+
+  MapToMongoModel(details) {
+    //DEpopulate model & userId
+    details.model = details.model._id;
+    details.userId = details.userId._id;
+    details.isPayed = true;
+    return details;
+  }
 
   handleSort = sortColumn => {
     this.setState({ sortColumn });
@@ -156,16 +170,21 @@ class PeriodsForm extends Form {
     };
   }
 
-  doSubmit = async () => {
-    const period = { ...this.state.data };
+  doSubmit = () => {
+    this.togglePeriod();
+  };
 
+  handleSavePeriod = async () => {
+    const period = { ...this.state.data };
+    period.isClosed = true;
     try {
+      console.log(period);
       await savePeriod(period);
     } catch (ex) {
       toast(ex.response.data);
       console.log(ex.response.data);
     }
-
+    this.togglePeriod();
     const { history } = this.props;
     history.push('/periods');
   };
@@ -205,12 +224,50 @@ class PeriodsForm extends Form {
     );
   };
 
+  ModalPeriodBody = data => {
+    const { _id, period } = data;
+    const bodyPeriod = (
+      <p className="lead">
+        Se cerrará el periodo <mark>{period}</mark>. Los usuarios que no hayan
+        registrado pagos en el período se registrarán como deudores.
+      </p>
+    );
+    const bodyNewPeriod = (
+      <p className="lead">
+        Se iniciará el periodo <mark>{period}</mark>.
+      </p>
+    );
+
+    return _id ? bodyPeriod : bodyNewPeriod;
+  };
+
+  ModalBodyDetail = user => {
+    const { lastname, balance } = user;
+    return (
+      <p className="lead">
+        El usuario <mark>{lastname}</mark> posee{' '}
+        <mark>${Number(balance).toFixed(2)}</mark>
+        en su cuenta. Si confirma la operación se debitará el pago de su cuenta.
+      </p>
+    );
+  };
+
   render() {
-    const { totalA, totalB, totalIncome } = this.state.data;
-    const { year, month, details, modal, selectedDetail } = this.state;
+    const { year, month, details, modal, selectedDetail, data } = this.state;
+    const { totalA, totalB, totalIncome, _id } = data;
+    const saveButtonLabel = !_id ? 'Guardar' : 'Cerrar Periodo';
+
     return (
       <React.Fragment>
         <ToastContainer />
+        <SimpleModal
+          isOpen={modal}
+          toggle={this.togglePeriod}
+          title={saveButtonLabel}
+          label={saveButtonLabel}
+          action={this.handleSavePeriod}
+          body={this.ModalPeriodBody(data)}
+        />
         {selectedDetail && selectedDetail.model && (
           <SimpleModal
             isOpen={modal}
@@ -218,7 +275,7 @@ class PeriodsForm extends Form {
             title="Registrar pago"
             label="Confirmar"
             action={this.handleRegister}
-            formData={selectedDetail.model.userId}
+            body={this.ModalBodyDetail(selectedDetail.model.userId)}
           />
         )}
         <div className="border border-info rounded shadow-sm p-3 mt-5 bg-white adjust">
@@ -233,12 +290,12 @@ class PeriodsForm extends Form {
               totalB={totalB}
               totalIncome={totalIncome}
             />
-            <div className="row justify-content-around">
+            {/* <div className="row justify-content-around">
               <div className="col mb-2">
                 {this.renderCheck('isClosed', 'Periodo Cerrado')}
               </div>
-            </div>
-            <div className="row">{this.renderButton('Guardar')}</div>
+            </div> */}
+            <div className="row">{this.renderButton(saveButtonLabel)}</div>
           </form>
         </div>
         {details && this.renderDetails(details)}

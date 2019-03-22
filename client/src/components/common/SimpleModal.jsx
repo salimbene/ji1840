@@ -14,8 +14,6 @@ const deleteMessage = (
   <p className="lead">Se procederá a eliminar el item seleccionado</p>
 );
 
-let paymentMessage;
-
 const SimpleModal = ({
   isOpen,
   toggle,
@@ -23,28 +21,18 @@ const SimpleModal = ({
   title,
   label,
   action,
-  formData
+  body
 }) => {
-  if (formData) {
-    paymentMessage = (
-      <p className="lead">
-        El usuario <mark>{formData.lastname}</mark> posee{' '}
-        <mark>${Number(formData.balance).toFixed(2)}</mark>
-        en su cuenta. Si confirma la operación se debitará el pago de su cuenta.
-      </p>
-    );
-  }
-
   return (
     <Modal isOpen={isOpen} toggle={toggle} className={className}>
-      <ModalHeader toggle={toggle} close={closeBtn}>
-        <h1 className="display-4">{title}</h1>
+      <ModalHeader toggle={toggle} close={closeBtn} className="display-5">
+        <div className="display-5">{title}</div>
       </ModalHeader>
       <ModalBody>
         <React.Fragment>
           <strong>Atención</strong>
           <i className="fa fa-surprise" />
-          {formData ? paymentMessage : deleteMessage}
+          {body}
           <Alert color="danger">
             <p>
               <i className="fa fa-exclamation-circle mr-1" />
