@@ -7,7 +7,7 @@ const express = require('express');
 const debug = require('debug')('routes:users');
 const router = express.Router();
 
-router.get('/', [auth], async (req, res) => {
+router.get('/', auth, async (req, res) => {
   const users = await User.find()
     .where('lastname')
     .ne('DISPONIBLE')
@@ -17,7 +17,7 @@ router.get('/', [auth], async (req, res) => {
   res.send(users);
 });
 
-router.get('/landlords', async (req, res) => {
+router.get('/landlords', auth, async (req, res) => {
   const users = await User.find({ isLandlord: true })
     .select('-password -isAdmin')
     .sort('lastname');
@@ -30,7 +30,7 @@ router.get('/me', auth, async (req, res) => {
   res.send(user);
 });
 
-router.get('/:id', [auth], async (req, res) => {
+router.get('/:id', auth, async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select(
       '-password -isAdmin'
@@ -42,13 +42,16 @@ router.get('/:id', [auth], async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
   //Validation
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
   let user = await User.findOne({ mail: req.body.mail });
-  if (user) return res.status(400).send('Usuario ya registrado.');
+  if (user)
+    return res
+      .status(400)
+      .send('La dirección de email ya se encuentra registrada.');
 
   user = new User(
     _.pick(req.body, [
@@ -59,8 +62,6 @@ router.post('/', async (req, res) => {
       'password',
       'notes',
       'balance',
-      'coefficient',
-      'tenant',
       'isLandlord',
       'isCouncil'
     ])
@@ -70,37 +71,27 @@ router.post('/', async (req, res) => {
   user.password = await bcrypt.hash(user.password, salt);
   await user.save();
 
-  const token = user.generateAuthToken();
+  // const token = user.generateAuthToken();
 
   res
     .status(200)
-    .header('x-auth-token', token)
-    .header('access-control-expose-headers', 'x-auth-token')
+    // .header('x-auth-token', token)
+    // .header('access-control-expose-headers', 'x-auth-token')
     .send(_.pick(user, ['_id', 'mail']));
 });
 
-router.put('/:id', [auth], async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
   //Validation
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  // const user = await User.findOneAndUpdate(
-  //   { _id: userId },
-  //   { $inc: { balance: ammount } },
-  //   { new: true }
-  // );
-
-  // const { coef } = await getCoefficient('5c5f833d1a2db7ad5ddeaeaf');
-
   const {
     lastname,
-    fistname,
+    firstname,
     mail,
     phone,
     notes,
     balance,
-    coefficient,
-    tenant,
     isLandlord,
     isCouncil
   } = req.body;
@@ -109,13 +100,11 @@ router.put('/:id', [auth], async (req, res) => {
     { _id: req.params.id },
     {
       lastname,
-      fistname,
+      firstname,
       mail,
       phone,
       notes,
       balance,
-      coefficient,
-      tenant,
       isLandlord,
       isCouncil
     },
@@ -126,7 +115,7 @@ router.put('/:id', [auth], async (req, res) => {
     return res
       .status(404)
       .send(`El usuario con ID: ${req.params.id} no existe.`);
-
+  debug(user);
   res.send(user);
 });
 

@@ -10,7 +10,8 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   const pmodel = await PModel.find()
     .populate('fUnits', '', 'fUnit')
-    .populate('userId', '', 'User');
+    .populate('landlord', '', 'User')
+    .populate('tenant', '', 'User');
   // .sort('userId');
   res.send(pmodel);
 });
@@ -19,7 +20,8 @@ router.get('/:id', async (req, res) => {
   try {
     const pmodel = await PModel.findById(req.params.id)
       .populate('fUnits', '', 'fUnit')
-      .populate('userId', '', 'User');
+      .populate('landlord', '', 'User')
+      .populate('tenant', '', 'User');
 
     res.send(pmodel);
   } catch (ex) {
@@ -38,7 +40,7 @@ router.post('/', [auth, admin], async (req, res) => {
   if (pmodel) return res.status(400).send('El modelo ya existe.');
 
   pmodel = new PModel(
-    _.pick(req.body, ['label', 'fUnits', 'userId', 'coefficient'])
+    _.pick(req.body, ['label', 'fUnits', 'landlord', 'tenant', 'coefficient'])
   );
 
   await pmodel.save();
@@ -51,11 +53,11 @@ router.put('/:id', [auth, admin], async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const { label, fUnits, userId, coefficient } = req.body;
+  const { label, fUnits, landlord, tenant, coefficient } = req.body;
 
   const pmodel = await PModel.findOneAndUpdate(
     { _id: req.params.id },
-    { label, fUnits, userId, coefficient },
+    { label, fUnits, landlord, tenant, coefficient },
     { new: true }
   );
 

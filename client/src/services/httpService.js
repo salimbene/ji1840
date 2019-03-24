@@ -15,6 +15,7 @@ axios.interceptors.response.use(null, error => {
     toast('An unexpected error ocurred.');
   }
   console.log('interceptor activated:', error.response.data);
+  toast(error.response.data);
   return Promise.reject(error);
 });
 

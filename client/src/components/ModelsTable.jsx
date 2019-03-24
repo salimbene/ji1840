@@ -31,11 +31,19 @@ class ModelsTable extends Component {
       )
     },
     {
-      path: 'userId',
-      label: 'Usuario',
+      path: 'landlord',
+      label: 'Propietario',
       content: m => (
-        <Link to={`/users/${m.userId._id}`}>{m.userId.lastname}</Link>
+        <Link to={`/users/${m.landlord._id}`}>{m.landlord.lastname}</Link>
       )
+    },
+    {
+      path: 'tenant',
+      label: 'Inquilino',
+      content: m =>
+        m.tenant && (
+          <Link to={`/users/${m.tenant._id}`}>{m.tenant.lastname}</Link>
+        )
     },
     {
       path: 'coefficient',

@@ -11,7 +11,6 @@ const SideBar = ({ user }) => {
           <React.Fragment>
             <ul className="nav flex-column">
               <SideBarItem label="Acceder" to="/login" />
-              <SideBarItem label="Registro" to="/register" />
             </ul>
           </React.Fragment>
         )}

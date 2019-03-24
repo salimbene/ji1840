@@ -44,8 +44,6 @@ const userSchema = mongoose.Schema({
     trim: true
   },
   balance: { type: Number, default: 0 },
-  coefficient: { type: Number, default: 0 },
-  tenant: { type: String, default: '' },
   isLandlord: { type: Boolean, default: false },
   isCouncil: { type: Boolean, default: false },
   isAdmin: { type: Boolean, default: false }
@@ -87,8 +85,6 @@ function validateUsers(user) {
       .min(5)
       .max(255),
     balance: Joi.number().allow(0),
-    tenant: Joi.string().allow(''),
-    coefficient: Joi.number().allow(0),
     isLandlord: Joi.boolean(),
     isCouncil: Joi.boolean(),
     isAdmin: Joi.boolean()

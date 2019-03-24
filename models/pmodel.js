@@ -12,7 +12,8 @@ const pModelSchema = mongoose.Schema({
       required: true
     }
   ],
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
+  landlord: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
+  tenant: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
   coefficient: { type: Number, required: true }
 });
 
@@ -22,7 +23,8 @@ function validatepModelSchema(pdetails) {
   const schema = {
     label: Joi.string().required(),
     fUnits: Joi.array().required(),
-    userId: Joi.ObjectId().required(),
+    landlord: Joi.ObjectId().required(),
+    tenant: Joi.ObjectId(),
     coefficient: Joi.number().required()
   };
 

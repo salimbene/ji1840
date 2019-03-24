@@ -1,5 +1,5 @@
 import React from 'react';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import Joi from 'joi-browser';
 import _ from 'lodash';
 import SimpleModal from './common/SimpleModal';
@@ -9,7 +9,6 @@ import { getModel, saveModel } from '../services/pmodelsServices';
 import { getUnits } from '../services/unitsService';
 import { getUsers } from '../services/usersService';
 import auth from '../services/authService';
-import 'react-toastify/dist/ReactToastify.css';
 
 class ModelsForm extends Form {
   constructor(props) {
@@ -19,7 +18,8 @@ class ModelsForm extends Form {
         label: '',
         fUnits: [],
         coefficient: 0,
-        userId: '',
+        landlord: '',
+        tenant: '',
         selectedUnit: ''
       },
       sortUnits: { path: 'fUnit', order: 'asc' },
@@ -41,13 +41,11 @@ class ModelsForm extends Form {
     label: Joi.string()
       .required()
       .label('Nombre'),
-    userId: Joi.string().label('Usuario'),
+    landlord: Joi.string().label('Usuario'),
+    tenant: Joi.string().label('Usuario'),
     selectedUnit: Joi.string()
       .required()
       .label('Unidad seleccionada'),
-    // selectedUser: Joi.string()
-    //   .required()
-    //   .label('Usuario seleccionado'),
     fUnits: Joi.array()
       .required()
       .label('Unidades'),
@@ -70,7 +68,10 @@ class ModelsForm extends Form {
       const modelId = this.props.match.params.id;
       if (modelId === 'new') return;
       const { data: model } = await getModel(modelId);
-      const keys = { userIdKey: model.userId._id };
+      const keys = {
+        landlordKey: model.landlord._id,
+        tenantKey: model.tenant._id
+      };
       this.setState({ data: this.mapToViewModel(model), keys });
     } catch (ex) {
       if (ex.response && ex.response.status === 404)
@@ -85,9 +86,11 @@ class ModelsForm extends Form {
   }
 
   mapToViewModel(model) {
+    console.log(model);
     return {
       _id: model._id,
-      userId: model.userId.lastname,
+      landlord: model.landlord.lastname,
+      tenant: model.tenant.lastname || '',
       label: model.label,
       fUnits: model.fUnits,
       coefficient: model.coefficient,
@@ -98,18 +101,25 @@ class ModelsForm extends Form {
   doSubmit = async () => {
     const model = { ...this.state.data };
     const { users } = this.state;
-    const { userIdKey } = this.state.keys;
+    const { landlordKey, tenantKey } = this.state.keys;
 
     //selectedUnit no existe en mongo
     delete model.selectedUnit;
-    model.userId = users.find(e => {
-      return e._id === userIdKey;
+    model.landlord = users.find(e => {
+      return e._id === landlordKey;
+    })._id;
+
+    model.tenant = users.find(e => {
+      return e._id === tenantKey;
     })._id;
 
     try {
       await saveModel(model);
+      toast.success(`😀 Los datos se actualizaron con éxito.`, {
+        position: 'top-center'
+      });
     } catch (ex) {
-      toast(`server says: ${ex.response.data}`);
+      toast.error(`☹️ Error: ${ex.response.data}`);
     }
 
     const { history } = this.props;
@@ -171,6 +181,7 @@ class ModelsForm extends Form {
       <button
         onClick={event => this.toggleDelete(model)}
         className="btn btn-danger btn-sm"
+        type="button"
       >
         Eliminar
       </button>
@@ -186,18 +197,22 @@ class ModelsForm extends Form {
 
   handleDelete = () => {
     const { selectedUnit, models: rollback, data: model } = this.state;
+    const { landlordKey, tenantKey } = this.state.keys;
 
     model.fUnits = model.fUnits.filter(u => u._id !== selectedUnit._id);
+    model.landlord = landlordKey;
+    model.tenant = tenantKey;
 
     this.setState({ model });
 
     try {
       this.doSubmit();
+      toast.success(`😀 Los datos se actualizaron con éxito.`, {
+        position: 'top-center'
+      });
     } catch (ex) {
-      if (ex.response && ex.response.status === 404) {
-        toast(ex.response.data);
-        this.setState({ models: rollback });
-      }
+      toast.error(`☹️ Error: ${ex.response.data}`);
+      this.setState({ models: rollback });
     }
     this.toggleDelete();
   };
@@ -230,7 +245,6 @@ class ModelsForm extends Form {
 
     return (
       <React.Fragment>
-        <ToastContainer />
         <SimpleModal
           isOpen={this.state.modal}
           toggle={this.toggleDelete}
@@ -257,14 +271,20 @@ class ModelsForm extends Form {
                 </button>
               </div>
               <div className="col-sm-4">
-                {this.renderSelect('userId', 'Usuario', 'lastname', users)}
+                {this.renderSelect(
+                  'landlord',
+                  'Propietario',
+                  'lastname',
+                  users
+                )}
               </div>
-              <div className="col align-self-center">
-                <mark>{` Coeficiente total: ${data.coefficient}`}</mark>
+              <div className="col-sm-4">
+                {this.renderSelect('tenant', 'Inquilino', 'lastname', users)}
               </div>
             </div>
             <div className="row">
               <div className="col col-sm-6 pt-4">
+                <mark>{` Coeficiente total: ${data.coefficient}`}</mark>
                 {this.renderProps(sortedUnits, sortUnits)}
               </div>
             </div>

@@ -39,16 +39,16 @@ class App extends Component {
 
     return (
       <React.Fragment>
-        <NavBar user={user} />
         <ToastContainer />
+        <NavBar user={user} />
         <div className="container-fluid">
           <div className="row">
             <SideBar user={user} />
             <main role="main" className="col-md-9 ml-sm-auto col-lg-10 px-4">
               <Switch>
-                <Route path="/register" component={RegisterForm} />
                 <Route path="/login" component={LoginForm} />
                 <Route path="/logout" component={Logout} />
+                <ProtectedRoute path="/register" component={RegisterForm} />
                 <ProtectedRoute
                   path="/suppliers/:id"
                   component={SuppliersForm}

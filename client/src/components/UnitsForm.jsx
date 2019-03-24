@@ -1,6 +1,7 @@
 import React from 'react';
 import Joi from 'joi-browser';
 import Form from './common/Form';
+import { toast } from 'react-toastify';
 import { getUnit, saveUnit } from '../services/unitsService';
 import { getUsers } from '../services/usersService';
 
@@ -62,11 +63,12 @@ class UnitsForm extends Form {
       const unitId = this.props.match.params.id;
       if (unitId === 'new') return;
       const { data: unit } = await getUnit(unitId);
+      console.log('lalalalalla', unit);
       const keys = { lastnameKey: unit.landlord.userId._id };
       this.setState({ data: this.mapToViewModel(unit), keys });
     } catch (ex) {
-      if (ex.response && ex.response.status === 404)
-        return this.props.history.replace('/not-found');
+      console.log(ex);
+      toast.error(`☹️ Error: ${ex.response}`);
     }
   }
 
@@ -76,6 +78,7 @@ class UnitsForm extends Form {
   }
 
   mapToViewModel(unit) {
+    console.log('maptoview', unit);
     return {
       _id: unit._id,
       fUnit: unit.fUnit,
@@ -110,7 +113,7 @@ class UnitsForm extends Form {
     delete fUnit.lastname;
 
     return {
-      userId: this.state.keys['lastnameKey'],
+      userId: this.state.keys['lastnameKey'] || '5c5f843049580aaa01a931c9', //id de -disponible-
       name: lastname
     };
   };
@@ -137,7 +140,7 @@ class UnitsForm extends Form {
     try {
       await saveUnit(fUnit);
     } catch (ex) {
-      console.log('..server says ', ex.response.data);
+      toast.error(`☹️ Error: ${ex.response.data}`);
     }
 
     const { history } = this.props;

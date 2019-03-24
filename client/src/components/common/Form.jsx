@@ -21,7 +21,9 @@ class Form extends Component {
 
     for (let item of error.details) {
       console.log(`Validating ${item.path[0]}: ${item.message}`);
-      errors[item.path[0]] = item.message;
+      errors[item.path[0]] = `El valor ${
+        item.path[0]
+      } es incorrecto o se encuentra vacio.`; // item.message;
     }
     return errors;
   };
@@ -30,7 +32,7 @@ class Form extends Component {
     const obj = { [name]: value };
     const schema = { [name]: this.schema[name] };
     const { error } = Joi.validate(obj, schema);
-    return error ? error.details[0].message : null;
+    return error ? `El dato es inválido o se encuentra vacio.` : null; //error.details[0].message
   };
 
   handleSubmit = e => {

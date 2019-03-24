@@ -6,7 +6,7 @@ import SimpleModal from './common/SimpleModal';
 import UsersTable from './UsersTable';
 import auth from '../services/authService';
 import { paginate } from '../utils/paginate';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import _ from 'lodash';
 
@@ -26,9 +26,6 @@ class Users extends Component {
   }
 
   async componentDidMount() {
-    // const { data } = await getGenres();
-    // const genres = [{ _id: "", name: "All Genres" }, ...data];
-
     const { data: users } = await getUsers();
     this.setState({ users, currentUser: auth.getCurrentUser() });
   }
@@ -42,10 +39,8 @@ class Users extends Component {
     try {
       deleteUser(selectedUser._id);
     } catch (ex) {
-      if (ex.response && ex.response.status === 404) {
-        toast('Something failed!');
-        this.setState({ users: rollback });
-      }
+      toast.error(`☹️ Error:${ex.response.data}`);
+      this.setState({ users: rollback });
     }
     this.toggleDelete();
   };
@@ -103,8 +98,23 @@ class Users extends Component {
     }));
   }
 
+  ModalBodyDetail = user => {
+    const { lastname } = user;
+    return (
+      <p className="lead">
+        Se eliminará el usuario <mark>{lastname}</mark>.
+      </p>
+    );
+  };
+
   render() {
-    const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
+    const {
+      pageSize,
+      currentPage,
+      sortColumn,
+      searchQuery,
+      selectedUser
+    } = this.state;
     const { currentUser } = this.state;
 
     const { totalCount, data: users } = this.getPageData();
@@ -117,10 +127,10 @@ class Users extends Component {
           title="Eliminar usuario"
           label="Eliminar"
           action={this.handleDelete}
+          body={selectedUser && this.ModalBodyDetail(selectedUser)}
         />
         <div className="row units">
           <div className="col">
-            <ToastContainer />
             <p>Usuarios registrados: {totalCount}</p>
             <SearchBox value={searchQuery} onChange={this.handleSearch} />
             <UsersTable

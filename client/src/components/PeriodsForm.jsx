@@ -44,9 +44,8 @@ class PeriodsForm extends Form {
     }));
   }
 
-  handleRegister = async detail => {
+  handleRegister = async () => {
     const { selectedDetail } = this.state;
-
     // console.log('handleRegister');
     // const periods = this.state.periods.filter(
     //   u => u._id !== selectedDetail._id
@@ -69,8 +68,8 @@ class PeriodsForm extends Form {
 
   MapToMongoModel(details) {
     //DEpopulate model & userId
-    details.model = details.model._id;
     details.userId = details.userId._id;
+    details.model = details.model._id;
     details.isPayed = true;
     return details;
   }

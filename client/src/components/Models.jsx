@@ -7,8 +7,7 @@ import ModelsTable from './ModelsTable';
 import auth from '../services/authService';
 import { getModels, deleteModel } from '../services/pmodelsServices';
 import { paginate } from '../utils/paginate';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 
 class Models extends Component {
   constructor(props) {
@@ -66,7 +65,7 @@ class Models extends Component {
       deleteModel(selectedModel._id);
     } catch (ex) {
       if (ex.response && ex.response.status === 404) {
-        toast(ex.response.data);
+        toast.error(`☹️ Error: ${ex.response.data}`);
         this.setState({ models: rollback });
       }
     }
@@ -113,7 +112,6 @@ class Models extends Component {
 
     return (
       <React.Fragment>
-        <ToastContainer />
         <SimpleModal
           isOpen={this.state.modal}
           toggle={this.toggleDelete}

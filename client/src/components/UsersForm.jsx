@@ -1,6 +1,7 @@
 import React from 'react';
 import Joi from 'joi-browser';
 import _ from 'lodash';
+import { toast } from 'react-toastify';
 import Form from './common/Form';
 import Table from './common/Table';
 import { getUnits, getUnitsOwnedBy } from '../services/unitsService';
@@ -16,17 +17,15 @@ class UsersForm extends Form {
       firstname: '',
       mail: '',
       phone: '',
-      tenant: '',
-      isCouncil: false,
-      isLandlord: false,
+      notes: '',
       balance: 0,
-      notes: ''
+      isCouncil: false,
+      isLandlord: false
     },
     payments: [],
     owned: [],
     users: [],
     units: [],
-    keys: {},
     errors: {},
     sortUnits: { path: 'fUnit', order: 'asc' },
     sortPayments: { path: 'date', order: 'dec' },
@@ -55,12 +54,9 @@ class UsersForm extends Form {
       .max(500)
       .allow('')
       .label('Notas'),
+    balance: Joi.number().label('Balance'),
     isCouncil: Joi.boolean().label('Consejo'),
-    isLandlord: Joi.boolean().label('Propietario'),
-    tenant: Joi.string()
-      .allow('')
-      .label('Inquilino'),
-    balance: Joi.number().label('Balance')
+    isLandlord: Joi.boolean().label('Propietario')
   };
 
   async populateUnits() {
@@ -80,8 +76,8 @@ class UsersForm extends Form {
       const userId = this.props.match.params.id;
       if (userId === 'new') return;
       const { data: user } = await getUser(userId);
-      const keys = { tenantKey: user.tenant };
-      this.setState({ data: this.mapToViewModel(user), keys });
+
+      this.setState({ data: this.mapToViewModel(user) });
     } catch (ex) {
       if (ex.response && ex.response.status === 404)
         return this.props.history.replace('/not-found');
@@ -136,22 +132,21 @@ class UsersForm extends Form {
       mail: user.mail,
       phone: user.phone || '',
       notes: user.notes || '',
-      tenant: user.tenant || '',
+      balance: user.balance,
       isCouncil: user.isCouncil || false,
-      isLandlord: user.isLandlord || false,
-      balance: user.balance
+      isLandlord: user.isLandlord || false
     };
   }
 
   doSubmit = async () => {
     const user = { ...this.state.data };
-
-    user.tenant = this.state.keys['tenantKey'];
-
     try {
       await saveUser(user);
+      toast.success(`😀 Los datos se guardaron exitosamente.`, {
+        position: 'top-center'
+      });
     } catch (ex) {
-      alert(`server says ${ex.response.data}`);
+      toast.error(`☹️ Error: ${ex.response.data}`);
     }
 
     const { history } = this.props;
@@ -233,22 +228,10 @@ class UsersForm extends Form {
                         {this.renderCheck('isLandlord', 'Es propietario')}
                       </div>
                     </div>
-                    <div className="row">
-                      <div className="col">
-                        {!this.state.data.isLandlord &&
-                          this.renderSelect(
-                            'tenant',
-                            'Inquilino de:',
-                            'lastname',
-                            this.state.users
-                          )}
-                      </div>
-                    </div>
                   </div>
                 </div>
               </React.Fragment>
             )}
-
             <div className="row">{this.renderButton('Guardar')}</div>
           </form>
         </div>
@@ -297,22 +280,6 @@ class UsersForm extends Form {
     );
   }
 
-  renderStats() {
-    const { balance } = this.state.data;
-    return (
-      <React.Fragment>
-        <div className="border border-info p-3 mb-3 mx-auto rounded shadow bg-white">
-          <p className="text-muted">Balance</p>
-          <h3>
-            Saldo
-            <span className="badge badge-primary ml-2">
-              {`$${balance.toFixed(2)}`}
-            </span>
-          </h3>
-        </div>
-      </React.Fragment>
-    );
-  }
   getSortedData = (data, sortColumn) => {
     const sorted = _.orderBy(data, [sortColumn.path], [sortColumn.order]);
     return sorted;
@@ -328,7 +295,6 @@ class UsersForm extends Form {
         <div className="row">
           <div className="col">{this.renderForm()}</div>
           <div className="col">
-            {this.renderStats()}
             {this.renderProps(sortedUnits, sortUnits)}
             {this.renderMovs(sortedPayments, sortPayments)}
           </div>

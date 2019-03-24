@@ -22,6 +22,14 @@ router.get('/period/:id', async (req, res) => {
   res.send(total);
 });
 
+router.get('/user/:id', async (req, res) => {
+  const payments = await Payment.find()
+    .where('userId')
+    .equals(req.params.id)
+    .sort('userId');
+  res.send(payments);
+});
+
 router.get('/:id', async (req, res) => {
   try {
     const payment = await Payment.findById(req.params.id)
