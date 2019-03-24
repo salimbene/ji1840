@@ -25,11 +25,14 @@ export function paginate(items, pageNumber, pageSize) {
     .value();
 }
 
-export function getCurrentPeriod() {
+export function getCurrentPeriod(e = 0) {
   // return `${monthLabels[today.getMonth()]} ${today.getFullYear()}`;
+  const month = monthLabels[today.getMonth() - e];
+  const year = today.getFullYear() - (month === 'Diciembre' ? 1 : 0);
+
   return {
-    year: today.getFullYear(),
-    month: monthLabels[today.getMonth()]
+    year,
+    month
   };
 }
 
@@ -37,11 +40,11 @@ export function getPeriod(day) {
   return `${monthLabels[day.getMonth()]} ${day.getFullYear()}`;
 }
 
-export function getLastXMonths(n = 12) {
+export function getLastXMonths(n = 12, e = 0) {
   let d;
   let xMonths = [];
 
-  for (let i = 0; i < n; i += 1) {
+  for (let i = 0 + e; i < n; i += 1) {
     d = new Date(today.getFullYear(), today.getMonth() - i, 1);
     let period = `${monthLabels[d.getMonth()]} ${d.getFullYear()}`;
     xMonths.push(period);

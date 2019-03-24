@@ -1,6 +1,6 @@
 import React from 'react';
 import Joi from 'joi-browser';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import Form from './common/Form';
 import SimpleModal from './common/SimpleModal';
 import PeriodSelector from './common/PeriodSelector';
@@ -11,7 +11,7 @@ import { getTotalPayments } from '../services/paymentsService';
 import { getTotalExpenses } from '../services/expensesService';
 import { getPDetailsByPeriod, savePDetails } from '../services/pdetailsService';
 import auth from '../services/authService';
-import { getCurrentPeriod } from '../utils/dates';
+import { getCurrentPeriod, getLastXMonths } from '../utils/dates';
 
 class PeriodsForm extends Form {
   constructor(props) {
@@ -25,8 +25,8 @@ class PeriodsForm extends Form {
         totalIncome: 0,
         isClosed: false
       },
-      year: getCurrentPeriod().year,
-      month: getCurrentPeriod().month,
+      year: getCurrentPeriod(1).year,
+      month: getCurrentPeriod(1).month,
       errors: {}
     };
     this.toggleRegister = this.toggleRegister.bind(this);
@@ -254,11 +254,10 @@ class PeriodsForm extends Form {
   render() {
     const { year, month, details, modal, selectedDetail, data } = this.state;
     const { totalA, totalB, totalIncome, _id } = data;
-    const saveButtonLabel = !_id ? 'Guardar' : 'Cerrar Periodo';
+    const saveButtonLabel = !_id ? 'Iniciar Período' : 'Cerrar Período';
 
     return (
       <React.Fragment>
-        <ToastContainer />
         <SimpleModal
           isOpen={modal}
           toggle={this.togglePeriod}
@@ -277,27 +276,25 @@ class PeriodsForm extends Form {
             body={this.ModalBodyDetail(selectedDetail.model.userId)}
           />
         )}
-        <div className="border border-info rounded shadow-sm p-3 mt-5 bg-white adjust">
+        <div className="border border-info rounded shadow-sm p-3 mt-1 bg-white adjust">
           <form onSubmit={this.handleSubmit}>
-            <PeriodSelector
-              months={month}
-              years={year}
-              handlePeriod={this.handleChangePeriod}
-            />
+            <div className="row align-items-end">
+              <div className="col">
+                {this.renderSelect('period', 'Mes', '', getLastXMonths(12, 1))}
+              </div>
+              <div className="col">
+                <div className="row">{this.renderButton(saveButtonLabel)}</div>
+              </div>
+            </div>
+
             <PeriodStats
               totalA={totalA}
               totalB={totalB}
               totalIncome={totalIncome}
             />
-            {/* <div className="row justify-content-around">
-              <div className="col mb-2">
-                {this.renderCheck('isClosed', 'Periodo Cerrado')}
-              </div>
-            </div> */}
-            <div className="row">{this.renderButton(saveButtonLabel)}</div>
           </form>
         </div>
-        {details && this.renderDetails(details)}
+        {/* {details && this.renderDetails(details)} */}
       </React.Fragment>
     );
   }

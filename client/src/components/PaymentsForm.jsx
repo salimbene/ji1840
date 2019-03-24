@@ -5,6 +5,7 @@ import { getPayment, savePayment } from '../services/paymentsService';
 import { getLastXMonths } from '../utils/dates';
 import { getUsers } from '../services/usersService';
 import { getCurrentUser } from '../services/authService';
+import { toast } from 'react-toastify';
 
 class PaymentsForm extends Form {
   state = {
@@ -74,8 +75,11 @@ class PaymentsForm extends Form {
 
     try {
       await savePayment(payment);
+      toast.success(`😀 Los datos se actualizaron con éxito.`, {
+        position: 'top-center'
+      });
     } catch (ex) {
-      console.log(ex.response);
+      toast.error(`☹️ Error: ${ex.response.data}`);
     }
 
     const { history } = this.props;

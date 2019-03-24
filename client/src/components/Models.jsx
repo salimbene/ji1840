@@ -64,10 +64,8 @@ class Models extends Component {
     try {
       deleteModel(selectedModel._id);
     } catch (ex) {
-      if (ex.response && ex.response.status === 404) {
-        toast.error(`☹️ Error: ${ex.response.data}`);
-        this.setState({ models: rollback });
-      }
+      toast.error(`☹️ Error: ${ex.response.data}`);
+      this.setState({ models: rollback });
     }
     this.toggleDelete();
   };

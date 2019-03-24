@@ -14,6 +14,13 @@ const expensesSchema = mongoose.Schema({
   },
   ammount: { type: Number, required: true },
   period: { type: String, trim: true, required: true },
+  excluded: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'users',
+      required: true
+    }
+  ],
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'users',
@@ -51,6 +58,7 @@ function validateExpenses(expense) {
       .required(),
     ammount: Joi.number().required(),
     period: Joi.string().required(),
+    excluded: Joi.array(),
     userId: Joi.ObjectId()
   };
 

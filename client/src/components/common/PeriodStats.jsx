@@ -40,7 +40,9 @@ const PeriodStats = ({ totalA, totalB, totalIncome }) => {
               <mark>Saldo Mes</mark>
               <span
                 className={`badge ${
-                  totalIncome < 0 ? 'badge-danger' : 'badge-success'
+                  totalIncome - totalA - totalB < 0
+                    ? 'badge-danger'
+                    : 'badge-success'
                 } badge-pill ml-2`}
               >
                 {`$${Number(totalIncome - totalA - totalB).toFixed(2)}`}

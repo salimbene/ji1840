@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import _ from 'lodash';
 import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
 import SimpleModal from './common/SimpleModal';
 import auth from '../services/authService';
 import PeriodsTable from './PeriodsTable';
-import { getPeriods } from '../services/periodsService.js';
+import { getPeriods, deletePeriod } from '../services/periodsService.js';
 import { paginate } from '../utils/paginate';
-import 'react-toastify/dist/ReactToastify.css';
 
 class Periods extends Component {
   constructor(props) {
@@ -41,20 +40,17 @@ class Periods extends Component {
     const { selectedPeriod } = this.state;
     const { periods: rollback } = this.state;
 
-    // const periods = this.state.periods.filter(
-    //   u => u._id !== selectedPeriod._id
-    // );
+    const periods = this.state.periods.filter(
+      u => u._id !== selectedPeriod._id
+    );
 
-    // this.setState({ periods });
+    this.setState({ periods });
 
     try {
-      console.log(selectedPeriod);
-      // deleteModel(selectedPeriod._id);
+      deletePeriod(selectedPeriod._id);
     } catch (ex) {
-      if (ex.response && ex.response.status === 404) {
-        toast(ex.response.data);
-        this.setState({ models: rollback });
-      }
+      toast.error(`☹️ Error: ${ex.response.data}`);
+      this.setState({ expenses: rollback });
     }
     this.toggleDelete();
   };
@@ -102,7 +98,6 @@ class Periods extends Component {
   };
 
   render() {
-    const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
     const { user } = this.state;
 
     if (user && !user.isAdmin)
@@ -112,15 +107,15 @@ class Periods extends Component {
         </div>
       );
 
+    const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
     const { totalCount, data: periods } = this.getPageData();
 
     return (
       <React.Fragment>
-        <ToastContainer />
         <SimpleModal
           isOpen={this.state.modal}
           toggle={this.toggleDelete}
-          title="Eliminar periodooo"
+          title="Eliminar periodo"
           label="Eliminar"
           action={this.handleDelete}
         />

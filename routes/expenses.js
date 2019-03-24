@@ -41,10 +41,12 @@ router.post('/', [auth, admin], async (req, res) => {
 
   expense = new Expense(
     _.pick(req.body, [
+      'period',
       'category',
       'concept',
       'ammount',
-      'period',
+      'type',
+      'excluded',
       'userId',
       'date'
     ])
@@ -60,11 +62,19 @@ router.put('/:id', [auth, admin], async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const { category, concept, ammount, type, period, userId } = req.body;
+  const {
+    category,
+    concept,
+    ammount,
+    type,
+    period,
+    excluded,
+    userId
+  } = req.body;
 
   const expense = await Expense.findOneAndUpdate(
     { _id: req.params.id },
-    { category, concept, ammount, type, period, userId },
+    { category, concept, ammount, type, period, excluded, userId },
     { new: true }
   );
 
