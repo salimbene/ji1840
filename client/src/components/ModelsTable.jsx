@@ -54,12 +54,10 @@ class ModelsTable extends Component {
   deleteColumn = {
     key: 'del',
     content: model => (
-      <button
+      <i
         onClick={event => this.props.onDelete(model)}
-        className="btn btn-danger btn-sm"
-      >
-        Eliminar
-      </button>
+        className="fa fa-trash red"
+      />
     )
   };
 

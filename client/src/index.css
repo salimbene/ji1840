@@ -23,6 +23,9 @@ code {
     monospace;
 }
 
+.red {
+  color: red;
+}
 .clickable {
   cursor: pointer;
 }

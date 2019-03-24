@@ -2,7 +2,7 @@ import React from 'react';
 import Joi from 'joi-browser';
 import Form from './common/Form';
 import { getExpense, saveExpense } from '../services/expensesService';
-import { getLastXMonths } from '../utils/dates';
+import { getLastXMonths, getPeriod } from '../utils/dates';
 import auth from '../services/authService';
 
 class ExpensesForm extends Form {
@@ -12,7 +12,7 @@ class ExpensesForm extends Form {
       concept: '',
       type: '',
       ammount: 0,
-      period: ''
+      period: getPeriod(new Date())
     },
     errors: {}
   };
@@ -49,7 +49,11 @@ class ExpensesForm extends Form {
   async populateExpenses() {
     try {
       const expenseId = this.props.match.params.id;
-      if (expenseId === 'new') return;
+      if (expenseId === 'new') {
+        // const data = { period: ) };
+        // this.setState({ data });
+        return;
+      }
       const { data: expense } = await getExpense(expenseId);
       this.setState({ data: this.mapToViewModel(expense) });
     } catch (ex) {
@@ -63,6 +67,7 @@ class ExpensesForm extends Form {
   }
 
   mapToViewModel(expense) {
+    console.log('mapToViewModel', expense.period);
     return {
       _id: expense._id,
       category: expense.category,
@@ -94,7 +99,7 @@ class ExpensesForm extends Form {
           Registrar Gasto
           <small className="text-muted"> > Detalles</small>
         </h3>
-        <div className="border border-info rounded shadow-sm p-3 w-75 bg-white md-10">
+        <div className="border border-info rounded shadow-sm p-3 w-75 bg-white sm-10">
           <form onSubmit={this.handleSubmit}>
             <div className="row">
               <div className="col">
@@ -102,10 +107,10 @@ class ExpensesForm extends Form {
               </div>
             </div>
             <div className="row">
-              <div className="col col-md-2">
+              <div className="col col-sm-3">
                 {this.renderInput('ammount', 'Importe')}
               </div>
-              <div className="col col-md-2">
+              <div className="col col-sm-2">
                 {this.renderSelect('type', 'Tipo', '', this.typeOptions)}
               </div>
               <div className="col ">
@@ -116,8 +121,8 @@ class ExpensesForm extends Form {
                   this.categoryOptions
                 )}
               </div>
-              <div className="col col-md-4">
-                {this.renderSelect('period', 'Mes', '', getLastXMonths(3))}
+              <div className="col col-sm-4">
+                {this.renderSelect('period', 'Mes', '', getLastXMonths(12))}
               </div>
             </div>
 

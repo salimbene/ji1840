@@ -42,12 +42,10 @@ class PaymentsTable extends Component {
   deleteColumn = {
     key: 'del',
     content: payment => (
-      <button
+      <i
         onClick={event => this.props.onDelete(payment)}
-        className="btn btn-danger btn-sm"
-      >
-        Eliminar
-      </button>
+        className="fa fa-trash red"
+      />
     )
   };
 

@@ -10,10 +10,6 @@ import {
 
 const closeBtn = <i className="fa fa-times-circle" />;
 
-const deleteMessage = (
-  <p className="lead">Se procederá a eliminar el item seleccionado</p>
-);
-
 const SimpleModal = ({
   isOpen,
   toggle,

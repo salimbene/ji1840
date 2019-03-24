@@ -96,6 +96,16 @@ router.delete('/:id', [auth, admin], async (req, res) => {
   try {
     const payment = await Payment.findByIdAndRemove(req.params.id);
     res.send(payment);
+
+    const { userId, ammount } = payment;
+
+    const user = await User.findOneAndUpdate(
+      { _id: userId },
+      { $inc: { balance: ammount * -1 } },
+      { new: true }
+    );
+    debug(user);
+
     debug(`${payment._id} DELETED ok!`);
   } catch (ex) {
     debug(ex.message);

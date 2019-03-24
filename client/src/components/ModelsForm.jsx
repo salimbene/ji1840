@@ -19,7 +19,6 @@ class ModelsForm extends Form {
         fUnits: [],
         coefficient: 0,
         landlord: '',
-        tenant: '',
         selectedUnit: ''
       },
       sortUnits: { path: 'fUnit', order: 'asc' },
@@ -42,7 +41,9 @@ class ModelsForm extends Form {
       .required()
       .label('Nombre'),
     landlord: Joi.string().label('Usuario'),
-    tenant: Joi.string().label('Usuario'),
+    tenant: Joi.string()
+      .allow('')
+      .label('Usuario'),
     selectedUnit: Joi.string()
       .required()
       .label('Unidad seleccionada'),
@@ -68,14 +69,16 @@ class ModelsForm extends Form {
       const modelId = this.props.match.params.id;
       if (modelId === 'new') return;
       const { data: model } = await getModel(modelId);
+
       const keys = {
-        landlordKey: model.landlord._id,
-        tenantKey: model.tenant._id
+        landlordKey: model.landlord._id
       };
+
+      if (model.tenant) keys.tenantKey = model.tenant._id;
+
       this.setState({ data: this.mapToViewModel(model), keys });
     } catch (ex) {
-      if (ex.response && ex.response.status === 404)
-        return this.props.history.replace('/not-found');
+      toast.error(`☹️ Error: ${ex}`);
     }
   }
 
@@ -86,11 +89,9 @@ class ModelsForm extends Form {
   }
 
   mapToViewModel(model) {
-    console.log(model);
     return {
       _id: model._id,
       landlord: model.landlord.lastname,
-      tenant: model.tenant.lastname || '',
       label: model.label,
       fUnits: model.fUnits,
       coefficient: model.coefficient,
@@ -109,9 +110,10 @@ class ModelsForm extends Form {
       return e._id === landlordKey;
     })._id;
 
-    model.tenant = users.find(e => {
-      return e._id === tenantKey;
-    })._id;
+    if (model.tenant)
+      model.tenant = users.find(e => {
+        return e._id === tenantKey;
+      })._id;
 
     try {
       await saveModel(model);
@@ -196,7 +198,7 @@ class ModelsForm extends Form {
   }
 
   handleDelete = () => {
-    const { selectedUnit, models: rollback, data: model } = this.state;
+    const { selectedUnit, data: model } = this.state;
     const { landlordKey, tenantKey } = this.state.keys;
 
     model.fUnits = model.fUnits.filter(u => u._id !== selectedUnit._id);
@@ -205,15 +207,15 @@ class ModelsForm extends Form {
 
     this.setState({ model });
 
-    try {
-      this.doSubmit();
-      toast.success(`😀 Los datos se actualizaron con éxito.`, {
-        position: 'top-center'
-      });
-    } catch (ex) {
-      toast.error(`☹️ Error: ${ex.response.data}`);
-      this.setState({ models: rollback });
-    }
+    // try {
+    //   this.doSubmit();
+    //   toast.success(`😀 Los datos se actualizaron con éxito.`, {
+    //     position: 'top-center'
+    //   });
+    // } catch (ex) {
+    //   toast.error(`☹️ Error: ${ex.response.data}`);
+    //   this.setState({ models: rollback });
+    // }
     this.toggleDelete();
   };
 
@@ -239,8 +241,23 @@ class ModelsForm extends Form {
     return sorted;
   };
 
+  bodyDelUnit = () => {
+    return (
+      <p className="lead">
+        Eliminar una asigación puede ocacionar inconsistencia de datos.
+      </p>
+    );
+  };
+
+  getUserFullName = (users, key) => {
+    if (!key || users.length === 0) return '';
+    const fullName = users.find(u => u._id === key);
+    return `${fullName.lastname}, ${fullName.firstname}`;
+  };
+
   render() {
     const { sortUnits, data, users, units } = this.state;
+    const { landlordKey, tenantKey } = this.state.keys;
     const sortedUnits = this.getSortedData(data.fUnits, sortUnits);
 
     return (
@@ -248,9 +265,10 @@ class ModelsForm extends Form {
         <SimpleModal
           isOpen={this.state.modal}
           toggle={this.toggleDelete}
-          title="Eliminar asignacion"
+          title="Eliminar unidad asignada"
           label="Eliminar"
           action={this.handleDelete}
+          body={this.bodyDelUnit()}
         />
         <div className="border border-info rounded shadow-sm p-3 mb-5 bg-white adjust">
           <form onSubmit={this.handleSubmit}>
@@ -259,18 +277,8 @@ class ModelsForm extends Form {
                 {this.renderInput('label', 'Nombre')}
               </div>
             </div>
-            <div className="row ">
-              <div className="col-sm-4">
-                {this.renderSelect('selectedUnit', 'Unidades', 'fUnit', units)}
-                <button
-                  type="button"
-                  onClick={event => this.handleAddModel(event)}
-                  className="btn btn-info btn-sm ml-2 mt-1"
-                >
-                  Asignar
-                </button>
-              </div>
-              <div className="col-sm-4">
+            <div className="row align-items-end">
+              <div className="col-sm-5">
                 {this.renderSelect(
                   'landlord',
                   'Propietario',
@@ -278,11 +286,33 @@ class ModelsForm extends Form {
                   users
                 )}
               </div>
-              <div className="col-sm-4">
-                {this.renderSelect('tenant', 'Inquilino', 'lastname', users)}
+              <div className="col">
+                {this.getUserFullName(users, landlordKey)}
               </div>
             </div>
-            <div className="row">
+            <div className="row align-items-end">
+              <div className="col-sm-5">
+                {this.renderSelect('tenant', 'Inquilino', 'lastname', users)}
+              </div>
+              <div className="col">
+                {this.getUserFullName(users, tenantKey)}
+              </div>
+            </div>
+            <div className="row align-items-end">
+              <div className="col-sm-3">
+                {this.renderSelect('selectedUnit', 'Unidades', 'fUnit', units)}
+              </div>
+              <div className="col">
+                <button
+                  type="button"
+                  onClick={event => this.handleAddModel(event)}
+                  className="btn btn-info btn-sm m-1"
+                >
+                  Asignar
+                </button>
+              </div>
+            </div>
+            <div className="row align-items-end">
               <div className="col col-sm-6 pt-4">
                 <mark>{` Coeficiente total: ${data.coefficient}`}</mark>
                 {this.renderProps(sortedUnits, sortUnits)}

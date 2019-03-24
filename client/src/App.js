@@ -25,8 +25,6 @@ import ModelsForm from './components/ModelsForm';
 import Models from './components/Models';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import auth from './services/authService';
-import 'react-toastify/dist/ReactToastify.css';
-import './App.css';
 
 class App extends Component {
   state = {};

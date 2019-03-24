@@ -1,15 +1,18 @@
 import React from 'react';
 
-const SearchBox = ({ value, onChange }) => {
+const SearchBox = ({ value, onChange, className }) => {
   return (
-    <input
-      type="text"
-      name="query"
-      className="form-control my-3"
-      placeholder="Buscar..."
-      value={value}
-      onChange={e => onChange(e.currentTarget.value)}
-    />
+    <div className="input-group input-group-sm m-1">
+      <input
+        id="searchx"
+        type="text"
+        name="query"
+        className={`form-control ${className}`}
+        placeholder="Buscar..."
+        value={value}
+        onChange={e => onChange(e.currentTarget.value)}
+      />
+    </div>
   );
 };
 

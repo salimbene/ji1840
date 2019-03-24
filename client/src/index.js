@@ -2,16 +2,19 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import logger from './services/logService';
-import './index.css';
-import './dashboard.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import './index.css';
+import './dashboard.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'font-awesome/css/font-awesome.css';
-
+import 'react-toastify/dist/ReactToastify.css';
 logger.init();
 
-console.log('process.env.REACT_APP_NAME', process.env.REACT_APP_NAME);
+console.log(
+  'index.js - process.env.REACT_APP_NAME',
+  process.env.REACT_APP_NAME
+);
 
 ReactDOM.render(
   <BrowserRouter>

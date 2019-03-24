@@ -3,25 +3,37 @@ import _ from 'lodash';
 import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
 import PeriodSelector from './common/PeriodSelector';
+import SimpleModal from './common/SimpleModal';
 import PaymentsTable from './PaymentsTable';
 import auth from '../services/authService';
 import { getPayments, deletePayment } from '../services/paymentsService';
 import { getCurrentPeriod } from '../utils/dates';
 import { paginate } from '../utils/paginate';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 
 class Payments extends Component {
-  state = {
-    payments: {},
-    pageSize: 10,
-    currentPage: 1,
-    searchQuery: '',
-    selectedPeriod: null,
-    sortColumn: { path: 'type', order: 'asc' },
-    year: getCurrentPeriod().year,
-    month: getCurrentPeriod().month
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      payments: {},
+      pageSize: 10,
+      currentPage: 1,
+      searchQuery: '',
+      selectedPeriod: null,
+      sortColumn: { path: 'type', order: 'asc' },
+      year: getCurrentPeriod().year,
+      month: getCurrentPeriod().month,
+      modal: false
+    };
+    this.toggleDelete = this.toggleDelete.bind(this);
+  }
+
+  toggleDelete(payment) {
+    this.setState(prevState => ({
+      modal: !prevState.modal,
+      selectedPayment: payment
+    }));
+  }
 
   async componentDidMount() {
     const { data: payments } = await getPayments();
@@ -29,27 +41,34 @@ class Payments extends Component {
   }
 
   handleDelete = payment => {
+    const { selectedPayment } = this.state;
     const rollback = this.state.payments;
-    const payments = this.state.payments.filter(u => u._id !== payment._id);
+
+    const payments = this.state.payments.filter(
+      u => u._id !== selectedPayment._id
+    );
+
     this.setState({ payments });
 
     try {
-      deletePayment(payment._id);
+      deletePayment(selectedPayment._id);
     } catch (ex) {
-      if (ex.response && ex.response.status === 404) {
-        toast('Something failed!');
-        this.setState({ payments: rollback });
-      }
+      toast.error(`☹️ Error: ${ex.response.data}`);
+      this.setState({ expenses: rollback });
     }
+    this.toggleDelete();
   };
 
   handlePeriodSelect = event => {
     let { year, month } = this.state;
+
     if (event.target.name === 'year') year = event.target.value;
     if (event.target.name === 'month') month = event.target.value;
 
+    const selectedPeriod = year && month ? `${month} ${year}` : '';
+
     this.setState({
-      selectedPeriod: `${month} ${year}`,
+      selectedPeriod,
       searchQuery: '',
       currentPage: 1,
       year,
@@ -103,9 +122,39 @@ class Payments extends Component {
     };
   };
 
+  DeleteMsgBody = () => {
+    return (
+      <p className="lead">
+        El pago seleccionado se elimnará y producirá un ajusto en el balance del
+        usuario.
+      </p>
+    );
+  };
+
+  renderViewTags = (data, selected) => {
+    const count = data.length;
+    return (
+      <React.Fragment>
+        <p className="mb-1 mt-3">
+          Gastos
+          <mark>{count}</mark>
+          Periodo
+          <mark>{selected ? selected : 'Todos los periodos.'}</mark>
+          Importe Total
+          <mark>
+            $
+            {Number(
+              data
+                .reduce((prev, current) => (prev += current.ammount), 0)
+                .toFixed(2)
+            )}
+          </mark>
+        </p>
+      </React.Fragment>
+    );
+  };
+
   render() {
-    const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
-    const { month, year } = this.state;
     const { user } = this.state;
 
     if (user && !user.isAdmin)
@@ -115,23 +164,45 @@ class Payments extends Component {
         </div>
       );
 
+    const {
+      pageSize,
+      currentPage,
+      sortColumn,
+      searchQuery,
+      selectedPeriod
+    } = this.state;
+    const { month, year } = this.state;
+    const { selectedPayment } = this.state;
     const { totalCount, data: payments } = this.getPageData();
 
     return (
       <React.Fragment>
-        <PeriodSelector
-          months={month}
-          years={year}
-          handlePeriod={this.handlePeriodSelect}
+        <SimpleModal
+          isOpen={this.state.modal}
+          toggle={this.toggleDelete}
+          title="Eliminar gasto"
+          label="Eliminar"
+          action={this.handleDelete}
+          body={selectedPayment && this.DeleteMsgBody(selectedPayment)}
         />
+        <div className="row align-items-end">
+          <div className="col-sm-5">
+            <PeriodSelector
+              months={month}
+              years={year}
+              handlePeriod={this.handlePeriodSelect}
+            />
+          </div>
+          <div className="col">
+            <SearchBox value={searchQuery} onChange={this.handleSearch} />
+          </div>
+        </div>
+        {this.renderViewTags(payments, selectedPeriod)}
         <div className="row units">
           <div className="col">
-            <ToastContainer />
-            <p>Pagos registrados: {totalCount}</p>
-            <SearchBox value={searchQuery} onChange={this.handleSearch} />
             <PaymentsTable
               payments={payments}
-              onDelete={this.handleDelete}
+              onDelete={this.toggleDelete}
               onSort={this.handleSort}
               sortColumn={sortColumn}
             />

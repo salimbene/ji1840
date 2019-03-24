@@ -98,6 +98,10 @@ class Models extends Component {
     };
   };
 
+  deleteMsgBody = () => {
+    return <p className="lead">El esquema selecionado se eliminará.</p>;
+  };
+
   render() {
     const { pageSize, currentPage, sortColumn, searchQuery, user } = this.state;
 
@@ -115,13 +119,14 @@ class Models extends Component {
         <SimpleModal
           isOpen={this.state.modal}
           toggle={this.toggleDelete}
-          title="Eliminar asignacion"
+          title="Eliminar esquema de expensas"
           label="Eliminar"
           action={this.handleDelete}
+          body={this.deleteMsgBody()}
         />
         <div className="row models">
           <div className="col">
-            <p>Modelos registrados: {totalCount}</p>
+            <p>Esquemas de expensas registrados: {totalCount}</p>
             <SearchBox value={searchQuery} onChange={this.handleSearch} />
             {totalCount && (
               <React.Fragment>

@@ -3,7 +3,7 @@ import SideBarItem from './common/SideBarItem';
 import SideSeparator from './common/SideSeparator';
 
 const SideBar = ({ user }) => {
-  console.log('user', user);
+  console.log('SideBar:', user);
   return (
     <nav className="col-md-2 d-none d-md-block bg-light sidebar">
       <div className="sidebar-sticky">

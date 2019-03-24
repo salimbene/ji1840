@@ -29,12 +29,10 @@ class SuppliersTable extends Component {
   deleteColumn = {
     key: 'del',
     content: supplier => (
-      <button
+      <i
         onClick={event => this.props.onDelete(supplier)}
-        className="btn btn-danger btn-sm"
-      >
-        Eliminar
-      </button>
+        className="fa fa-trash red"
+      />
     )
   };
 

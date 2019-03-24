@@ -11,6 +11,10 @@ class ExpensesTable extends Component {
       label: 'Concepto'
     },
     {
+      path: 'period',
+      label: 'Periodo'
+    },
+    {
       path: 'category',
       label: 'Categoría'
     },
@@ -30,7 +34,7 @@ class ExpensesTable extends Component {
     },
     {
       path: 'userId',
-      label: 'Registrado por...',
+      label: 'Registrante',
       content: expense => expense.userId.lastname
     }
   ];
@@ -38,12 +42,10 @@ class ExpensesTable extends Component {
   deleteColumn = {
     key: 'del',
     content: expense => (
-      <button
+      <i
         onClick={event => this.props.onDelete(expense)}
-        className="btn btn-danger btn-sm"
-      >
-        Eliminar
-      </button>
+        className="fa fa-trash red"
+      />
     )
   };
 

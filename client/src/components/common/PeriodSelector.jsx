@@ -4,7 +4,7 @@ import { getLastXYears, monthLabels } from '../../utils/dates';
 
 const PeriodSelector = ({ months, years, handlePeriod }) => {
   return (
-    <div className="row mb-2">
+    <div className="row">
       <div className="col">
         <Select
           name="month"

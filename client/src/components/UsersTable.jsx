@@ -14,11 +14,16 @@ class UsersTable extends Component {
       path: 'firstname',
       label: 'Nombre'
     },
+    {
+      path: 'balance',
+      label: 'Cuenta',
+      content: user => `$${Number(user.balance).toFixed(2)}`
+    },
     { path: 'phone', label: 'Telefono' },
     {
       path: 'mail',
-      label: 'Mail',
-      content: user => <Link to={`/users/${user._id}`}>{user.mail}</Link>
+      label: 'Mail'
+      // content: user => <Link to={`/users/${user._id}`}>{user.mail}</Link>
     },
     {
       path: 'isCouncil',
@@ -33,12 +38,10 @@ class UsersTable extends Component {
   deleteColumn = {
     key: 'del',
     content: user => (
-      <button
+      <i
         onClick={event => this.props.onDelete(user)}
-        className="btn btn-danger btn-sm"
-      >
-        Eliminar
-      </button>
+        className="fa fa-trash red"
+      />
     )
   };
 

@@ -6,7 +6,7 @@ import SearchBox from './common/SearchBox';
 import SimpleModal from './common/SimpleModal';
 import auth from '../services/authService';
 import PeriodsTable from './PeriodsTable';
-import { getPeriods, deletePeriod } from '../services/periodsService.js';
+import { getPeriods } from '../services/periodsService.js';
 import { paginate } from '../utils/paginate';
 import 'react-toastify/dist/ReactToastify.css';
 

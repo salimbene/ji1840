@@ -1,55 +1,74 @@
 import React, { Component } from 'react';
+import { toast } from 'react-toastify';
 import _ from 'lodash';
 import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
 import PeriodSelector from './common/PeriodSelector';
+import SimpleModal from './common/SimpleModal';
 import ExpensesTable from './ExpensesTable';
 import auth from '../services/authService';
 import { getExpenses, deleteExpense } from '../services/expensesService';
 import { getCurrentPeriod } from '../utils/dates';
 import { paginate } from '../utils/paginate';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 class Expenses extends Component {
-  state = {
-    expenses: {},
-    pageSize: 10,
-    currentPage: 1,
-    searchQuery: '',
-    selectedPeriod: null,
-    sortColumn: { path: 'type', order: 'asc' },
-    year: getCurrentPeriod().year,
-    month: getCurrentPeriod().month
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      expenses: {},
+      pageSize: 10,
+      currentPage: 1,
+      searchQuery: '',
+      selectedPeriod: null,
+      sortColumn: { path: 'type', order: 'asc' },
+      year: getCurrentPeriod().year,
+      month: getCurrentPeriod().month,
+      modal: false
+    };
+    this.toggleDelete = this.toggleDelete.bind(this);
+  }
+
+  toggleDelete(expense) {
+    this.setState(prevState => ({
+      modal: !prevState.modal,
+      selectedExpense: expense
+    }));
+  }
 
   async componentDidMount() {
     const { data: expenses } = await getExpenses();
     this.setState({ expenses, user: auth.getCurrentUser() });
   }
 
-  handleDelete = expense => {
+  handleDelete = () => {
+    const { selectedExpense } = this.state;
     const rollback = this.state.expenses;
-    const expenses = this.state.expenses.filter(u => u._id !== expense._id);
+
+    const expenses = this.state.expenses.filter(
+      u => u._id !== selectedExpense._id
+    );
     this.setState({ expenses });
 
     try {
-      deleteExpense(expense._id);
+      deleteExpense(selectedExpense._id);
     } catch (ex) {
-      if (ex.response && ex.response.status === 404) {
-        toast('Something failed!');
-        this.setState({ expenses: rollback });
-      }
+      toast.error(`☹️ Error: ${ex.response.data}`);
+      this.setState({ expenses: rollback });
     }
+
+    this.toggleDelete();
   };
 
   handlePeriodSelect = event => {
     let { year, month } = this.state;
+
     if (event.target.name === 'year') year = event.target.value;
     if (event.target.name === 'month') month = event.target.value;
 
+    const selectedPeriod = year && month ? `${month} ${year}` : '';
+
     this.setState({
-      selectedPeriod: `${month} ${year}`,
+      selectedPeriod,
       searchQuery: '',
       currentPage: 1,
       year,
@@ -102,11 +121,39 @@ class Expenses extends Component {
     };
   };
 
-  render() {
-    const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
-    const { month, year } = this.state;
-    const { user } = this.state;
+  DeleteMsgBody = expense => {
+    const { concept } = expense;
+    return (
+      <p className="lead">
+        Se eliminará el gasto con concepto: <mark>{concept}</mark>.
+      </p>
+    );
+  };
 
+  renderViewTags = (data, selected) => {
+    const count = data.length;
+    return (
+      <React.Fragment>
+        <p className="mb-1 mt-3">
+          Gastos
+          <mark>{count}</mark>
+          Periodo
+          <mark>{selected ? selected : 'Todos los periodos.'}</mark>
+          Importe Total
+          <mark>
+            $
+            {Number(
+              data
+                .reduce((prev, current) => (prev += current.ammount), 0)
+                .toFixed(2)
+            )}
+          </mark>
+        </p>
+      </React.Fragment>
+    );
+  };
+  render() {
+    const { user } = this.state;
     if (user && !user.isAdmin)
       return (
         <div className="alert alert-danger" role="alert">
@@ -114,24 +161,50 @@ class Expenses extends Component {
         </div>
       );
 
+    const {
+      pageSize,
+      currentPage,
+      sortColumn,
+      searchQuery,
+      selectedPeriod
+    } = this.state;
+    const { month, year } = this.state;
     const { totalCount, data: expenses } = this.getPageData();
+    const { selectedExpense } = this.state;
 
     return (
       <React.Fragment>
-        <PeriodSelector
-          months={month}
-          years={year}
-          handlePeriod={this.handlePeriodSelect}
+        <SimpleModal
+          isOpen={this.state.modal}
+          toggle={this.toggleDelete}
+          title="Eliminar gasto"
+          label="Eliminar"
+          action={this.handleDelete}
+          body={selectedExpense && this.DeleteMsgBody(selectedExpense)}
         />
+        <div className="row align-items-end">
+          <div className="col-sm-5">
+            <PeriodSelector
+              months={month}
+              years={year}
+              handlePeriod={this.handlePeriodSelect}
+            />
+          </div>
+          <div className="col">
+            <SearchBox
+              value={searchQuery}
+              onChange={this.handleSearch}
+              className=""
+            />
+          </div>
+        </div>
+
+        {this.renderViewTags(expenses, selectedPeriod)}
         <div className="row">
           <div className="col">
-            <ToastContainer />
-            <SearchBox value={searchQuery} onChange={this.handleSearch} />
-            <p>Gastos Registrados {totalCount}</p>
-
             <ExpensesTable
               expenses={expenses}
-              onDelete={this.handleDelete}
+              onDelete={this.toggleDelete}
               onSort={this.handleSort}
               sortColumn={sortColumn}
             />
