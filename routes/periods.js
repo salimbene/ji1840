@@ -2,6 +2,7 @@ const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 const { Period, validate } = require('../models/period');
 const { PDetails } = require('../models/pdetails');
+const { Expense } = require('../models/expense');
 const { PModel } = require('../models/pmodel');
 // const { User } = require('../models/user');
 const _ = require('lodash');
@@ -50,9 +51,12 @@ router.post('/', [auth, admin], async (req, res) => {
     ])
   );
 
-  await periodEntry.save();
+  // await periodEntry.save();
   const { period: currentPeriod, userId, totalA, totalB } = periodEntry;
+
+  const expenses = await Expense.find({ period: currentPeriod, type: 'B' });
   const pmodels = await PModel.find(); //.populate('fUnits', '', 'fUnit');
+  const pmodelsCount = pmodels.length;
 
   pmodels.forEach(async model => {
     const { _id, coefficient } = model;
@@ -60,26 +64,44 @@ router.post('/', [auth, admin], async (req, res) => {
       period: currentPeriod,
       model: _id,
       userId: userId,
-      expenses: totalA * coefficient, //calcular,
-      extra: totalB / pmodels.length, //calcular,
-      debt: 0, //calcular,
-      int: 0, // calcular,
+      expenses: 30000 * coefficient,
+      extra: 0,
+      debt: 0,
+      int: 0,
       isPayed: false
     });
 
-    await pdetails.save();
+    //Calculo de expenses extra ordinarias con excepciones
+    expenses.forEach(expense => {
+      const { excluded, ammount } = expense;
+      const coefPayment = pmodelsCount - excluded.length;
+      expB = ammount / coefPayment;
+
+      if (excluded.length === 0) {
+        pdetails.extra += expB;
+      } else
+        excluded.forEach(o => {
+          if (String(o) !== String(_id)) pdetails.extra += expB;
+        });
+    });
+
+    //Calculo de deudas
+    const debts = await PDetails.find({ model: _id, isPayed: false });
+    debts.forEach(d => {
+      if (!d.isPayed) pdetails.debt = +d.ammount;
+    });
+
+    //Calculó de interés 3%
+    pdetails.int = pdetails.debt * 0.03;
+
+    debug(model.label, pdetails.model, pdetails.extra);
+
+    // await pdetails.save();
     debug(pdetails);
   });
 
-  // const { userId, ammount } = req.body;
-  // const user = await User.findOneAndUpdate(
-  //   { _id: userId },
-  //   { $inc: { balance: ammount } },
-  //   { new: true }
-  // );
-  // debug(user);
-
-  res.send(periodEntry);
+  // res.send(periodEntry);
+  res.send('ok');
 });
 
 router.put('/:id', [auth, admin], async (req, res) => {

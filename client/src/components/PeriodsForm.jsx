@@ -3,7 +3,6 @@ import Joi from 'joi-browser';
 import { toast } from 'react-toastify';
 import Form from './common/Form';
 import SimpleModal from './common/SimpleModal';
-import PeriodSelector from './common/PeriodSelector';
 import PeriodStats from './common/PeriodStats';
 import PeriodsDTable from './PeriodsDTable';
 import { getPeriod, savePeriod } from '../services/periodsService';
@@ -103,18 +102,17 @@ class PeriodsForm extends Form {
       const periodId = this.props.match.params.id;
       if (periodId === 'new') {
         const newState = this.state;
-
         newState.data.userId = auth.getCurrentUser()._id;
         newState.data.period = `${newState.month} ${newState.year}`;
 
-        const { total: totalIncome } = await getTotalPayments(
-          newState.data.period
-        );
-        newState.data.totalIncome = totalIncome;
+        // const { total: totalIncome } = await getTotalPayments(
+        //   newState.data.period
+        // );
+        // newState.data.totalIncome = totalIncome;
 
-        const { totalA, totalB } = await getTotalExpenses(newState.data.period);
-        newState.data.totalA = totalA;
-        newState.data.totalB = totalB;
+        // const { totalA, totalB } = await getTotalExpenses(newState.data.period);
+        // newState.data.totalA = totalA;
+        // newState.data.totalB = totalB;
 
         this.setState({ ...newState });
 
@@ -132,10 +130,8 @@ class PeriodsForm extends Form {
         data: this.mapToViewModel(period)
       });
     } catch (ex) {
-      if (ex.response && ex.response.status === 404) {
-        toast(ex.response.data);
-        return this.props.history.replace('/not-found');
-      }
+      toast(ex.response.data);
+      return this.props.history.replace('/not-found');
     }
   }
 
@@ -153,8 +149,8 @@ class PeriodsForm extends Form {
 
   async componentDidMount() {
     await this.populatePeriod();
-    const { period } = this.state.data;
-    await this.populateDetails(period);
+    // const { period } = this.state.data;
+    // await this.populateDetails(period);
   }
 
   mapToViewModel(p) {
@@ -175,12 +171,11 @@ class PeriodsForm extends Form {
 
   handleSavePeriod = async () => {
     const period = { ...this.state.data };
-    period.isClosed = true;
     try {
+      // period.isClosed = true;
       console.log(period);
       await savePeriod(period);
     } catch (ex) {
-      toast(ex.response.data);
       console.log(ex.response.data);
     }
     this.togglePeriod();
@@ -189,6 +184,7 @@ class PeriodsForm extends Form {
   };
 
   handleChangePeriod = async ({ currentTarget: input }) => {
+    console.log('handleChangePeriod');
     const newState = this.state;
     newState[input.id] = input.value;
 
@@ -252,7 +248,7 @@ class PeriodsForm extends Form {
   };
 
   render() {
-    const { year, month, details, modal, selectedDetail, data } = this.state;
+    const { details, modal, selectedDetail, data } = this.state;
     const { totalA, totalB, totalIncome, _id } = data;
     const saveButtonLabel = !_id ? 'Iniciar Período' : 'Cerrar Período';
 
@@ -276,28 +272,29 @@ class PeriodsForm extends Form {
             body={this.ModalBodyDetail(selectedDetail.model.userId)}
           />
         )}
+
         <div className="border border-info rounded shadow-sm p-3 mt-1 bg-white adjust">
           <form onSubmit={this.handleSubmit}>
             <div className="row align-items-end">
               <div className="col">
                 {this.renderSelect('period', 'Mes', '', getLastXMonths(12, 1))}
               </div>
-              <div className="col">
-                <div className="row">{this.renderButton(saveButtonLabel)}</div>
+              <div className="col m-1">
+                {this.renderButton(saveButtonLabel)}
               </div>
             </div>
-
-            <PeriodStats
-              totalA={totalA}
-              totalB={totalB}
-              totalIncome={totalIncome}
-            />
           </form>
         </div>
-        {/* {details && this.renderDetails(details)} */}
       </React.Fragment>
     );
   }
 }
 
 export default PeriodsForm;
+
+// {/* <PeriodStats
+//   totalA={totalA}
+//   totalB={totalB}
+//   totalIncome={totalIncome}
+// /> */}
+// {/* {details && this.renderDetails(details)} */}

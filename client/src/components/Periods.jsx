@@ -145,9 +145,9 @@ class Periods extends Component {
               <button
                 onClick={event => this.handleAddPeriod(event)}
                 className="btn btn-primary btn-sm"
-                style={{ marginBottom: 20 }}
+                style={{ marginTop: 20 }}
               >
-                Nuevo
+                Iniciar nuevo período
               </button>
             )}
           </div>

@@ -7,7 +7,7 @@ const PeriodStats = ({ totalA, totalB, totalIncome }) => {
         <div className="col">
           <ul className="list-group">
             <li className="list-group-item d-flex justify-content-between align-items-center">
-              Total Expensas A
+              Total Gastos A
               <span
                 className={`badge ${
                   totalA < 0 ? 'badge-danger' : 'badge-info'
@@ -17,7 +17,7 @@ const PeriodStats = ({ totalA, totalB, totalIncome }) => {
               </span>
             </li>
             <li className="list-group-item d-flex justify-content-between align-items-center">
-              Total Expensas B
+              Total Gastos B
               <span
                 className={`badge ${
                   totalB < 0 ? 'badge-danger' : 'badge-info'
