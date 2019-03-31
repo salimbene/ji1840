@@ -7,7 +7,6 @@ import ModelsTable from './ModelsTable';
 import auth from '../services/authService';
 import { getModels, deleteModel } from '../services/pmodelsServices';
 import { paginate } from '../utils/paginate';
-import { toast } from 'react-toastify';
 
 class Models extends Component {
   constructor(props) {
@@ -64,7 +63,6 @@ class Models extends Component {
     try {
       deleteModel(selectedModel._id);
     } catch (ex) {
-      toast.error(`☹️ Error: ${ex.response.data}`);
       this.setState({ models: rollback });
     }
     this.toggleDelete();
@@ -126,7 +124,7 @@ class Models extends Component {
           <div className="col">
             <p>Esquemas de expensas registrados: {totalCount}</p>
             <SearchBox value={searchQuery} onChange={this.handleSearch} />
-            {totalCount && (
+            {totalCount > 0 && (
               <React.Fragment>
                 <ModelsTable
                   models={models}

@@ -8,7 +8,7 @@ const pdetails = require('../routes/pdetails');
 const expenses = require('../routes/expenses');
 const payments = require('../routes/payments');
 const suppliers = require('../routes/suppliers');
-const balances = require('../routes/balances');
+const consortia = require('../routes/consortia');
 const users = require('../routes/users');
 const home = require('../routes/home');
 const auth = require('../routes/auth');
@@ -22,6 +22,7 @@ module.exports = function(app) {
   // // parse application/json
   // app.use(bodyParser.json());
   //Routes
+  app.use('/api/consortia', consortia);
   app.use('/api/pdetails', pdetails);
   app.use('/api/periods', periods);
   app.use('/api/pmodels', pmodels);
@@ -29,7 +30,6 @@ module.exports = function(app) {
   app.use('/api/expenses', expenses);
   app.use('/api/payments', payments);
   app.use('/api/suppliers', suppliers);
-  app.use('/api/balances', balances);
   app.use('/api/users', users);
   app.use('/api/auth', auth);
   app.use('/', home);

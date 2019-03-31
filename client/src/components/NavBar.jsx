@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
-const NavBar = ({ user }) => {
+const NavBar = ({ user, consortia }) => {
   return (
     <nav className="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
       <Link className="navbar-brand col-sm-3 col-md-2 mr-0" to="/">
@@ -13,7 +13,7 @@ const NavBar = ({ user }) => {
             <li className="nav-item text-nowrap">
               <NavLink className="nav-link" to="/">
                 <h6>
-                  Jose Ingenieros 1840
+                  {consortia.name}
                   <small className="text-muted">{` Consorcio`}</small>
                 </h6>
               </NavLink>

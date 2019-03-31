@@ -23,22 +23,26 @@ import SideBar from './components/SideBar';
 import NavBar from './components/NavBar';
 import ModelsForm from './components/ModelsForm';
 import Models from './components/Models';
+import Consortia from './components/Consortia';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import auth from './services/authService';
+import { getConsortia } from './services/consortiaService';
 
 class App extends Component {
   state = {};
-  componentDidMount() {
+  async componentDidMount() {
     const user = auth.getCurrentUser();
-    this.setState({ user });
+    const { data } = await getConsortia();
+    const consortia = data[0];
+    this.setState({ user, consortia });
   }
   render() {
-    const { user } = this.state;
+    const { user, consortia } = this.state;
 
     return (
       <React.Fragment>
         <ToastContainer />
-        <NavBar user={user} />
+        <NavBar user={user} consortia={consortia} />
         <div className="container-fluid">
           <div className="row">
             <SideBar user={user} />
@@ -68,6 +72,7 @@ class App extends Component {
                 <ProtectedRoute path="/expenses" component={Expenses} />
                 <ProtectedRoute path="/units/:id" component={UnitsForm} />
                 <ProtectedRoute path="/units" component={Units} />} />
+                <ProtectedRoute path="/consortia" component={Consortia} />} />
                 <ProtectedRoute path="/users/:id" component={UsersForm} />} />
                 <ProtectedRoute path="/users" component={Users} />} />
                 <Route path="/not-found" component={NotFound} />

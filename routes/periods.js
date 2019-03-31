@@ -4,6 +4,7 @@ const { Period, validate } = require('../models/period');
 const { PDetails } = require('../models/pdetails');
 const { Expense } = require('../models/expense');
 const { PModel } = require('../models/pmodel');
+const { Consortia } = require('../models/consortia.js');
 // const { User } = require('../models/user');
 const _ = require('lodash');
 const debug = require('debug')('routes:periods');
@@ -56,9 +57,14 @@ router.post('/', [auth, admin], async (req, res) => {
     ])
   );
 
-  const { period: currentPeriod, userId, totalA } = periodEntry;
+  const { period: currentPeriod, userId } = periodEntry;
+
+  const consortia = await Consortia.find();
+  const totalA = consortia[0].expA;
+  const int = consortia[0].int;
 
   const expenses = await Expense.find({ period: currentPeriod, type: 'B' });
+
   const pmodels = await PModel.find();
   const pmodelsCount = pmodels.length;
 
@@ -68,7 +74,7 @@ router.post('/', [auth, admin], async (req, res) => {
       period: currentPeriod,
       model: _id,
       userId: userId,
-      expenses: 30000 * coefficient,
+      expenses: totalA * coefficient,
       extra: 0,
       debt: 0,
       int: 0,
@@ -97,7 +103,7 @@ router.post('/', [auth, admin], async (req, res) => {
     });
 
     //Calculó de interés 3%
-    pdetails.int = pdetails.debt * 0.03;
+    pdetails.int = pdetails.debt * int;
 
     pdetails
       .save()
