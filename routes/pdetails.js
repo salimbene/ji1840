@@ -37,6 +37,16 @@ router.get('/:id', async (req, res) => {
           }
         }
       ])
+      .populate([
+        {
+          path: 'model',
+          model: 'pmodel',
+          populate: {
+            path: 'fUnits',
+            model: 'fUnit'
+          }
+        }
+      ])
       .select('-date -__v')
       .sort('isPayed');
 

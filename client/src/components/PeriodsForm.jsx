@@ -15,6 +15,7 @@ import { getPDetailsByPeriod, savePDetails } from '../services/pdetailsService';
 import auth from '../services/authService';
 import { getCurrentPeriod, getLastXMonths } from '../utils/dates';
 import ExpensesStats from './ExpensesStats';
+import ExpensesDetails from './ExpensesDetails';
 import _ from 'lodash';
 
 class PeriodsForm extends Form {
@@ -57,7 +58,7 @@ class PeriodsForm extends Form {
   }
 
   async populateDetails(period) {
-    const details = await getPDetailsByPeriod(period);
+    const { data: details } = await getPDetailsByPeriod(period);
     this.setState({ details });
   }
   async populatePeriod(id) {
@@ -67,10 +68,11 @@ class PeriodsForm extends Form {
   }
 
   mapToViewModel(p) {
+    console.log(p);
     return {
       _id: p._id,
       period: p.period,
-      userId: p.userId._id,
+      userId: p.userId,
       totalA: p.totalA,
       totalB: p.totalB,
       totalIncome: p.totalIncome,
@@ -224,7 +226,7 @@ class PeriodsForm extends Form {
     const { details, expenses, modal, selectedDetail, data } = this.state;
     const { totalA, totalB, totalIncome, _id } = data;
     const saveButtonLabel = !_id ? 'Iniciar Período' : 'Cerrar Período';
-
+    console.log(details, expenses);
     if (!details || !expenses) return 'No hay información disponible';
 
     return (
@@ -248,7 +250,8 @@ class PeriodsForm extends Form {
           />
         )}
         <ExpensesStats expenses={expenses} />
-        {this.renderDetails(details)}
+        <ExpensesDetails details={details} />
+        {/* {this.renderDetails(details)} */}
       </React.Fragment>
     );
   }

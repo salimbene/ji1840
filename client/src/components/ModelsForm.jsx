@@ -19,7 +19,6 @@ class ModelsForm extends Form {
         fUnits: [],
         coefficient: 0,
         landlord: '',
-        tenant: '',
         selectedUnit: ''
       },
       sortUnits: { path: 'fUnit', order: 'asc' },
@@ -42,9 +41,6 @@ class ModelsForm extends Form {
       .required()
       .label('Nombre'),
     landlord: Joi.string().label('Propietario'),
-    tenant: Joi.string()
-      .allow(null, '')
-      .label('Inquilino'),
     selectedUnit: Joi.string()
       .required()
       .label('Unidad seleccionada'),
@@ -74,8 +70,6 @@ class ModelsForm extends Form {
       landlordKey: model.landlord._id
     };
 
-    if (model.tenant) keys.tenantKey = model.tenant._id;
-
     this.setState({ data: this.mapToViewModel(model), keys });
   }
 
@@ -89,7 +83,6 @@ class ModelsForm extends Form {
     return {
       _id: model._id,
       landlord: model.landlord._id,
-      tenant: model.tenant ? model.tenant._id : '',
       label: model.label,
       fUnits: model.fUnits,
       coefficient: model.coefficient,
@@ -100,19 +93,14 @@ class ModelsForm extends Form {
   doSubmit = async () => {
     const model = { ...this.state.data };
     const { users } = this.state;
-    const { landlordKey, tenantKey } = this.state.keys;
+    const { landlordKey } = this.state.keys;
 
     //selectedUnit no existe en mongo
     delete model.selectedUnit;
     model.landlord = users.find(e => {
       return e._id === landlordKey;
     })._id;
-
-    if (model.tenant)
-      model.tenant = users.find(e => {
-        return e._id === tenantKey;
-      })._id;
-
+    console.log(model);
     await saveModel(model);
     toast.success(`😀 Los datos se actualizaron con éxito.`, {
       position: 'top-center'
@@ -127,7 +115,8 @@ class ModelsForm extends Form {
   };
 
   getCoefSum = units => {
-    return units.reduce((a, c) => a + c.coefficient, 0).toPrecision(3);
+    console.log('coef');
+    return units.reduce((a, c) => a + c.coefficient, 0);
   };
 
   handleAddModel = () => {
@@ -192,12 +181,11 @@ class ModelsForm extends Form {
 
   handleDelete = () => {
     const { selectedUnit, data: model } = this.state;
-    const { landlordKey, tenantKey } = this.state.keys;
+    const { landlordKey } = this.state.keys;
 
     model.fUnits = model.fUnits.filter(u => u._id !== selectedUnit._id);
     model.landlord = landlordKey;
-    model.tenant = tenantKey;
-
+    model.coefficient = this.getCoefSum(model.fUnits);
     this.setState({ model });
 
     // try {
@@ -250,7 +238,7 @@ class ModelsForm extends Form {
 
   render() {
     const { sortUnits, data, users, units } = this.state;
-    const { landlordKey, tenantKey } = this.state.keys;
+    const { landlordKey } = this.state.keys;
     const sortedUnits = this.getSortedData(data.fUnits, sortUnits);
 
     return (
@@ -279,9 +267,6 @@ class ModelsForm extends Form {
                   users,
                   true
                 )}
-              </div>
-              <div className="col-sm-6">
-                {this.renderSelect('tenant', 'Inquilino', '_id', users, true)}
               </div>
             </div>
             <div className="row align-items-end">

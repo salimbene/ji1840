@@ -13,25 +13,24 @@ const ExpensesStats = ({ expenses }) => {
   const totalA = sorted.reduce((acum, current) => (acum += current.ammount), 0);
   const totalB = expB.reduce((acum, current) => (acum += current.ammount), 0);
 
-  console.log(grouped);
   return (
     <React.Fragment>
       <div className="border border-info rounded shadow-sm p-3 mt-5 bg-white adjust">
-        <table class="table table-sm">
+        <table className="table table-sm">
           <thead>
             <tr>
-              <th scope="col">Detalle expensas ordinarias</th>
+              <th scope="col">Detalle de gastos ordinarios</th>
               <th scope="col">Totales</th>
             </tr>
           </thead>
           <tbody>
-            {Object.keys(grouped).map(key => {
+            {Object.keys(grouped).map((key, ind) => {
               const subtotal = grouped[key].reduce(
                 (acum, current) => (acum += current.ammount),
                 0
               );
               return (
-                <React.Fragment>
+                <React.Fragment key={ind}>
                   <tr>
                     <td>
                       <strong>{key}</strong>
@@ -40,7 +39,7 @@ const ExpensesStats = ({ expenses }) => {
                   </tr>
                   {grouped[key].map((exp, ind) => {
                     return (
-                      <tr>
+                      <tr key={ind}>
                         <td>{exp.concept}</td>
                         <td className="text-right">{currency(exp.ammount)}</td>
                       </tr>
@@ -64,7 +63,7 @@ const ExpensesStats = ({ expenses }) => {
             <tr className="table-secondary">
               <td>
                 <strong>
-                  <em>{`Total expensas ordinarias`}</em>
+                  <em>{`Total gastos ordinarios`}</em>
                 </strong>
               </td>
               <td className="text-right">
@@ -75,19 +74,17 @@ const ExpensesStats = ({ expenses }) => {
             </tr>
           </tbody>
         </table>
-
-        <table class="table table-sm">
+        <table className="table table-sm">
           <thead>
             <tr>
-              <th scope="col">Detalle expensas extraordinarias</th>
+              <th scope="col">Detalle de gastos extraordinarios</th>
               <th scope="col" />
             </tr>
           </thead>
           <tbody>
             {expB.map((exp, ind) => {
-              console.log(exp);
               return (
-                <tr>
+                <tr key={ind}>
                   <td>{exp.concept}</td>
                   <td className="text-right">{currency(exp.ammount)}</td>
                 </tr>
@@ -96,7 +93,7 @@ const ExpensesStats = ({ expenses }) => {
             <tr className="table-secondary">
               <td>
                 <strong>
-                  <em>{`Total expensas extraordinarias`}</em>
+                  <em>{`Total gastos extraordinarios`}</em>
                 </strong>
               </td>
               <td className="text-right">
@@ -105,10 +102,14 @@ const ExpensesStats = ({ expenses }) => {
                 </strong>
               </td>
             </tr>
+          </tbody>
+        </table>
+        <table className="table table-sm">
+          <tbody>
             <tr className="table-primary">
               <td>
                 <strong>
-                  <em>{`Total expensas`}</em>
+                  <em>{`Total gastos del período`}</em>
                 </strong>
               </td>
               <td className="text-right">
