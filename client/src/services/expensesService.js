@@ -25,7 +25,11 @@ export function getExpenses() {
   return http.get(apiEndpoint);
 }
 export function getExpensesByPeriod(period) {
-  return http.get(`${apiEndpoint}/${period}`);
+  return http.get(`${apiEndpoint}/period/${period}`);
+}
+
+export function getExpensesTotalByPeriod(period) {
+  return http.get(`${apiEndpoint}/total/${period}`);
 }
 
 export function getExpense(expId) {

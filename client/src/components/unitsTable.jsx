@@ -35,12 +35,10 @@ class UnitsTable extends Component {
   deleteColumn = {
     key: 'del',
     content: unit => (
-      <button
+      <i
         onClick={event => this.props.onDelete(unit)}
-        className="btn btn-danger btn-sm"
-      >
-        Eliminar
-      </button>
+        className="fa fa-trash red"
+      />
     )
   };
 

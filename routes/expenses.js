@@ -25,6 +25,11 @@ router.get('/:id', async (req, res) => {
 });
 
 router.get('/period/:id', async (req, res) => {
+  const expenses = await Expense.find({ period: req.params.id });
+  res.send(expenses);
+});
+
+router.get('/period/total/:id', async (req, res) => {
   const total = await TotalExpenses(req.params.id);
   debug(req.params.id, total);
   res.send(total);

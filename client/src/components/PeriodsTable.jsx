@@ -36,12 +36,10 @@ class PeriodsTable extends Component {
   deleteColumn = {
     key: 'del',
     content: period => (
-      <button
+      <i
         onClick={event => this.props.onDelete(period)}
-        className="btn btn-danger btn-sm"
-      >
-        Eliminar
-      </button>
+        className="fa fa-trash red"
+      />
     )
   };
 

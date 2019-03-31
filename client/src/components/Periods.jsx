@@ -72,9 +72,6 @@ class Periods extends Component {
 
   handleNewPeriod = () => {
     const { period, periods } = this.state;
-    console.log('handleNewPeriod');
-    console.log(period);
-    console.log(periods);
 
     if (periods.find(p => p.period === period)) {
       toast.error(`⚠️ El período ya ha sido iniciado.`);
@@ -150,6 +147,7 @@ class Periods extends Component {
       searchQuery,
       period
     } = this.state;
+
     const { totalCount, data: periods } = this.getPageData();
 
     return (

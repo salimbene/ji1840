@@ -7,10 +7,15 @@ import PeriodStats from './common/PeriodStats';
 import PeriodsDTable from './PeriodsDTable';
 import { getPeriod, savePeriod, initPeriod } from '../services/periodsService';
 import { getTotalPayments } from '../services/paymentsService';
-import { getTotalExpenses } from '../services/expensesService';
+import {
+  getExpensesByPeriod,
+  getTotalExpenses
+} from '../services/expensesService';
 import { getPDetailsByPeriod, savePDetails } from '../services/pdetailsService';
 import auth from '../services/authService';
 import { getCurrentPeriod, getLastXMonths } from '../utils/dates';
+import ExpensesStats from './ExpensesStats';
+import _ from 'lodash';
 
 class PeriodsForm extends Form {
   constructor(props) {
@@ -24,10 +29,53 @@ class PeriodsForm extends Form {
         totalIncome: 0,
         isClosed: false
       },
+      sortColumn: { path: 'model', order: 'asc' },
       errors: {}
     };
     this.toggleRegister = this.toggleRegister.bind(this);
     this.togglePeriod = this.togglePeriod.bind(this);
+  }
+
+  async componentDidMount() {
+    const { id, period: newPeriod } = this.props.match.params;
+
+    if (newPeriod) {
+      await this.newPeriod(newPeriod);
+    } else {
+      await this.populatePeriod(id);
+    }
+
+    const { period } = this.state.data;
+    await this.populateDetails(period);
+
+    await this.populateExpenses(period);
+  }
+
+  async populateExpenses(period) {
+    const expenses = await getExpensesByPeriod(period);
+    this.setState({ expenses });
+  }
+
+  async populateDetails(period) {
+    const details = await getPDetailsByPeriod(period);
+    this.setState({ details });
+  }
+  async populatePeriod(id) {
+    const { data: period } = await getPeriod(id);
+    this.setState({ data: this.mapToViewModel(period) });
+    // return this.props.history.replace('/not-found');
+  }
+
+  mapToViewModel(p) {
+    return {
+      _id: p._id,
+      period: p.period,
+      userId: p.userId._id,
+      totalA: p.totalA,
+      totalB: p.totalB,
+      totalIncome: p.totalIncome,
+      isClosed: p.isClosed
+    };
   }
 
   togglePeriod() {
@@ -89,18 +137,6 @@ class PeriodsForm extends Form {
     isClosed: Joi.boolean().label('Cerrado')
   };
 
-  async populatePeriod(id) {
-    const { data: period } = await getPeriod(id);
-    this.setState({ data: this.mapToViewModel(period) });
-    // return this.props.history.replace('/not-found');
-  }
-
-  async populateDetails(period) {
-    const details = await getPDetailsByPeriod(period);
-    console.log(details);
-    this.setState({ details });
-  }
-
   newPeriod = async period => {
     const body = {
       period: period,
@@ -114,31 +150,6 @@ class PeriodsForm extends Form {
     const newPeriod = await initPeriod(body);
     this.setState({ data: this.mapToViewModel(newPeriod) });
   };
-
-  async componentDidMount() {
-    const { id, period: newPeriod } = this.props.match.params;
-
-    if (newPeriod) {
-      await this.newPeriod(newPeriod);
-    } else {
-      await this.populatePeriod(id);
-    }
-
-    const { period } = this.state.data;
-    await this.populateDetails(period);
-  }
-
-  mapToViewModel(p) {
-    return {
-      _id: p._id,
-      period: p.period,
-      userId: p.userId._id,
-      totalA: p.totalA,
-      totalB: p.totalB,
-      totalIncome: p.totalIncome,
-      isClosed: p.isClosed
-    };
-  }
 
   doSubmit = () => {
     this.togglePeriod();
@@ -158,35 +169,21 @@ class PeriodsForm extends Form {
     history.push('/periods');
   };
 
-  handleChangePeriod = async ({ currentTarget: input }) => {
-    console.log('handleChangePeriod');
-    const newState = this.state;
-    newState[input.id] = input.value;
-
-    newState.data.period = `${newState.month} ${newState.year}`;
-
-    const { total: totalIncome } = await getTotalPayments(newState.data.period);
-    newState.data.totalIncome = totalIncome;
-
-    const { totalA, totalB } = await getTotalExpenses(newState.data.period);
-
-    newState.data.totalA = totalA;
-    newState.data.totalB = totalB;
-
-    this.setState({ ...newState });
+  handleSortDetails = sortColumn => {
+    this.setState({ sortColumn });
   };
 
   renderDetails = details => {
     const { data } = details;
-    const sortColumn = { path: 'fUnit', order: 'asc' };
-
+    const { sortColumn } = this.state;
+    const sorted = _.orderBy(data, [sortColumn.path], [sortColumn.order]);
     return (
       <React.Fragment>
         <div className="border border-info rounded shadow-sm p-3 mt-5 bg-white adjust">
           <PeriodsDTable
-            data={data}
+            data={sorted}
             onRegister={this.toggleRegister}
-            onSort={this.handleSort}
+            onSort={this.handleSortDetails}
             sortColumn={sortColumn}
           />
         </div>
@@ -224,11 +221,11 @@ class PeriodsForm extends Form {
   };
 
   render() {
-    const { details, modal, selectedDetail, data } = this.state;
+    const { details, expenses, modal, selectedDetail, data } = this.state;
     const { totalA, totalB, totalIncome, _id } = data;
     const saveButtonLabel = !_id ? 'Iniciar Período' : 'Cerrar Período';
 
-    if (!details) return 'No hay información disponible';
+    if (!details || !expenses) return 'No hay información disponible';
 
     return (
       <React.Fragment>
@@ -250,7 +247,7 @@ class PeriodsForm extends Form {
             body={this.ModalBodyDetail(selectedDetail.model.userId)}
           />
         )}
-
+        <ExpensesStats expenses={expenses} />
         {this.renderDetails(details)}
       </React.Fragment>
     );

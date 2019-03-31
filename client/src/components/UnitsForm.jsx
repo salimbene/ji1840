@@ -59,17 +59,11 @@ class UnitsForm extends Form {
   }
 
   async populateUnits() {
-    try {
-      const unitId = this.props.match.params.id;
-      if (unitId === 'new') return;
-      const { data: unit } = await getUnit(unitId);
-      // const keys = { lastnameKey: unit.landlord.userId._id };
-      this.setState({ data: this.mapToViewModel(unit) }); //
-      console.log(this.state);
-    } catch (ex) {
-      console.log(ex);
-      toast.error(`☹️ Error: ${ex.response}`);
-    }
+    const unitId = this.props.match.params.id;
+    if (unitId === 'new') return;
+    const { data: unit } = await getUnit(unitId);
+    // const keys = { lastnameKey: unit.landlord.userId._id };
+    this.setState({ data: this.mapToViewModel(unit) }); //
   }
 
   async componentDidMount() {
@@ -78,7 +72,6 @@ class UnitsForm extends Form {
   }
 
   mapToViewModel(unit) {
-    console.log(unit);
     return {
       _id: unit._id,
       fUnit: unit.fUnit,
@@ -137,11 +130,8 @@ class UnitsForm extends Form {
 
     fUnit.landlord = this.parseLandlord(fUnit);
     fUnit.sup = this.parseSurface(fUnit);
-    try {
-      await saveUnit(fUnit);
-    } catch (ex) {
-      toast.error(`☹️ Error: ${ex.response.data}`);
-    }
+
+    await saveUnit(fUnit);
 
     const { history } = this.props;
     history.push('/units');

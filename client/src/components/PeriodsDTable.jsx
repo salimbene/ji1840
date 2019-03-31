@@ -5,9 +5,20 @@ import auth from '../services/authService';
 class PeriodsDTable extends Component {
   columns = [
     {
-      path: 'model',
-      label: 'UF',
-      content: m => <div>{`${m.model.label}:${m.model.landlord.lastname}`}</div>
+      path: 'model.label',
+      label: 'UF'
+    },
+    {
+      path: 'm.model.landlord',
+      label: 'Propietario',
+      content: m => <div>{`${m.model.landlord.lastname}`}</div>
+    },
+    {
+      path: 'model.coefficient',
+      label: 'Coef.',
+      content: m => (
+        <div>{`${(Number(m.model.coefficient) * 100).toPrecision(4)}`}</div>
+      )
     },
     {
       path: 'expenses',

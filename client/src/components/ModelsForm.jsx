@@ -66,21 +66,17 @@ class ModelsForm extends Form {
   }
 
   async populateModels() {
-    try {
-      const modelId = this.props.match.params.id;
-      if (modelId === 'new') return;
-      const { data: model } = await getModel(modelId);
+    const modelId = this.props.match.params.id;
+    if (modelId === 'new') return;
+    const { data: model } = await getModel(modelId);
 
-      const keys = {
-        landlordKey: model.landlord._id
-      };
+    const keys = {
+      landlordKey: model.landlord._id
+    };
 
-      if (model.tenant) keys.tenantKey = model.tenant._id;
+    if (model.tenant) keys.tenantKey = model.tenant._id;
 
-      this.setState({ data: this.mapToViewModel(model), keys });
-    } catch (ex) {
-      toast.error(`☹️ Error: ${ex}`);
-    }
+    this.setState({ data: this.mapToViewModel(model), keys });
   }
 
   async componentDidMount() {
@@ -90,7 +86,6 @@ class ModelsForm extends Form {
   }
 
   mapToViewModel(model) {
-    console.log(model);
     return {
       _id: model._id,
       landlord: model.landlord._id,
@@ -118,14 +113,10 @@ class ModelsForm extends Form {
         return e._id === tenantKey;
       })._id;
 
-    try {
-      await saveModel(model);
-      toast.success(`😀 Los datos se actualizaron con éxito.`, {
-        position: 'top-center'
-      });
-    } catch (ex) {
-      toast.error(`☹️ Error: ${ex.response.data}`);
-    }
+    await saveModel(model);
+    toast.success(`😀 Los datos se actualizaron con éxito.`, {
+      position: 'top-center'
+    });
 
     const { history } = this.props;
     history.push('/models');
