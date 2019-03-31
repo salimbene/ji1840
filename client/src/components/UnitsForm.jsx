@@ -17,7 +17,7 @@ class UnitsForm extends Form {
       uncovered: 0,
       semi: 0,
       coefficient: 0,
-      lastname: ''
+      landlordId: ''
     },
     users: [],
     errors: {},
@@ -48,7 +48,7 @@ class UnitsForm extends Form {
     coefficient: Joi.number()
       .required()
       .label('Share'),
-    lastname: Joi.string()
+    landlordId: Joi.string()
       .required()
       .label('Propietario') //No validation
   };
@@ -63,9 +63,9 @@ class UnitsForm extends Form {
       const unitId = this.props.match.params.id;
       if (unitId === 'new') return;
       const { data: unit } = await getUnit(unitId);
-      console.log('lalalalalla', unit);
-      const keys = { lastnameKey: unit.landlord.userId._id };
-      this.setState({ data: this.mapToViewModel(unit), keys });
+      // const keys = { lastnameKey: unit.landlord.userId._id };
+      this.setState({ data: this.mapToViewModel(unit) }); //
+      console.log(this.state);
     } catch (ex) {
       console.log(ex);
       toast.error(`☹️ Error: ${ex.response}`);
@@ -78,7 +78,7 @@ class UnitsForm extends Form {
   }
 
   mapToViewModel(unit) {
-    console.log('maptoview', unit);
+    console.log(unit);
     return {
       _id: unit._id,
       fUnit: unit.fUnit,
@@ -90,7 +90,7 @@ class UnitsForm extends Form {
       uncovered: unit.sup.uncovered,
       semi: unit.sup.semi,
       coefficient: unit.coefficient,
-      lastname: unit.landlord.name
+      landlordId: unit.landlord.userId
     };
   }
 
@@ -109,12 +109,13 @@ class UnitsForm extends Form {
   };
 
   parseLandlord = fUnit => {
-    const lastname = fUnit.lastname;
-    delete fUnit.lastname;
+    const { users } = this.state;
+    const landlordId = fUnit.landlordId;
+    delete fUnit.landlordId;
 
     return {
-      userId: this.state.keys['lastnameKey'] || '5c5f843049580aaa01a931c9', //id de -disponible-
-      name: lastname
+      userId: landlordId || '5c5f843049580aaa01a931c9', //id de -disponible-
+      name: users.find(u => u._id === landlordId).lastname
     };
   };
 
@@ -136,7 +137,6 @@ class UnitsForm extends Form {
 
     fUnit.landlord = this.parseLandlord(fUnit);
     fUnit.sup = this.parseSurface(fUnit);
-
     try {
       await saveUnit(fUnit);
     } catch (ex) {
@@ -148,6 +148,7 @@ class UnitsForm extends Form {
   };
 
   render() {
+    const { users } = this.state;
     return (
       <React.Fragment>
         <div className="border border-info rounded shadow-sm p-3 mb-5 bg-white">
@@ -170,12 +171,7 @@ class UnitsForm extends Form {
                 {this.renderInput('flat', 'Rótulo')}
               </div>
               <div className="col">
-                {this.renderSelect(
-                  'lastname',
-                  'Propietario',
-                  'lastname',
-                  this.state.users
-                )}
+                {this.renderSelect('landlordId', 'Propietario', '_id', users)}
               </div>
             </div>
             <div>

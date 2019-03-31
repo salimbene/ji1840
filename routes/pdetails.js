@@ -31,7 +31,7 @@ router.get('/:id', async (req, res) => {
           path: 'model',
           model: 'pmodel',
           populate: {
-            path: 'userId',
+            path: 'landlord',
             model: 'User',
             select: '-password -isAdmin'
           }

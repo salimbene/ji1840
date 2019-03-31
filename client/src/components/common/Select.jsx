@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+const fullName = ['tenant', 'landlord', 'lastname', 'userId', 'landlordId'];
+
 const Select = ({ name, label, field, options, error, ...rest }) => {
   return (
     <div className="form-group m-1">
@@ -20,7 +22,9 @@ const Select = ({ name, label, field, options, error, ...rest }) => {
             value={option[field] || option}
             id={option._id || index}
           >
-            {option[field] || option}
+            {(fullName.includes(name)
+              ? `${option['lastname']}, ${option['firstname']}`
+              : option[field]) || option}
           </option>
         ))}
       </select>

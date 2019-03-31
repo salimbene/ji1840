@@ -52,7 +52,11 @@ class App extends Component {
                   component={SuppliersForm}
                 />
                 <ProtectedRoute path="/suppliers" component={Suppliers} />
-                <ProtectedRoute path="/periods/:id" component={PeriodsForm} />
+                <ProtectedRoute
+                  path="/periods/:id/:period"
+                  component={PeriodsForm}
+                />
+                <ProtectedRoute path="/periods/:id/" component={PeriodsForm} />
                 <ProtectedRoute path="/periods" component={Periods} />
                 <ProtectedRoute path="/models/:id" component={ModelsForm} />
                 <ProtectedRoute path="/models" component={Models} />

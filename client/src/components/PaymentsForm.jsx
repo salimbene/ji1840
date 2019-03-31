@@ -43,8 +43,8 @@ class PaymentsForm extends Form {
       const paymentId = this.props.match.params.id;
       if (paymentId === 'new') return;
       const { data: payment } = await getPayment(paymentId);
-      const keys = { userIdKey: payment.userId._id };
-      this.setState({ data: this.mapToViewModel(payment), keys });
+      // const keys = { userIdKey: payment.userId._id };
+      this.setState({ data: this.mapToViewModel(payment) }); //, keys
     } catch (ex) {
       if (ex.response && ex.response.status === 404)
         return this.props.history.replace('/not-found');
@@ -71,7 +71,7 @@ class PaymentsForm extends Form {
     const submittedBy = getCurrentUser();
 
     payment.submittedBy = submittedBy._id;
-    payment.userId = this.state.keys['userIdKey'];
+    // payment.userId = this.state.keys['userIdKey'];
 
     try {
       await savePayment(payment);
@@ -106,7 +106,7 @@ class PaymentsForm extends Form {
                 {this.renderSelect(
                   'userId',
                   'Usuario',
-                  'lastname',
+                  '_id',
                   this.state.users
                 )}
               </div>

@@ -33,6 +33,11 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+router.get('/period/:id', async (req, res) => {
+  const period = await Period.findOne({ period: req.params.id });
+  res.send(period);
+});
+
 router.post('/', [auth, admin], async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
@@ -51,11 +56,10 @@ router.post('/', [auth, admin], async (req, res) => {
     ])
   );
 
-  // await periodEntry.save();
-  const { period: currentPeriod, userId, totalA, totalB } = periodEntry;
+  const { period: currentPeriod, userId, totalA } = periodEntry;
 
   const expenses = await Expense.find({ period: currentPeriod, type: 'B' });
-  const pmodels = await PModel.find(); //.populate('fUnits', '', 'fUnit');
+  const pmodels = await PModel.find();
   const pmodelsCount = pmodels.length;
 
   pmodels.forEach(async model => {
@@ -71,10 +75,11 @@ router.post('/', [auth, admin], async (req, res) => {
       isPayed: false
     });
 
-    //Calculo de expenses extra ordinarias con excepciones
+    //Calculo de expenses extra-ordinarias con excepciones
     expenses.forEach(expense => {
       const { excluded, ammount } = expense;
       const coefPayment = pmodelsCount - excluded.length;
+
       expB = ammount / coefPayment;
 
       if (excluded.length === 0) {
@@ -94,14 +99,34 @@ router.post('/', [auth, admin], async (req, res) => {
     //Calculó de interés 3%
     pdetails.int = pdetails.debt * 0.03;
 
-    debug(model.label, pdetails.model, pdetails.extra);
-
-    // await pdetails.save();
-    debug(pdetails);
+    pdetails
+      .save()
+      .then(result => {
+        debug(`Entrada creadad OK: ${pdetails.model}`);
+      })
+      .catch(err => {
+        debug(err.errmsg);
+        res
+          .status(400)
+          .send(`Informe al administrador el mensaje: ${err.errmsg}`);
+      });
   });
 
-  // res.send(periodEntry);
-  res.send('ok');
+  periodEntry.totalB = expenses.reduce((prev, current) => {
+    console.log(prev, current);
+    return (prev += current.ammount);
+  }, 0);
+
+  periodEntry
+    .save()
+    .then(result => {
+      debug(`Período creado OK: ${result}`);
+      res.send(periodEntry);
+    })
+    .catch(err => {
+      debug(err.errmsg);
+      res.send(`Informe al administrador el mensaje: ${err.errmsg}`);
+    });
 });
 
 router.put('/:id', [auth, admin], async (req, res) => {

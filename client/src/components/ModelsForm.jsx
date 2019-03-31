@@ -19,6 +19,7 @@ class ModelsForm extends Form {
         fUnits: [],
         coefficient: 0,
         landlord: '',
+        tenant: '',
         selectedUnit: ''
       },
       sortUnits: { path: 'fUnit', order: 'asc' },
@@ -40,10 +41,10 @@ class ModelsForm extends Form {
     label: Joi.string()
       .required()
       .label('Nombre'),
-    landlord: Joi.string().label('Usuario'),
+    landlord: Joi.string().label('Propietario'),
     tenant: Joi.string()
-      .allow('')
-      .label('Usuario'),
+      .allow(null, '')
+      .label('Inquilino'),
     selectedUnit: Joi.string()
       .required()
       .label('Unidad seleccionada'),
@@ -89,9 +90,11 @@ class ModelsForm extends Form {
   }
 
   mapToViewModel(model) {
+    console.log(model);
     return {
       _id: model._id,
-      landlord: model.landlord.lastname,
+      landlord: model.landlord._id,
+      tenant: model.tenant ? model.tenant._id : '',
       label: model.label,
       fUnits: model.fUnits,
       coefficient: model.coefficient,
@@ -152,7 +155,6 @@ class ModelsForm extends Form {
 
     const bufferUnits = data.fUnits;
     bufferUnits.push(selectedUnit);
-
     data.coefficient = this.getCoefSum(bufferUnits);
 
     this.setState({ fUnits: bufferUnits, data });
@@ -167,7 +169,7 @@ class ModelsForm extends Form {
       label: 'Superficie',
       content: u => (
         <p>
-          {u.sup.total}m<sup>2</sup>
+          {Number(u.sup.total).toPrecision(2)}m<sup>2</sup>
         </p>
       )
     },
@@ -278,24 +280,17 @@ class ModelsForm extends Form {
               </div>
             </div>
             <div className="row align-items-end">
-              <div className="col-sm-5">
+              <div className="col-sm-6">
                 {this.renderSelect(
                   'landlord',
                   'Propietario',
-                  'lastname',
-                  users
+                  '_id',
+                  users,
+                  true
                 )}
               </div>
-              <div className="col">
-                {this.getUserFullName(users, landlordKey)}
-              </div>
-            </div>
-            <div className="row align-items-end">
-              <div className="col-sm-5">
-                {this.renderSelect('tenant', 'Inquilino', 'lastname', users)}
-              </div>
-              <div className="col">
-                {this.getUserFullName(users, tenantKey)}
+              <div className="col-sm-6">
+                {this.renderSelect('tenant', 'Inquilino', '_id', users, true)}
               </div>
             </div>
             <div className="row align-items-end">

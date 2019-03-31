@@ -196,7 +196,7 @@ class ExpensesForm extends Form {
                   <div className="col">
                     {this.renderSelect(
                       'selectedEx',
-                      'Esquemas',
+                      'Excepciones',
                       'label',
                       models
                     )}

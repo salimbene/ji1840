@@ -40,6 +40,10 @@ export function getPeriod(day) {
   return `${monthLabels[day.getMonth()]} ${day.getFullYear()}`;
 }
 
+export function getLastPeriod(day) {
+  return `${monthLabels[day.getMonth() - 1]} ${day.getFullYear()}`;
+}
+
 export function getLastXMonths(n = 12, e = 0) {
   let d;
   let xMonths = [];

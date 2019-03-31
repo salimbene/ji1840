@@ -8,6 +8,8 @@ import auth from '../services/authService';
 import PeriodsTable from './PeriodsTable';
 import { getPeriods, deletePeriod } from '../services/periodsService.js';
 import { paginate } from '../utils/paginate';
+import { getLastXMonths, getLastPeriod } from '../utils/dates';
+import Select from './common/Select';
 
 class Periods extends Component {
   constructor(props) {
@@ -17,17 +19,26 @@ class Periods extends Component {
       pageSize: 10,
       currentPage: 1,
       searchQuery: '',
-      modal: false,
-      sortColumn: { path: 'date', order: 'dec' }
+      delModal: false,
+      newModal: false,
+      sortColumn: { path: 'date', order: 'dec' },
+      period: getLastPeriod(new Date())
     };
 
     this.toggleDelete = this.toggleDelete.bind(this);
+    this.toggleNewPeriod = this.toggleNewPeriod.bind(this);
   }
 
   toggleDelete(model) {
     this.setState(prevState => ({
-      modal: !prevState.modal,
+      delModal: !prevState.delModal,
       selectedPeriod: model
+    }));
+  }
+
+  toggleNewPeriod() {
+    this.setState(prevState => ({
+      newModal: !prevState.newModal
     }));
   }
 
@@ -59,9 +70,21 @@ class Periods extends Component {
     this.setState({ sortColumn });
   };
 
-  handleAddPeriod = () => {
+  handleNewPeriod = () => {
+    const { period, periods } = this.state;
+    console.log('handleNewPeriod');
+    console.log(period);
+    console.log(periods);
+
+    if (periods.find(p => p.period === period)) {
+      toast.error(`⚠️ El período ya ha sido iniciado.`);
+      this.toggleNewPeriod();
+      return;
+    }
+
+    this.toggleNewPeriod();
     const { history } = this.props;
-    history.push('/periods/new');
+    history.push(`/periods/new/${period}`);
   };
 
   handlePageChange = page => {
@@ -97,9 +120,20 @@ class Periods extends Component {
     };
   };
 
+  handleChange = ({ currentTarget: input }) => {
+    this.setState({ period: input.value });
+  };
+
+  newPeriodModalBody = period => {
+    return (
+      <p className="lead">
+        Se iniciará el periodo <mark>{period}</mark>.
+      </p>
+    );
+  };
+
   render() {
     const { user } = this.state;
-
     if (user && !user.isAdmin)
       return (
         <div className="alert alert-danger" role="alert">
@@ -107,13 +141,29 @@ class Periods extends Component {
         </div>
       );
 
-    const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
+    const {
+      delModal,
+      newModal,
+      pageSize,
+      currentPage,
+      sortColumn,
+      searchQuery,
+      period
+    } = this.state;
     const { totalCount, data: periods } = this.getPageData();
 
     return (
       <React.Fragment>
         <SimpleModal
-          isOpen={this.state.modal}
+          isOpen={newModal}
+          toggle={this.toggleNewPeriod}
+          title={'Iniciar nuevo período'}
+          label={'Confirmar'}
+          action={this.handleNewPeriod}
+          body={this.newPeriodModalBody(period)}
+        />
+        <SimpleModal
+          isOpen={delModal}
           toggle={this.toggleDelete}
           title="Eliminar periodo"
           label="Eliminar"
@@ -142,13 +192,30 @@ class Periods extends Component {
               ''
             )}
             {user && (
-              <button
-                onClick={event => this.handleAddPeriod(event)}
-                className="btn btn-primary btn-sm"
-                style={{ marginTop: 20 }}
-              >
-                Iniciar nuevo período
-              </button>
+              <React.Fragment>
+                <div className="border border-info rounded shadow-sm p-3 mt-1 bg-white adjust">
+                  <div className="row align-items-end">
+                    <div className="col">
+                      <Select
+                        name={period}
+                        value={period}
+                        label="Período"
+                        options={getLastXMonths(12, 1)}
+                        onChange={this.handleChange}
+                      />
+                    </div>
+                    <div className="col m-1">
+                      <button
+                        onClick={event => this.toggleNewPeriod()}
+                        className="btn btn-primary btn-sm"
+                        type="button"
+                      >
+                        Iniciar nuevo período
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </React.Fragment>
             )}
           </div>
         </div>

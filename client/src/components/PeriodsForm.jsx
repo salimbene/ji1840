@@ -5,7 +5,7 @@ import Form from './common/Form';
 import SimpleModal from './common/SimpleModal';
 import PeriodStats from './common/PeriodStats';
 import PeriodsDTable from './PeriodsDTable';
-import { getPeriod, savePeriod } from '../services/periodsService';
+import { getPeriod, savePeriod, initPeriod } from '../services/periodsService';
 import { getTotalPayments } from '../services/paymentsService';
 import { getTotalExpenses } from '../services/expensesService';
 import { getPDetailsByPeriod, savePDetails } from '../services/pdetailsService';
@@ -24,8 +24,6 @@ class PeriodsForm extends Form {
         totalIncome: 0,
         isClosed: false
       },
-      year: getCurrentPeriod(1).year,
-      month: getCurrentPeriod(1).month,
       errors: {}
     };
     this.toggleRegister = this.toggleRegister.bind(this);
@@ -52,16 +50,10 @@ class PeriodsForm extends Form {
 
     // this.setState({ periods });
 
-    try {
-      const details = this.MapToMongoModel(selectedDetail);
-      const res = await savePDetails(details);
-      console.log(res);
-    } catch (ex) {
-      console.log('ex', ex);
-      if (ex.response && ex.response.status === 404) {
-        toast(ex.response.data);
-      }
-    }
+    const details = this.MapToMongoModel(selectedDetail);
+    const res = await savePDetails(details);
+    console.log(res);
+
     this.toggleRegister();
   };
 
@@ -97,60 +89,43 @@ class PeriodsForm extends Form {
     isClosed: Joi.boolean().label('Cerrado')
   };
 
-  async populatePeriod() {
-    try {
-      const periodId = this.props.match.params.id;
-      if (periodId === 'new') {
-        const newState = this.state;
-        newState.data.userId = auth.getCurrentUser()._id;
-        newState.data.period = `${newState.month} ${newState.year}`;
-
-        // const { total: totalIncome } = await getTotalPayments(
-        //   newState.data.period
-        // );
-        // newState.data.totalIncome = totalIncome;
-
-        // const { totalA, totalB } = await getTotalExpenses(newState.data.period);
-        // newState.data.totalA = totalA;
-        // newState.data.totalB = totalB;
-
-        this.setState({ ...newState });
-
-        return;
-      }
-
-      const { data: period } = await getPeriod(periodId);
-
-      const month = period.period.split(' ')[0];
-      const year = period.period.split(' ')[1];
-
-      this.setState({
-        month,
-        year,
-        data: this.mapToViewModel(period)
-      });
-    } catch (ex) {
-      toast(ex.response.data);
-      return this.props.history.replace('/not-found');
-    }
+  async populatePeriod(id) {
+    const { data: period } = await getPeriod(id);
+    this.setState({ data: this.mapToViewModel(period) });
+    // return this.props.history.replace('/not-found');
   }
 
   async populateDetails(period) {
-    try {
-      const details = await getPDetailsByPeriod(period);
-      this.setState({ details });
-    } catch (ex) {
-      if (ex.response && ex.response.status === 404) {
-        toast(ex.response.data);
-        return this.props.history.replace('/not-found');
-      }
-    }
+    const details = await getPDetailsByPeriod(period);
+    console.log(details);
+    this.setState({ details });
   }
 
+  newPeriod = async period => {
+    const body = {
+      period: period,
+      userId: auth.getCurrentUser()._id,
+      totalA: 0,
+      totalB: 0,
+      totalIncome: 0,
+      isClosed: false
+    };
+
+    const newPeriod = await initPeriod(body);
+    this.setState({ data: this.mapToViewModel(newPeriod) });
+  };
+
   async componentDidMount() {
-    await this.populatePeriod();
-    // const { period } = this.state.data;
-    // await this.populateDetails(period);
+    const { id, period: newPeriod } = this.props.match.params;
+
+    if (newPeriod) {
+      await this.newPeriod(newPeriod);
+    } else {
+      await this.populatePeriod(id);
+    }
+
+    const { period } = this.state.data;
+    await this.populateDetails(period);
   }
 
   mapToViewModel(p) {
@@ -227,6 +202,7 @@ class PeriodsForm extends Form {
         registrado pagos en el período se registrarán como deudores.
       </p>
     );
+
     const bodyNewPeriod = (
       <p className="lead">
         Se iniciará el periodo <mark>{period}</mark>.
@@ -252,6 +228,8 @@ class PeriodsForm extends Form {
     const { totalA, totalB, totalIncome, _id } = data;
     const saveButtonLabel = !_id ? 'Iniciar Período' : 'Cerrar Período';
 
+    if (!details) return 'No hay información disponible';
+
     return (
       <React.Fragment>
         <SimpleModal
@@ -273,18 +251,7 @@ class PeriodsForm extends Form {
           />
         )}
 
-        <div className="border border-info rounded shadow-sm p-3 mt-1 bg-white adjust">
-          <form onSubmit={this.handleSubmit}>
-            <div className="row align-items-end">
-              <div className="col">
-                {this.renderSelect('period', 'Mes', '', getLastXMonths(12, 1))}
-              </div>
-              <div className="col m-1">
-                {this.renderButton(saveButtonLabel)}
-              </div>
-            </div>
-          </form>
-        </div>
+        {this.renderDetails(details)}
       </React.Fragment>
     );
   }

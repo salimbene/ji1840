@@ -89,13 +89,13 @@ class CurrentMonth extends Component {
         <div className="row">
           <h3>
             {period}
-            <small class="text-muted"> expensas</small>
+            <small className="text-muted"> expensas</small>
           </h3>
         </div>
         <div className="row">
           <div className="col">
             <ToastContainer />
-            <p class="h6">Detalle de Gastos</p>
+            <p className="h6">Detalle de Gastos</p>
             <ExpensesTable
               expenses={expenses}
               onDelete={this.handleDelete}
@@ -119,25 +119,25 @@ class CurrentMonth extends Component {
         <div className="row">
           <div className="col">Saldo Ordinario</div>
           <div className="col">
-            <span class="badge badge-info">New</span>
+            <span className="badge badge-info">New</span>
           </div>
         </div>
         <div className="row">
           <div className="col">Recaudación Expensas Ordinarias</div>
           <div className="col">
-            <span class="badge badge-info">New</span>
+            <span className="badge badge-info">New</span>
           </div>
         </div>
         <div className="row">
           <div className="col">Erogaciones</div>
           <div className="col">
-            <span class="badge badge-danger">New</span>
+            <span className="badge badge-danger">New</span>
           </div>
         </div>
         <div className="row">
           <div className="col">Nuevo Saldo Ordinario</div>
           <div className="col">
-            <span class="badge badge-primary">New</span>
+            <span className="badge badge-primary">New</span>
           </div>
         </div>
         <div className="row" />

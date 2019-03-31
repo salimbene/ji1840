@@ -19,10 +19,11 @@ export function deletePeriod(periodId) {
 }
 
 export function savePeriod(period) {
-  if (period._id) {
-    const body = { ...period };
-    delete body._id;
-    return http.put(url(period._id), body);
-  }
+  const body = { ...period };
+  delete body._id;
+  return http.put(url(period._id), body);
+}
+
+export function initPeriod(period) {
   return http.post(apiEndpoint, period);
 }

@@ -14,7 +14,7 @@ class Models extends Component {
     super(props);
     this.state = {
       models: {},
-      pageSize: 7,
+      pageSize: 20,
       currentPage: 1,
       searchQuery: '',
       sortColumn: { path: 'type', order: 'asc' },
