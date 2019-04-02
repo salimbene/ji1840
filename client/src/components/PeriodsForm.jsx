@@ -1,22 +1,17 @@
 import React from 'react';
 import Joi from 'joi-browser';
+import _ from 'lodash';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { toast } from 'react-toastify';
-import Form from './common/Form';
-import SimpleModal from './common/SimpleModal';
-import PeriodStats from './common/PeriodStats';
-import PeriodsDTable from './PeriodsDTable';
-import { getPeriod, savePeriod, initPeriod } from '../services/periodsService';
-import { getTotalPayments } from '../services/paymentsService';
-import {
-  getExpensesByPeriod,
-  getTotalExpenses
-} from '../services/expensesService';
-import { getPDetailsByPeriod, savePDetails } from '../services/pdetailsService';
-import auth from '../services/authService';
-import { getCurrentPeriod, getLastXMonths } from '../utils/dates';
 import ExpensesStats from './ExpensesStats';
 import ExpensesDetails from './ExpensesDetails';
-import _ from 'lodash';
+import Form from './common/Form';
+import SimpleModal from './common/SimpleModal';
+import { getPeriod, savePeriod, initPeriod } from '../services/periodsService';
+import { getExpensesByPeriod } from '../services/expensesService';
+import { getPDetailsByPeriod, savePDetails } from '../services/pdetailsService';
+import auth from '../services/authService';
 
 class PeriodsForm extends Form {
   constructor(props) {
@@ -33,9 +28,17 @@ class PeriodsForm extends Form {
       sortColumn: { path: 'model', order: 'asc' },
       errors: {}
     };
-    this.toggleRegister = this.toggleRegister.bind(this);
     this.togglePeriod = this.togglePeriod.bind(this);
   }
+
+  toPDF = async id => {
+    const input = document.getElementById(id);
+    const canvas = await html2canvas(input);
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF();
+    pdf.addImage(imgData, 'PNG', 5, 5);
+    pdf.save(`Expensas_JI1840_${this.state.period}.pdf`);
+  };
 
   async componentDidMount() {
     const { id, period: newPeriod } = this.props.match.params;
@@ -67,8 +70,23 @@ class PeriodsForm extends Form {
     // return this.props.history.replace('/not-found');
   }
 
+  async newPeriod(period) {
+    const body = {
+      period: period,
+      userId: auth.getCurrentUser()._id,
+      totalA: 0,
+      totalB: 0,
+      totalIncome: 0,
+      isClosed: false
+    };
+
+    const { data: newPeriod } = await initPeriod(body);
+    console.log('newpreiod', newPeriod);
+    this.setState({ data: this.mapToViewModel(newPeriod) });
+  }
+
   mapToViewModel(p) {
-    console.log(p);
+    console.log('mapToViewModel period', p.period);
     return {
       _id: p._id,
       period: p.period,
@@ -82,37 +100,6 @@ class PeriodsForm extends Form {
 
   togglePeriod() {
     this.setState(prevState => ({ modal: !prevState.modal }));
-  }
-
-  toggleRegister(detail) {
-    this.setState(prevState => ({
-      modal: !prevState.modal,
-      selectedDetail: detail
-    }));
-  }
-
-  handleRegister = async () => {
-    const { selectedDetail } = this.state;
-    // console.log('handleRegister');
-    // const periods = this.state.periods.filter(
-    //   u => u._id !== selectedDetail._id
-    // );
-
-    // this.setState({ periods });
-
-    const details = this.MapToMongoModel(selectedDetail);
-    const res = await savePDetails(details);
-    console.log(res);
-
-    this.toggleRegister();
-  };
-
-  MapToMongoModel(details) {
-    //DEpopulate model & userId
-    details.userId = details.userId._id;
-    details.model = details.model._id;
-    details.isPayed = true;
-    return details;
   }
 
   handleSort = sortColumn => {
@@ -139,20 +126,6 @@ class PeriodsForm extends Form {
     isClosed: Joi.boolean().label('Cerrado')
   };
 
-  newPeriod = async period => {
-    const body = {
-      period: period,
-      userId: auth.getCurrentUser()._id,
-      totalA: 0,
-      totalB: 0,
-      totalIncome: 0,
-      isClosed: false
-    };
-
-    const newPeriod = await initPeriod(body);
-    this.setState({ data: this.mapToViewModel(newPeriod) });
-  };
-
   doSubmit = () => {
     this.togglePeriod();
   };
@@ -169,28 +142,6 @@ class PeriodsForm extends Form {
     this.togglePeriod();
     const { history } = this.props;
     history.push('/periods');
-  };
-
-  handleSortDetails = sortColumn => {
-    this.setState({ sortColumn });
-  };
-
-  renderDetails = details => {
-    const { data } = details;
-    const { sortColumn } = this.state;
-    const sorted = _.orderBy(data, [sortColumn.path], [sortColumn.order]);
-    return (
-      <React.Fragment>
-        <div className="border border-info rounded shadow-sm p-3 mt-5 bg-white adjust">
-          <PeriodsDTable
-            data={sorted}
-            onRegister={this.toggleRegister}
-            onSort={this.handleSortDetails}
-            sortColumn={sortColumn}
-          />
-        </div>
-      </React.Fragment>
-    );
   };
 
   ModalPeriodBody = data => {
@@ -211,57 +162,46 @@ class PeriodsForm extends Form {
     return _id ? bodyPeriod : bodyNewPeriod;
   };
 
-  ModalBodyDetail = user => {
-    const { lastname, balance } = user;
-    return (
-      <p className="lead">
-        El usuario <mark>{lastname}</mark> posee{' '}
-        <mark>${Number(balance).toFixed(2)}</mark>
-        en su cuenta. Si confirma la operación se debitará el pago de su cuenta.
-      </p>
-    );
-  };
-
   render() {
     const { details, expenses, modal, selectedDetail, data } = this.state;
     const { totalA, totalB, totalIncome, _id } = data;
     const saveButtonLabel = !_id ? 'Iniciar Período' : 'Cerrar Período';
-    console.log(details, expenses);
+
+    console.log('render expenses', expenses);
+    console.log('render details', details);
+
     if (!details || !expenses) return 'No hay información disponible';
 
     return (
       <React.Fragment>
-        <SimpleModal
-          isOpen={modal}
-          toggle={this.togglePeriod}
-          title={saveButtonLabel}
-          label={saveButtonLabel}
-          action={this.handleSavePeriod}
-          body={this.ModalPeriodBody(data)}
-        />
-        {selectedDetail && selectedDetail.model && (
-          <SimpleModal
-            isOpen={modal}
-            toggle={this.toggleRegister}
-            title="Registrar pago"
-            label="Confirmar"
-            action={this.handleRegister}
-            body={this.ModalBodyDetail(selectedDetail.model.userId)}
-          />
-        )}
-        <ExpensesStats expenses={expenses} />
-        <ExpensesDetails details={details} />
-        {/* {this.renderDetails(details)} */}
+        <div className="row">
+          <div className="col">
+            <div id="pdf" className="page">
+              <SimpleModal
+                isOpen={modal}
+                toggle={this.togglePeriod}
+                title={saveButtonLabel}
+                label={saveButtonLabel}
+                action={this.handleSavePeriod}
+                body={this.ModalPeriodBody(data)}
+              />
+
+              <ExpensesStats expenses={expenses} />
+              <ExpensesDetails details={details} />
+            </div>
+          </div>
+          <div className="col">
+            <i
+              className="fa fa-download blue clickable"
+              onClick={event => this.toPDF('pdf')}
+            >
+              descargar
+            </i>
+          </div>
+        </div>
       </React.Fragment>
     );
   }
 }
 
 export default PeriodsForm;
-
-// {/* <PeriodStats
-//   totalA={totalA}
-//   totalB={totalB}
-//   totalIncome={totalIncome}
-// /> */}
-// {/* {details && this.renderDetails(details)} */}

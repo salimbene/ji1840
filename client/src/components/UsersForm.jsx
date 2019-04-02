@@ -6,9 +6,8 @@ import Form from './common/Form';
 import Table from './common/Table';
 import { getUnits, getUnitsOwnedBy } from '../services/unitsService';
 import { getUser, getUsers, saveUser } from '../services/usersService';
-import { getPaymentsByuserId } from '../services/paymentsService';
-import { formatDate } from '../utils/dates';
 import auth from '../services/authService';
+// import { formatDate } from '../utils/dates';
 
 class UsersForm extends Form {
   state = {
@@ -97,23 +96,23 @@ class UsersForm extends Form {
     }
   }
 
-  async populatePayments() {
-    const { _id } = this.state.data;
+  // async populatePayments() {
+  //   const { _id } = this.state.data;
 
-    try {
-      const { data: payments } = await getPaymentsByuserId(_id);
-      this.setState({ payments });
-    } catch (ex) {
-      console.log(ex.response.data);
-    }
-  }
+  //   try {
+  //     const { data: payments } = await getPaymentsByuserId(_id);
+  //     this.setState({ payments });
+  //   } catch (ex) {
+  //     console.log(ex.response.data);
+  //   }
+  // }
 
   async componentDidMount() {
     await this.populateUnits();
     await this.populateUser();
     await this.populateUsers();
     await this.populateOwnedBy();
-    await this.populatePayments();
+    // await this.populatePayments();
   }
 
   handleUnitSort = sortUnits => {
@@ -140,14 +139,11 @@ class UsersForm extends Form {
 
   doSubmit = async () => {
     const user = { ...this.state.data };
-    try {
-      await saveUser(user);
-      toast.success(`😀 Los datos se guardaron exitosamente.`, {
-        position: 'top-center'
-      });
-    } catch (ex) {
-      toast.error(`☹️ Error: ${ex.response.data}`);
-    }
+
+    await saveUser(user);
+    toast.success(`😀 Los datos se guardaron exitosamente.`, {
+      position: 'top-center'
+    });
 
     const { history } = this.props;
     history.push('/users');
@@ -172,16 +168,16 @@ class UsersForm extends Form {
     }
   ];
 
-  columnsPayments = [
-    { path: 'period', label: 'Periodo' },
-    { path: 'comments', label: 'Detalle' },
-    {
-      path: 'ammount',
-      label: 'Importe',
-      content: pay => `$${pay.ammount.toFixed(2)}`
-    },
-    { path: 'date', label: 'Fecha', content: pay => formatDate(pay.date) }
-  ];
+  // columnsPayments = [
+  //   { path: 'period', label: 'Periodo' },
+  //   { path: 'comments', label: 'Detalle' },
+  //   {
+  //     path: 'ammount',
+  //     label: 'Importe',
+  //     content: pay => `$${pay.ammount.toFixed(2)}`
+  //   },
+  //   { path: 'date', label: 'Fecha', content: pay => formatDate(pay.date) }
+  // ];
 
   renderForm() {
     return (
@@ -263,32 +259,33 @@ class UsersForm extends Form {
     );
   }
 
-  renderMovs(payments, sortColumn) {
-    return (
-      <React.Fragment>
-        <div className="border border-info p-3 mb-3 mx-auto rounded shadow bg-white">
-          <p className="text-muted">Movimientos</p>
-          <Table
-            columns={this.columnsPayments}
-            data={payments}
-            sortColumn={sortColumn}
-            onSort={this.handlePaymentSort}
-            viewOnly={true}
-          />
-        </div>
-      </React.Fragment>
-    );
-  }
+  // renderMovs(payments, sortColumn) {
+  //   return (
+  //     <React.Fragment>
+  //       <div className="border border-info p-3 mb-3 mx-auto rounded shadow bg-white">
+  //         <p className="text-muted">Movimientos</p>
+  //         <Table
+  //           columns={this.columnsPayments}
+  //           data={payments}
+  //           sortColumn={sortColumn}
+  //           onSort={this.handlePaymentSort}
+  //           viewOnly={true}
+  //         />
+  //       </div>
+  //     </React.Fragment>
+  //   );
+  // }
 
   getSortedData = (data, sortColumn) => {
     const sorted = _.orderBy(data, [sortColumn.path], [sortColumn.order]);
     return sorted;
   };
   render() {
-    const { owned, payments, sortUnits, sortPayments } = this.state;
-
-    const sortedPayments = this.getSortedData(payments, sortPayments);
+    const { owned, sortUnits } = this.state;
     const sortedUnits = this.getSortedData(owned, sortUnits);
+
+    // const {  payments, sortPayments } = this.state;
+    // const sortedPayments = this.getSortedData(payments, sortPayments);
 
     return (
       <React.Fragment>
@@ -296,7 +293,7 @@ class UsersForm extends Form {
           <div className="col">{this.renderForm()}</div>
           <div className="col">
             {this.renderProps(sortedUnits, sortUnits)}
-            {this.renderMovs(sortedPayments, sortPayments)}
+            {/* {this.renderMovs(sortedPayments, sortPayments)} */}
           </div>
         </div>
         <div className="row">

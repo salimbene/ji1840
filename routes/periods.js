@@ -108,7 +108,7 @@ router.post('/', [auth, admin], async (req, res) => {
     pdetails
       .save()
       .then(result => {
-        debug(`Entrada creadad OK: ${pdetails.model}`);
+        debug(`Entrada creadad OK: ${pdetails._id}`);
       })
       .catch(err => {
         debug(err.errmsg);
@@ -163,9 +163,19 @@ router.put('/:id', [auth, admin], async (req, res) => {
 
 router.delete('/:id', [auth, admin], async (req, res) => {
   try {
-    const period = await Period.findByIdAndRemove(req.params.id);
-    res.send(period);
-    debug(`${period._id} DELETED ok!`);
+    const period = await Period.findById(req.params.id);
+    // const period = await Period.findByIdAndRemove(req.params.id);
+    debug(period.period);
+    const pdetails = await PDetails.find()
+      .where('period')
+      .equals(period.period);
+
+    debug(pdetails);
+    pdetails.forEach(pd => pd.delete());
+    period.delete();
+
+    res.status(200).send('Period and details deleted OK.');
+    // debug(`${period._id} DELETED ok!`);
   } catch (ex) {
     debug(ex.message);
     res.status(404).send(`El período con ID: ${req.params.id} no existe.`);

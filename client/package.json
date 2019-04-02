@@ -5,7 +5,9 @@
   "dependencies": {
     "bootstrap": "^4.2.1",
     "font-awesome": "^4.7.0",
+    "html2canvas": "^1.0.0-alpha.12",
     "joi-browser": "^13.4.0",
+    "jspdf": "^1.5.3",
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.10",
     "prop-types": "^15.6.2",

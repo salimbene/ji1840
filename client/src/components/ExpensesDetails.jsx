@@ -14,13 +14,15 @@ const ExpensesDetails = ({ details }) => {
   const subtDebt = sorted.reduce((acum, current) => (acum += current.debt), 0);
   const subtInt = sorted.reduce((acum, current) => (acum += current.int), 0);
   const totCoef = sorted.reduce(
-    (acum, current) => (acum += current.coefficient),
+    (acum, current) => (acum += current.model.coefficient),
     0
   );
+  console.log('typeof totCoef', typeof totCoef);
+  console.log('sorted', sorted);
 
   return (
     <React.Fragment>
-      <div className="border border-info rounded shadow-sm p-3 mt-5 bg-white adjust">
+      <div className="mt-5">
         <table className="table table-sm">
           <thead>
             <tr>

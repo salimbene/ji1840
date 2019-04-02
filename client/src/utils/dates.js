@@ -36,8 +36,8 @@ export function getCurrentPeriod(e = 0) {
   };
 }
 
-export function getPeriod(day) {
-  return `${monthLabels[day.getMonth()]} ${day.getFullYear()}`;
+export function getPeriod(day, minus) {
+  return `${monthLabels[day.getMonth() - minus]} ${day.getFullYear()}`;
 }
 
 export function getLastPeriod(day) {

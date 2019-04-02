@@ -15,7 +15,7 @@ const ExpensesStats = ({ expenses }) => {
 
   return (
     <React.Fragment>
-      <div className="border border-info rounded shadow-sm p-3 mt-5 bg-white adjust">
+      <div className="">
         <table className="table table-sm">
           <thead>
             <tr>

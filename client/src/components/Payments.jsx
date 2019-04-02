@@ -4,10 +4,10 @@ import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
 import PeriodSelector from './common/PeriodSelector';
 import SimpleModal from './common/SimpleModal';
-import PaymentsTable from './PaymentsTable';
+import PeriodsDTable from './PeriodsDTable';
 import auth from '../services/authService';
-import { getPayments, deletePayment } from '../services/paymentsService';
-import { getCurrentPeriod } from '../utils/dates';
+import { getPDetailsByPeriod, savePDetails } from '../services/pdetailsService';
+import { getCurrentPeriod, getPeriod } from '../utils/dates';
 import { paginate } from '../utils/paginate';
 import { toast } from 'react-toastify';
 
@@ -15,51 +15,30 @@ class Payments extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      payments: {},
-      pageSize: 10,
+      pageSize: 20,
       currentPage: 1,
       searchQuery: '',
-      selectedPeriod: null,
-      sortColumn: { path: 'type', order: 'asc' },
+      selectedPeriod: getPeriod(new Date()),
+      sortColumn: { path: 'model', order: 'asc' },
       year: getCurrentPeriod().year,
       month: getCurrentPeriod().month,
       modal: false
     };
-    this.toggleDelete = this.toggleDelete.bind(this);
-  }
-
-  toggleDelete(payment) {
-    this.setState(prevState => ({
-      modal: !prevState.modal,
-      selectedPayment: payment
-    }));
+    this.toggleRegister = this.toggleRegister.bind(this);
   }
 
   async componentDidMount() {
-    const { data: payments } = await getPayments();
-    this.setState({ payments, user: auth.getCurrentUser() });
+    this.setState({ user: auth.getCurrentUser() });
+    const { selectedPeriod } = this.state;
+    await this.populateDetails(selectedPeriod);
   }
 
-  handleDelete = payment => {
-    const { selectedPayment } = this.state;
-    const rollback = this.state.payments;
+  async populateDetails(period) {
+    const { data: details } = await getPDetailsByPeriod(period);
+    this.setState({ details });
+  }
 
-    const payments = this.state.payments.filter(
-      u => u._id !== selectedPayment._id
-    );
-
-    this.setState({ payments });
-
-    try {
-      deletePayment(selectedPayment._id);
-    } catch (ex) {
-      toast.error(`☹️ Error: ${ex.response.data}`);
-      this.setState({ expenses: rollback });
-    }
-    this.toggleDelete();
-  };
-
-  handlePeriodSelect = event => {
+  handlePeriodSelect = async event => {
     let { year, month } = this.state;
 
     if (event.target.name === 'year') year = event.target.value;
@@ -67,6 +46,7 @@ class Payments extends Component {
 
     const selectedPeriod = year && month ? `${month} ${year}` : '';
 
+    await this.populateDetails(selectedPeriod);
     this.setState({
       selectedPeriod,
       searchQuery: '',
@@ -74,15 +54,6 @@ class Payments extends Component {
       year,
       month
     });
-  };
-
-  handleSort = sortColumn => {
-    this.setState({ sortColumn });
-  };
-
-  handleAddUnit = () => {
-    const { history } = this.props;
-    history.push('/payments/new');
   };
 
   handlePageChange = page => {
@@ -95,41 +66,62 @@ class Payments extends Component {
 
   getPageData = () => {
     const {
-      payments: allPayments,
+      details: allDetails,
       pageSize,
       currentPage,
       sortColumn,
-
       selectedPeriod,
       searchQuery
     } = this.state;
 
-    let filtered = allPayments;
+    let filtered = allDetails;
 
     if (searchQuery) {
-      filtered = allPayments.filter(u =>
-        u.comments.toLowerCase().startsWith(searchQuery.toLowerCase())
+      filtered = allDetails.filter(u =>
+        u.model.landlord.lastname
+          .toLowerCase()
+          .startsWith(searchQuery.toLowerCase())
       );
     } else if (selectedPeriod)
-      filtered = allPayments.filter(m => m.period === selectedPeriod);
+      filtered = allDetails.filter(m => m.period === selectedPeriod);
 
     const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
-    const payments = paginate(sorted, currentPage, pageSize);
+    const details = paginate(sorted, currentPage, pageSize);
 
     return {
       totalCount: filtered.length || 0,
-      data: payments
+      data: details
     };
   };
 
-  DeleteMsgBody = () => {
-    return (
-      <p className="lead">
-        El pago seleccionado se elimnará y producirá un ajusto en el balance del
-        usuario.
-      </p>
-    );
+  toggleRegister(detail) {
+    this.setState(prevState => ({
+      modal: !prevState.modal,
+      selectedDetail: detail
+    }));
+  }
+
+  handleRegister = async () => {
+    const { details: rollback } = this.state;
+    const { selectedDetail, details } = this.state;
+
+    try {
+      const detail = this.MapToMongoModel({ ...selectedDetail });
+      const item = details.find(d => d._id === detail._id);
+      item.isPayed = !item.isPayed;
+      await savePDetails(detail);
+    } catch (ex) {
+      this.setState({ details: rollback });
+    }
+    this.toggleRegister(selectedDetail);
   };
+
+  MapToMongoModel(details) {
+    //DEpopulate model & userId
+    details.userId = details.userId._id;
+    details.model = details.model._id;
+    return details;
+  }
 
   renderViewTags = (data, selected) => {
     const count = data.length;
@@ -154,6 +146,21 @@ class Payments extends Component {
     );
   };
 
+  handleSortDetails = sortColumn => {
+    this.setState({ sortColumn });
+  };
+
+  ModalBodyDetail = model => {
+    const { label } = model;
+    const { lastname } = model.landlord;
+    return (
+      <p className="lead">
+        Se registrará el pago de expensas para <mark>{label}</mark> del
+        propietario <mark>{lastname}</mark>.
+      </p>
+    );
+  };
+
   render() {
     const { user } = this.state;
 
@@ -164,27 +171,15 @@ class Payments extends Component {
         </div>
       );
 
-    const {
-      pageSize,
-      currentPage,
-      sortColumn,
-      searchQuery,
-      selectedPeriod
-    } = this.state;
+    if (!this.state.details) return 'No data available.';
+
+    const { pageSize, currentPage, searchQuery, sortColumn } = this.state;
     const { month, year } = this.state;
-    const { selectedPayment } = this.state;
-    const { totalCount, data: payments } = this.getPageData();
+    const { modal, selectedDetail } = this.state;
+    const { totalCount, data: details } = this.getPageData();
 
     return (
       <React.Fragment>
-        <SimpleModal
-          isOpen={this.state.modal}
-          toggle={this.toggleDelete}
-          title="Eliminar gasto"
-          label="Eliminar"
-          action={this.handleDelete}
-          body={selectedPayment && this.DeleteMsgBody(selectedPayment)}
-        />
         <div className="row align-items-end">
           <div className="col-sm-5">
             <PeriodSelector
@@ -197,13 +192,22 @@ class Payments extends Component {
             <SearchBox value={searchQuery} onChange={this.handleSearch} />
           </div>
         </div>
-        {this.renderViewTags(payments, selectedPeriod)}
+        {selectedDetail && (
+          <SimpleModal
+            isOpen={modal}
+            toggle={this.toggleRegister}
+            title="Registrar pago"
+            label="Confirmar"
+            action={this.handleRegister}
+            body={this.ModalBodyDetail(selectedDetail.model)}
+          />
+        )}
         <div className="row units">
           <div className="col">
-            <PaymentsTable
-              payments={payments}
-              onDelete={this.toggleDelete}
-              onSort={this.handleSort}
+            <PeriodsDTable
+              data={details}
+              onRegister={this.toggleRegister}
+              onSort={this.handleSortDetails}
               sortColumn={sortColumn}
             />
 
@@ -213,15 +217,6 @@ class Payments extends Component {
               currentPage={currentPage}
               onPageChange={this.handlePageChange}
             />
-            {user && (
-              <button
-                onClick={event => this.handleAddUnit(event)}
-                className="btn btn-primary btn-sm"
-                style={{ marginBottom: 20 }}
-              >
-                Nuevo
-              </button>
-            )}
           </div>
         </div>
       </React.Fragment>

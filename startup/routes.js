@@ -6,7 +6,6 @@ const pmodels = require('../routes/pmodels');
 const periods = require('../routes/periods');
 const pdetails = require('../routes/pdetails');
 const expenses = require('../routes/expenses');
-const payments = require('../routes/payments');
 const suppliers = require('../routes/suppliers');
 const consortia = require('../routes/consortia');
 const users = require('../routes/users');
@@ -28,7 +27,6 @@ module.exports = function(app) {
   app.use('/api/pmodels', pmodels);
   app.use('/api/funits', fUnits);
   app.use('/api/expenses', expenses);
-  app.use('/api/payments', payments);
   app.use('/api/suppliers', suppliers);
   app.use('/api/users', users);
   app.use('/api/auth', auth);

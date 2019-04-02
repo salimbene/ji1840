@@ -12,7 +12,6 @@ import PeriodsForm from './components/PeriodsForm';
 import Expenses from './components/Expenses';
 import ExpensesForm from './components/ExpensesForm';
 import Payments from './components/Payments';
-import PaymentsForm from './components/PaymentsForm';
 import Suppliers from './components/Suppliers';
 import SuppliersForm from './components/SuppliersForm';
 import RegisterForm from './components/RegisterForm';
@@ -66,7 +65,6 @@ class App extends Component {
                 <ProtectedRoute path="/models" component={Models} />
                 <ProtectedRoute path="/current" component={CurrentMonth} />
                 <ProtectedRoute path="/periods" component={Periods} />
-                <ProtectedRoute path="/payments/:id" component={PaymentsForm} />
                 <ProtectedRoute path="/payments" component={Payments} />
                 <ProtectedRoute path="/expenses/:id" component={ExpensesForm} />
                 <ProtectedRoute path="/expenses" component={Expenses} />

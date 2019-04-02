@@ -2,7 +2,7 @@ const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 const { PDetails, validate } = require('../models/pdetails');
 const { User } = require('../models/user');
-const { Payment } = require('../models/payment');
+// const { Payment } = require('../models/payment');
 const { PModel } = require('../models/pmodel');
 const _ = require('lodash');
 const debug = require('debug')('routes:pdetails');
@@ -89,40 +89,43 @@ router.put('/:id', [auth, admin], async (req, res) => {
   // El problema es que model y userid es "populados", tendria que ver como traer los Ids....
   if (error) return res.status(400).send(error.details[0].message);
 
-  debug(req.body);
-  const { userId: submittedBy, expenses, extra, debt, int, model } = req.body;
-  const total = expenses + extra + debt + int;
+  // debug(req.body);
+  // const { userId: submittedBy, expenses, extra, debt, int, model } = req.body;
+  // const total = expenses + extra + debt + int;
 
-  const pmodel = await PModel.findById(model);
-  const { userId } = pmodel;
-  debug('User.findOneAndUpdate', userId);
-  const user = await User.findOneAndUpdate(
-    { _id: userId },
-    { $inc: { balance: total * -1 } },
-    { new: true }
-  );
+  // const pmodel = await PModel.findById(model);
+  // const { userId } = pmodel;
 
-  debug('Se debitará:', total * -1, ' a ', userId);
+  // debug('User.findOneAndUpdate', userId);
+  // const user = await User.findOneAndUpdate(
+  //   { _id: userId },
+  //   { $inc: { balance: total * -1 } },
+  //   { new: true }
+  // );
+
+  // debug('Se debitará:', total * -1, ' a ', userId);
+
   const { isPayed } = req.body;
   const pdetails = await PDetails.findOneAndUpdate(
     { _id: req.params.id },
-    { isPayed },
+    { isPayed: !isPayed },
     { new: true }
   );
+  await pdetails.save();
   debug(pdetails);
 
-  const { period } = req.body;
-  // const { _id: submmitedBy } = req.user; //Mismo que req.body.userId
-  debug(submittedBy);
-  const payment = new Payment({
-    userId,
-    submittedBy,
-    ammount: total * -1,
-    comments: 'Pago de expensas',
-    period
-  });
-  debug(payment);
-  await payment.save();
+  // const { period } = req.body;
+  // // const { _id: submmitedBy } = req.user; //Mismo que req.body.userId
+  // debug(submittedBy);
+  // const payment = new Payment({
+  //   userId,
+  //   submittedBy,
+  //   ammount: total * -1,
+  //   comments: 'Pago de expensas',
+  //   period
+  // });
+  // debug(payment);
+  // await payment.save();
 
   res.send(pdetails);
 });

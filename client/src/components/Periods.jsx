@@ -60,7 +60,6 @@ class Periods extends Component {
     try {
       deletePeriod(selectedPeriod._id);
     } catch (ex) {
-      toast.error(`☹️ Error: ${ex.response.data}`);
       this.setState({ expenses: rollback });
     }
     this.toggleDelete();

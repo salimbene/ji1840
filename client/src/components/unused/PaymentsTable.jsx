@@ -44,7 +44,7 @@ class PaymentsTable extends Component {
     content: payment => (
       <i
         onClick={event => this.props.onDelete(payment)}
-        className="fa fa-trash red"
+        className="fa fa-trash red clickable"
       />
     )
   };

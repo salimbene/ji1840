@@ -45,23 +45,20 @@ class PeriodsDTable extends Component {
       label: 'Total',
       content: m =>
         `$${Number(m.expenses + m.extra + m.debt + m.int).toFixed(2)}`
-    },
-    {
-      path: 'isPayed',
-      label: 'Pagó'
     }
   ];
 
   registerColumn = {
+    label: 'Pagar',
     key: 'reg',
     content: model => (
-      <button
+      <i
+        className={`fa ${
+          model.isPayed ? 'fa fa-check-square-o' : 'fa fa-square-o'
+        }`}
+        aria-hidden="true"
         onClick={event => this.props.onRegister(model)}
-        className="btn btn-light btn-sm"
-        disabled={model.isPayed}
-      >
-        Pagó
-      </button>
+      />
     )
   };
 

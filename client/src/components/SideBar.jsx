@@ -17,27 +17,24 @@ const SideBar = ({ user }) => {
 
         {user && (
           <React.Fragment>
-            <SideSeparator label="Expensas" />
+            <SideSeparator label="Información" />
             <ul className="nav flex-column mb-2">
-              <SideBarItem label="Mes Actual" to="/current" />
-              <SideBarItem label="Historial" to="/history" />
+              <SideBarItem label="Usuarios" to="/users" />
+              <SideBarItem label="Proveedores" to="/suppliers" />
+              <SideBarItem label="Unidades" to="/units" />
             </ul>
           </React.Fragment>
         )}
-
         {user && user.isCouncil && (
           <React.Fragment>
-            <SideSeparator label="Movimientos" />
-            <ul className="nav flex-column mb-2">
-              <SideBarItem label="Registrar Gastos" to="/expenses" />
-              <SideBarItem label="Registrar Pagos" to="/payments" />
-            </ul>
-            <SideSeparator label="Administración" />
+            <SideSeparator label="Gestión" />
             <ul className="nav flex-column mb-2">
               <SideBarItem label="Expensas" to="/periods" />
-              <SideBarItem label="Proveedores" to="/suppliers" />
-              <SideBarItem label="Unidades" to="/units" />
-              <SideBarItem label="Usuarios" to="/users" />
+              <SideBarItem label="Gastos" to="/expenses" />
+              <SideBarItem label="Pagos" to="/payments" />
+            </ul>
+            <SideSeparator label="Configuración" />
+            <ul className="nav flex-column mb-2">
               <SideBarItem label="Esquemas" to="/models" />
               <SideBarItem label="Configuración" to="/consortia" />
             </ul>
