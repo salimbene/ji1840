@@ -1,6 +1,5 @@
 import React from 'react';
 import Joi from 'joi-browser';
-import _ from 'lodash';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { toast } from 'react-toastify';
@@ -10,7 +9,7 @@ import Form from './common/Form';
 import SimpleModal from './common/SimpleModal';
 import { getPeriod, savePeriod, initPeriod } from '../services/periodsService';
 import { getExpensesByPeriod } from '../services/expensesService';
-import { getPDetailsByPeriod, savePDetails } from '../services/pdetailsService';
+import { getPDetailsByPeriod } from '../services/pdetailsService';
 import auth from '../services/authService';
 
 class PeriodsForm extends Form {
@@ -57,6 +56,7 @@ class PeriodsForm extends Form {
 
   async populateExpenses(period) {
     const expenses = await getExpensesByPeriod(period);
+    console.log('expenses period', period);
     this.setState({ expenses });
   }
 
@@ -81,12 +81,10 @@ class PeriodsForm extends Form {
     };
 
     const { data: newPeriod } = await initPeriod(body);
-    console.log('newpreiod', newPeriod);
     this.setState({ data: this.mapToViewModel(newPeriod) });
   }
 
   mapToViewModel(p) {
-    console.log('mapToViewModel period', p.period);
     return {
       _id: p._id,
       period: p.period,
@@ -132,13 +130,10 @@ class PeriodsForm extends Form {
 
   handleSavePeriod = async () => {
     const period = { ...this.state.data };
-    try {
-      // period.isClosed = true;
-      console.log(period);
-      await savePeriod(period);
-    } catch (ex) {
-      console.log(ex.response.data);
-    }
+
+    // period.isClosed = true;
+    await savePeriod(period);
+
     this.togglePeriod();
     const { history } = this.props;
     history.push('/periods');
@@ -163,12 +158,9 @@ class PeriodsForm extends Form {
   };
 
   render() {
-    const { details, expenses, modal, selectedDetail, data } = this.state;
+    const { details, expenses, modal, data } = this.state;
     const { totalA, totalB, totalIncome, _id } = data;
     const saveButtonLabel = !_id ? 'Iniciar Período' : 'Cerrar Período';
-
-    console.log('render expenses', expenses);
-    console.log('render details', details);
 
     if (!details || !expenses) return 'No hay información disponible';
 

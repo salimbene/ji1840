@@ -80,20 +80,20 @@ router.post('/', [auth, admin], async (req, res) => {
       int: 0,
       isPayed: false
     });
-
     //Calculo de expenses extra-ordinarias con excepciones
     expenses.forEach(expense => {
       const { excluded, ammount } = expense;
       const coefPayment = pmodelsCount - excluded.length;
-
+      let notExcluded = true;
       expB = ammount / coefPayment;
 
       if (excluded.length === 0) {
         pdetails.extra += expB;
       } else
         excluded.forEach(o => {
-          if (String(o) !== String(_id)) pdetails.extra += expB;
+          if (String(o) === String(_id)) notExcluded = false;
         });
+      if (notExcluded) pdetails.extra += expB;
     });
 
     //Calculo de deudas
@@ -108,7 +108,7 @@ router.post('/', [auth, admin], async (req, res) => {
     pdetails
       .save()
       .then(result => {
-        debug(`Entrada creadad OK: ${pdetails._id}`);
+        debug(`Entrada creadad OK: ${pdetails.extra}`);
       })
       .catch(err => {
         debug(err.errmsg);
@@ -165,12 +165,11 @@ router.delete('/:id', [auth, admin], async (req, res) => {
   try {
     const period = await Period.findById(req.params.id);
     // const period = await Period.findByIdAndRemove(req.params.id);
-    debug(period.period);
+
     const pdetails = await PDetails.find()
       .where('period')
       .equals(period.period);
 
-    debug(pdetails);
     pdetails.forEach(pd => pd.delete());
     period.delete();
 

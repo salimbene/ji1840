@@ -124,6 +124,7 @@ class ExpensesForm extends Form {
 
   getLabel(id) {
     const { models } = this.state;
+    console.log('getlabel', id);
     if (models.length === 0) return;
     return models.find(m => m._id === id).label;
   }

@@ -47,7 +47,8 @@ class ModelsTable extends Component {
     },
     {
       path: 'coefficient',
-      label: 'Coeficiente'
+      label: 'Coeficiente',
+      content: m => <p>%{Number(m.coefficient * 100).toFixed(2)}</p>
     }
   ];
 
