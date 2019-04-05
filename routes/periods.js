@@ -2,7 +2,7 @@ const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 const { Period, validate } = require('../models/period');
 const { PDetails } = require('../models/pdetails');
-const { Expense } = require('../models/expense');
+const { Expense, getPeriodExpenses } = require('../models/expense');
 const { PModel } = require('../models/pmodel');
 const { Consortia } = require('../models/consortia.js');
 // const { User } = require('../models/user');
@@ -53,6 +53,7 @@ router.post('/', [auth, admin], async (req, res) => {
       'totalA',
       'totalB',
       'totalIncome',
+      'totalExpenses',
       'isClosed'
     ])
   );
@@ -118,10 +119,16 @@ router.post('/', [auth, admin], async (req, res) => {
       });
   });
 
-  periodEntry.totalB = expenses.reduce((prev, current) => {
-    console.log(prev, current);
-    return (prev += current.ammount);
-  }, 0);
+  periodEntry.totalA = totalA;
+  periodEntry.totalB = expenses.reduce(
+    (prev, current) => (prev += current.ammount),
+    0
+  );
+  const periodExpenses = await getPeriodExpenses(currentPeriod);
+  periodEntry.totalExpenses = periodExpenses.reduce(
+    (prev, current) => (prev += current.total),
+    0
+  );
 
   periodEntry
     .save()
@@ -140,23 +147,27 @@ router.put('/:id', [auth, admin], async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  // let periodEntry = await Period.findOne({ period: req.body.period });
-  // if (periodEntry) return res.status(400).send('Período ya registrado.');
-
-  const { period, userId, totalA, totalB, totalIncome, isClosed } = req.body;
-
-  let periods;
+  const { isClosed, period, totalB, totalIncome } = req.body;
 
   try {
     periods = await Period.findOneAndUpdate(
       { _id: req.params.id },
-      { period, userId, totalA, totalB, totalIncome, isClosed },
+      { isClosed: !isClosed },
       { new: true }
     );
   } catch (ex) {
     debug(ex.errmsg);
     return res.status(400).send(ex.errmsg);
   }
+
+  const consortia = await Consortia.find();
+  const { _id: consortiaId } = consortia[0];
+  await Consortia.findOneAndUpdate(
+    { _id: consortiaId },
+    { $inc: { balanceA: totalIncome - totalB - getPeriodExpenses(period) } },
+    { $inc: { balanceB: totalB } },
+    { new: true }
+  );
 
   res.send(periods);
 });

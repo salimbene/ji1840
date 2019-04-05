@@ -76,6 +76,11 @@ class Payments extends Component {
 
     let filtered = allDetails;
 
+    filtered.map(detail => {
+      const { expenses, extra, debt, int } = detail;
+      detail.total = expenses + extra + debt + int;
+    });
+
     if (searchQuery) {
       filtered = allDetails.filter(u =>
         u.model.landlord.lastname
@@ -106,7 +111,7 @@ class Payments extends Component {
     const { selectedDetail, details } = this.state;
 
     try {
-      const detail = this.MapToMongoModel({ ...selectedDetail });
+      const detail = this.mapToMongoModel({ ...selectedDetail });
       const item = details.find(d => d._id === detail._id);
       item.isPayed = !item.isPayed;
       await savePDetails(detail);
@@ -116,8 +121,9 @@ class Payments extends Component {
     this.toggleRegister(selectedDetail);
   };
 
-  MapToMongoModel(details) {
+  mapToMongoModel(details) {
     //DEpopulate model & userId
+    delete details.total;
     details.userId = details.userId._id;
     details.model = details.model._id;
     return details;
@@ -156,7 +162,8 @@ class Payments extends Component {
     return (
       <p className="lead">
         Se registrará el pago de expensas para <mark>{label}</mark> del
-        propietario <mark>{lastname}</mark>.
+        propietario <mark>{lastname}</mark>. Adicionalmente se actualizará el
+        saldo de ingresos del período.
       </p>
     );
   };
@@ -192,7 +199,7 @@ class Payments extends Component {
             <SearchBox value={searchQuery} onChange={this.handleSearch} />
           </div>
         </div>
-        {selectedDetail && (
+        {selectedDetail && selectedDetail.model && (
           <SimpleModal
             isOpen={modal}
             toggle={this.toggleRegister}
@@ -210,7 +217,6 @@ class Payments extends Component {
               onSort={this.handleSortDetails}
               sortColumn={sortColumn}
             />
-
             <Pagination
               itemsCount={totalCount}
               pageSize={pageSize}

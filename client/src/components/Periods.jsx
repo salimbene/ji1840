@@ -6,7 +6,11 @@ import SearchBox from './common/SearchBox';
 import SimpleModal from './common/SimpleModal';
 import auth from '../services/authService';
 import PeriodsTable from './PeriodsTable';
-import { getPeriods, deletePeriod } from '../services/periodsService.js';
+import {
+  getPeriods,
+  deletePeriod,
+  savePeriod
+} from '../services/periodsService.js';
 import { paginate } from '../utils/paginate';
 import { getLastXMonths, getLastPeriod } from '../utils/dates';
 import Select from './common/Select';
@@ -21,24 +25,33 @@ class Periods extends Component {
       searchQuery: '',
       delModal: false,
       newModal: false,
+      clsModal: false,
       sortColumn: { path: 'date', order: 'dec' },
       period: getLastPeriod(new Date())
     };
 
     this.toggleDelete = this.toggleDelete.bind(this);
     this.toggleNewPeriod = this.toggleNewPeriod.bind(this);
+    this.toggleClsPeriod = this.toggleClsPeriod.bind(this);
   }
 
-  toggleDelete(model) {
+  toggleDelete(period) {
     this.setState(prevState => ({
       delModal: !prevState.delModal,
-      selectedPeriod: model
+      selectedPeriod: period
     }));
   }
 
   toggleNewPeriod() {
     this.setState(prevState => ({
       newModal: !prevState.newModal
+    }));
+  }
+
+  toggleClsPeriod(period) {
+    this.setState(prevState => ({
+      clsModal: !prevState.clsModal,
+      selectedPeriod: period
     }));
   }
 
@@ -82,6 +95,34 @@ class Periods extends Component {
     const { history } = this.props;
     history.push(`/periods/new/${period}`);
   };
+
+  handleClsPeriod = async () => {
+    const { periods: rollback } = this.state;
+    const { selectedPeriod, periods } = this.state;
+
+    try {
+      const period = this.mapToMongoModel({ ...selectedPeriod });
+      const item = periods.find(d => d._id === period._id);
+
+      if (item.isClosed)
+        throw new Error('Un período cerrado no puede reabrirse.');
+
+      item.isClosed = !item.isClosed;
+      await savePeriod(period);
+    } catch (ex) {
+      toast.error(`⚠️ ${ex.message}`);
+      this.setState({ periods: rollback });
+    }
+    this.toggleClsPeriod(selectedPeriod);
+  };
+
+  mapToMongoModel(period) {
+    //DEpopulate userId
+    delete period.date;
+    delete period.__v;
+    period.userId = period.userId._id;
+    return period;
+  }
 
   handlePageChange = page => {
     this.setState({ currentPage: page });
@@ -128,6 +169,16 @@ class Periods extends Component {
     );
   };
 
+  clsPeriodModalBody = period => {
+    return (
+      <p className="lead">
+        Se cerrará el periodo <mark>{period}</mark>. De existir alguna expensa
+        sin pagar se registará la deuda correspondiente, y se actualizarán los
+        saldos del consorcio.
+      </p>
+    );
+  };
+
   render() {
     const { user } = this.state;
     if (user && !user.isAdmin)
@@ -137,16 +188,9 @@ class Periods extends Component {
         </div>
       );
 
-    const {
-      delModal,
-      newModal,
-      pageSize,
-      currentPage,
-      sortColumn,
-      searchQuery,
-      period
-    } = this.state;
-
+    const { delModal, newModal, clsModal } = this.state;
+    const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
+    const { period } = this.state;
     const { totalCount, data: periods } = this.getPageData();
 
     return (
@@ -166,6 +210,14 @@ class Periods extends Component {
           label="Eliminar"
           action={this.handleDelete}
         />
+        <SimpleModal
+          isOpen={clsModal}
+          toggle={this.toggleClsPeriod}
+          title="Cerrar Período"
+          label="Confirmar"
+          action={this.handleClsPeriod}
+          body={this.clsPeriodModalBody(period)}
+        />
         <div className="row units">
           <div className="col">
             <p>Períodos registrados: {totalCount}</p>
@@ -175,6 +227,7 @@ class Periods extends Component {
                 <PeriodsTable
                   periods={periods}
                   onDelete={this.toggleDelete}
+                  onClosePeriod={this.toggleClsPeriod}
                   onSort={this.handleSort}
                   sortColumn={sortColumn}
                 />

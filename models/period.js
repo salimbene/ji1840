@@ -12,6 +12,7 @@ const periodSchema = mongoose.Schema({
   totalA: { type: Number, default: 0 },
   totalB: { type: Number, default: 0 },
   totalIncome: { type: Number, default: 0 },
+  totalExpenses: { type: Number, default: 0 },
   isClosed: { type: Boolean, default: false },
   date: { type: Date, default: Date.now }
 });
@@ -25,6 +26,7 @@ function validatePeriodSchema(periods) {
     totalA: Joi.number().required(),
     totalB: Joi.number().required(),
     totalIncome: Joi.number().required(),
+    totalExpenses: Joi.number().required(),
     isClosed: Joi.boolean().required()
   };
 

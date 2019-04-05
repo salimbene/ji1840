@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 class TableBody extends Component {
   renderCell = (item, column) => {
-    if (typeof item[column.path] === 'boolean')
+    if (typeof item[column.path] === 'boolean' && !column.key)
       return item[column.path] ? (
         <i className="fa fa-check-square-o" aria-hidden="true" />
       ) : (

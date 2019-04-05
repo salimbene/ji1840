@@ -77,6 +77,7 @@ class PeriodsForm extends Form {
       totalA: 0,
       totalB: 0,
       totalIncome: 0,
+      totalExpenses: 0,
       isClosed: false
     };
 

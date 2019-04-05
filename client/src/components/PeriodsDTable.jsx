@@ -41,14 +41,14 @@ class PeriodsDTable extends Component {
       content: m => `$${Number(m.int).toFixed(2)}`
     },
     {
-      path: 'fakePath',
+      path: 'total',
       label: 'Total',
-      content: m =>
-        `$${Number(m.expenses + m.extra + m.debt + m.int).toFixed(2)}`
+      content: m => `$${Number(m.total).toFixed(2)}`
     }
   ];
 
   registerColumn = {
+    path: 'isPayed',
     label: 'Pagar',
     key: 'reg',
     content: model => (

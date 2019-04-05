@@ -28,8 +28,23 @@ class PeriodsTable extends Component {
       content: p => `$${p.totalIncome.toFixed(2)}`
     },
     {
+      path: 'totalExpenses',
+      label: 'Total Gastos',
+      content: p => `$${p.totalExpenses.toFixed(2)}`
+    },
+    {
       path: 'isClosed',
-      label: 'Cerrado'
+      label: 'Cerrado',
+      key: 'cls',
+      content: p => (
+        <i
+          className={`fa ${
+            p.isClosed ? 'fa fa-check-square-o' : 'fa fa-square-o'
+          }`}
+          aria-hidden="true"
+          onClick={event => this.props.onClosePeriod(p)}
+        />
+      )
     }
   ];
 

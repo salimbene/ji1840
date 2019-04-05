@@ -65,6 +65,6 @@ function validateExpenses(expense) {
   return Joi.validate(expense, schema);
 }
 
-exports.TotalExpenses = getPeriodExpenses;
+exports.getPeriodExpenses = getPeriodExpenses;
 exports.Expense = Expense;
 exports.validate = validateExpenses;
