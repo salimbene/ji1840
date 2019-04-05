@@ -162,10 +162,12 @@ router.put('/:id', [auth, admin], async (req, res) => {
 
   const consortia = await Consortia.find();
   const { _id: consortiaId } = consortia[0];
+  expenses = getPeriodExpenses(period);
+  // tomar gastos A y gastos B
   await Consortia.findOneAndUpdate(
     { _id: consortiaId },
-    { $inc: { balanceA: totalIncome - totalB - getPeriodExpenses(period) } },
-    { $inc: { balanceB: totalB } },
+    { $inc: { balanceA: 0 } }, // - gastos A + totalimcome - total b
+    { $inc: { balanceB: 0 } }, // - gastos B + total B
     { new: true }
   );
 
