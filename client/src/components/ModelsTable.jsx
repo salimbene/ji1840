@@ -15,40 +15,44 @@ class ModelsTable extends Component {
     {
       path: 'label',
       label: 'Nombre',
-      content: m => <Link to={`/models/${m._id}`}>{m.label}</Link>
+      content: m => (
+        <div className="text-center">
+          <Link to={`/models/${m._id}`}>{m.label}</Link>
+        </div>
+      )
     },
     {
       path: 'fUnit',
       label: 'Unidades',
       content: m => (
-        <span className="badge badge-info">
-          {m.fUnits.length === 1
-            ? m.fUnits[0].fUnit
-            : m.fUnits
-                .reduce((prev, current) => `${(prev += current.fUnit)},`, '')
-                .slice(0, -1)}
-        </span>
+        <div className="text-center">
+          <span className="badge badge-info">
+            {m.fUnits.length === 1
+              ? m.fUnits[0].fUnit
+              : m.fUnits
+                  .reduce((prev, current) => `${(prev += current.fUnit)},`, '')
+                  .slice(0, -1)}
+          </span>
+        </div>
       )
     },
     {
       path: 'landlord',
       label: 'Propietario',
       content: m => (
-        <Link to={`/users/${m.landlord._id}`}>{m.landlord.lastname}</Link>
+        <div className="text-center">
+          <Link to={`/users/${m.landlord._id}`}>{m.landlord.lastname}</Link>
+        </div>
       )
-    },
-    {
-      path: 'tenant',
-      label: 'Inquilino',
-      content: m =>
-        m.tenant && (
-          <Link to={`/users/${m.tenant._id}`}>{m.tenant.lastname}</Link>
-        )
     },
     {
       path: 'coefficient',
       label: 'Coeficiente',
-      content: m => <p>%{Number(m.coefficient * 100).toFixed(2)}</p>
+      content: m => (
+        <div className="text-center">
+          {Number(m.coefficient * 100).toFixed(3)}
+        </div>
+      )
     }
   ];
 

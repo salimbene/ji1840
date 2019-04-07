@@ -9,10 +9,10 @@ const periodSchema = mongoose.Schema({
     ref: 'users',
     required: true
   },
-  totalA: { type: Number, default: 0 },
-  totalB: { type: Number, default: 0 },
-  totalIncome: { type: Number, default: 0 },
-  totalExpenses: { type: Number, default: 0 },
+  expensesA: { type: Number, default: 0 },
+  expensesB: { type: Number, default: 0 },
+  incomeA: { type: Number, default: 0 },
+  incomeB: { type: Number, default: 0 },
   isClosed: { type: Boolean, default: false },
   date: { type: Date, default: Date.now }
 });
@@ -23,10 +23,10 @@ function validatePeriodSchema(periods) {
   const schema = {
     period: Joi.string().required(),
     userId: Joi.ObjectId().required(),
-    totalA: Joi.number().required(),
-    totalB: Joi.number().required(),
-    totalIncome: Joi.number().required(),
-    totalExpenses: Joi.number().required(),
+    expensesA: Joi.number().required(),
+    expensesB: Joi.number().required(),
+    incomeA: Joi.number().required(),
+    incomeB: Joi.number().required(),
     isClosed: Joi.boolean().required()
   };
 

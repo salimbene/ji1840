@@ -6,6 +6,15 @@ import auth from '../services/authService';
 class UnitsTable extends Component {
   columns = [
     {
+      path: 'fUnit',
+      label: 'Unidad',
+      content: unit => (
+        <div className="text-center">
+          <Link to={`/units/${unit._id}`}>{unit.fUnit}</Link>
+        </div>
+      )
+    },
+    {
       path: 'landlord.name',
       label: 'Propietario',
       content: unit =>
@@ -18,18 +27,50 @@ class UnitsTable extends Component {
         )
     },
     {
-      path: 'fUnit',
-      label: 'Unidad',
-      content: unit => <Link to={`/units/${unit._id}`}>{unit.fUnit}</Link>
+      path: 'floor',
+      label: 'Piso',
+      content: unit => <div className="text-center">{unit.floor}</div>
     },
-    { path: 'floor', label: 'Piso' },
-    { path: 'flat', label: 'Rótulo' },
+    {
+      path: 'flat',
+      label: 'Rótulo',
+      content: unit => <div className="text-center">{unit.flat}</div>
+    },
+    {
+      path: 'sup.covered',
+      label: 'Sup. Cubierta',
+      content: unit => (
+        <div className="text-center">{unit.sup.covered.toFixed(3)}</div>
+      )
+    },
+    {
+      path: 'sup.uncovered',
+      label: 'Sup. Desc.',
+      content: unit => (
+        <div className="text-center">{unit.sup.uncovered.toFixed(3)}</div>
+      )
+    },
+    {
+      path: 'sup.semi',
+      label: 'Sup. Semidesc.',
+      content: unit => (
+        <div className="text-center">{unit.sup.semi.toFixed(3)}</div>
+      )
+    },
     {
       path: 'sup.total',
-      label: 'Superficie Total',
-      content: unit => unit.sup.total.toPrecision(4)
+      label: 'Sup. Total',
+      content: unit => (
+        <div className="text-center">{unit.sup.total.toFixed(3)}</div>
+      )
     },
-    { path: 'coefficient', label: 'Coeficiente' }
+    {
+      path: 'coefficient',
+      label: 'Coeficiente',
+      content: unit => (
+        <div className="text-center">{unit.coefficient.toFixed(3)}</div>
+      )
+    }
   ];
 
   deleteColumn = {

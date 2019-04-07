@@ -23,6 +23,16 @@ code {
     monospace;
 }
 
+.table-10 {
+  font-size: 10px;
+}
+.table-12 {
+  font-size: 12px;
+}
+.table-14 {
+  font-size: 14px;
+}
+
 .page {
   width: 20cm;
   min-height: 28.7cm;

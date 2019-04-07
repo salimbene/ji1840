@@ -131,7 +131,14 @@ class UnitsForm extends Form {
     fUnit.landlord = this.parseLandlord(fUnit);
     fUnit.sup = this.parseSurface(fUnit);
 
-    await saveUnit(fUnit);
+    try {
+      await saveUnit(fUnit);
+      toast.success(`😀 Los datos se guardaron exitosamente.`, {
+        position: 'top-center'
+      });
+    } catch (error) {
+      console.log(error.response);
+    }
 
     const { history } = this.props;
     history.push('/units');

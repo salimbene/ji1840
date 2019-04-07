@@ -85,6 +85,12 @@ router.put('/:id', auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
+  let user = await User.findOne({ mail: req.body.mail });
+  if (user)
+    return res
+      .status(400)
+      .send('La dirección de email ya se encuentra registrada.');
+
   const {
     lastname,
     firstname,
@@ -96,7 +102,7 @@ router.put('/:id', auth, async (req, res) => {
     isCouncil
   } = req.body;
 
-  const user = await User.findOneAndUpdate(
+  user = await User.findOneAndUpdate(
     { _id: req.params.id },
     {
       lastname,

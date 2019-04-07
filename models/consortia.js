@@ -8,9 +8,9 @@ const consortiaSchema = mongoose.Schema({
   cbu: { type: String, trim: true, required: true },
   bank: { type: String, trim: true, required: true },
   mail: { type: String, trim: true, required: true },
-  expA: { type: Number, required: true },
-  expB: { type: Number, required: true },
-  int: { type: Number, required: true },
+  expenseA: { type: Number, required: true },
+  expenseB: { type: Number, required: true },
+  interest: { type: Number, required: true },
   balanceA: { type: Number, required: true },
   balanceB: { type: Number, required: true }
 });
@@ -26,13 +26,13 @@ function validateConsortia(consortia) {
     mail: Joi.string()
       .email()
       .required(),
-    expA: Joi.number()
+    expenseA: Joi.number()
       .allow(0)
       .required(),
-    expB: Joi.number()
+    expenseB: Joi.number()
       .allow(0)
       .required(),
-    int: Joi.number()
+    interest: Joi.number()
       .allow(0)
       .required(),
     balanceA: Joi.number()

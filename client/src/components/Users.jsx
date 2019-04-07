@@ -15,7 +15,7 @@ class Users extends Component {
     super(props);
     this.state = {
       users: {},
-      pageSize: 10,
+      pageSize: 25,
       currentPage: 1,
       searchQuery: '',
       sortColumn: { path: 'lastname', order: 'asc' },

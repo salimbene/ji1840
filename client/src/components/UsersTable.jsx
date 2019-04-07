@@ -14,11 +14,6 @@ class UsersTable extends Component {
       path: 'firstname',
       label: 'Nombre'
     },
-    {
-      path: 'balance',
-      label: 'Cuenta',
-      content: user => `$${Number(user.balance).toFixed(2)}`
-    },
     { path: 'phone', label: 'Telefono' },
     {
       path: 'mail',

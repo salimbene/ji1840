@@ -1,9 +1,7 @@
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 const { PDetails, validate } = require('../models/pdetails');
-const { User } = require('../models/user');
 const { Period } = require('../models/period');
-const { PModel } = require('../models/pmodel');
 const _ = require('lodash');
 const debug = require('debug')('routes:pdetails');
 
@@ -48,7 +46,7 @@ router.get('/:id', async (req, res) => {
         }
       ])
       .select('-date -__v')
-      .sort('isPayed');
+      .sort('isPayedA');
 
     res.send(pdetails);
   } catch (ex) {
@@ -62,18 +60,21 @@ router.post('/', [auth, admin], async (req, res) => {
   if (error) return res.status(400).send(error.details[0].message);
 
   let pdetails = await PDetails.findOne({ period: req.body.period });
-  if (pdetails) return res.status(400).send('El período ya fue registrado.');
+  if (pdetails) return res.status(400).send('El período ya fue iniciado.');
 
   pdetails = new PDetails(
     _.pick(req.body, [
       'period',
       'model',
       'userId',
-      'expenses',
-      'extra',
-      'debt',
-      'int',
-      'isPayed'
+      'expenseA',
+      'debtA',
+      'intA',
+      'isPayedA',
+      'expenseB',
+      'debtB',
+      'intB',
+      'isPayedB'
     ])
   );
 
@@ -88,20 +89,39 @@ router.put('/:id', [auth, admin], async (req, res) => {
 
   if (error) return res.status(400).send(error.details[0].message);
 
-  const { isPayed: newIsPayed, period: currentPeriod, ammount } = req.body;
+  const {
+    isPayedA: newIsPayedA,
+    isPayedB: newIsPayedB,
+    period: currentPeriod
+  } = req.body;
+
   const pdetails = await PDetails.findOneAndUpdate(
     { _id: req.params.id },
-    { isPayed: !newIsPayed },
+    { isPayedA: !newIsPayedA, isPayedB: !newIsPayedB },
     { new: true }
   );
   await pdetails.save();
 
-  const { expenses, extra, debt, int, isPayed } = pdetails;
-  const payment = expenses + extra + debt + int;
+  const {
+    expenseA,
+    debtA,
+    intA,
+    isPayedA,
+    expenseB,
+    debtB,
+    intB,
+    isPayedB
+  } = pdetails;
+
+  const paymentA = expenseA + debtA + intA;
+  const paymentB = expenseB + debtB + intB;
 
   const period = await Period.findOneAndUpdate(
     { period: currentPeriod },
-    { $inc: { totalIncome: isPayed ? payment : payment * -1 } },
+    {
+      $inc: { incomeA: isPayedA ? paymentA : paymentA * -1 },
+      $inc: { incomeB: isPayedB ? paymentB : paymentB * -1 }
+    },
     { new: true }
   );
   await period.save();
@@ -113,7 +133,7 @@ router.delete('/:id', [auth, admin], async (req, res) => {
   try {
     const pdetails = await PDetails.findByIdAndRemove(req.params.id);
     res.send(pdetails);
-    debug(`${pdetails._id} DELETED ok!`);
+    debug(`La liquidación ID: ${pdetails._id} DELETED ok!`);
   } catch (ex) {
     debug(ex.message);
     res.status(404).send(`La liquidación ID: ${req.params.id} no existe.`);

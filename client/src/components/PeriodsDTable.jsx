@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Table from './common/Table';
 import auth from '../services/authService';
+import { currency } from '../utils/formatter';
 
 class PeriodsDTable extends Component {
   columns = [
@@ -9,7 +10,7 @@ class PeriodsDTable extends Component {
       label: 'UF'
     },
     {
-      path: 'm.model.landlord',
+      path: 'model.landlord.lastname',
       label: 'Propietario',
       content: m => <div>{`${m.model.landlord.lastname}`}</div>
     },
@@ -17,48 +18,60 @@ class PeriodsDTable extends Component {
       path: 'model.coefficient',
       label: 'Coef.',
       content: m => (
-        <div>{`${(Number(m.model.coefficient) * 100).toPrecision(4)}`}</div>
+        <div>{`${(Number(m.model.coefficient) * 100).toFixed(3)}`}</div>
       )
     },
     {
-      path: 'expenses',
+      path: 'expenseA',
       label: 'Exp. A',
-      content: m => `$${Number(m.expenses).toFixed(2)}`
+      content: m => <div className="text-right">{currency(m.expenseA)}</div>
     },
     {
-      path: 'extra',
+      path: 'debtA',
       label: 'Exp. B',
-      content: m => `$${Number(m.extra).toFixed(2)}`
+      content: m => <div className="text-right">{currency(m.debtA)}</div>
     },
     {
-      path: 'debt',
+      path: 'intA',
       label: 'Mora',
-      content: m => `$${Number(m.debt).toFixed(2)}`
+      content: m => <div className="text-right">{currency(m.intA)}</div>
     },
     {
-      path: 'int',
-      label: 'Int.',
-      content: m => `$${Number(m.int).toFixed(2)}`
+      path: 'expenseB',
+      label: 'Exp. A',
+      content: m => <div className="text-right">{currency(m.expenseB)}</div>
+    },
+    {
+      path: 'debtB',
+      label: 'Exp. B',
+      content: m => <div className="text-right">{currency(m.debtB)}</div>
+    },
+    {
+      path: 'intB',
+      label: 'Mora',
+      content: m => <div className="text-right">{currency(m.intB)}</div>
     },
     {
       path: 'total',
       label: 'Total',
-      content: m => `$${Number(m.total).toFixed(2)}`
+      content: m => <div className="text-right">{currency(m.total)}</div>
     }
   ];
 
   registerColumn = {
-    path: 'isPayed',
+    path: 'isPayedA',
     label: 'Pagar',
     key: 'reg',
     content: model => (
-      <i
-        className={`fa ${
-          model.isPayed ? 'fa fa-check-square-o' : 'fa fa-square-o'
-        }`}
-        aria-hidden="true"
-        onClick={event => this.props.onRegister(model)}
-      />
+      <div className="text-center">
+        <i
+          className={`fa ${
+            model.isPayed ? 'fa fa-check-square-o' : 'fa fa-square-o'
+          }`}
+          aria-hidden="true"
+          onClick={event => this.props.onRegister(model)}
+        />
+      </div>
     )
   };
 

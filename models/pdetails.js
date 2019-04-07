@@ -14,11 +14,14 @@ const periodDetailsSchema = mongoose.Schema({
     ref: 'users',
     required: true
   },
-  expenses: { type: Number, default: 0 }, //calculo segun coeficiente
-  extra: { type: Number, default: 0 }, //monto fijo adicional
-  debt: { type: Number, default: 0 }, //calculo segun pagos no realizados
-  int: { type: Number, default: 0 }, //calculo segun interes por deuda
-  isPayed: { type: Boolean, default: false },
+  expenseA: { type: Number, default: 0 }, //calculo: segun coeficiente
+  debtA: { type: Number, default: 0 }, //calculo: pagos previos no realizados
+  intA: { type: Number, default: 0 }, //calculo: aplicado a debtA
+  isPayedA: { type: Boolean, default: false },
+  expenseB: { type: Number, default: 0 }, //calculo: segun gastos del mes.
+  debtB: { type: Number, default: 0 }, //calculo: pagos previos no realizados
+  intB: { type: Number, default: 0 }, //calculo segun interes por debtB
+  isPayedB: { type: Boolean, default: false },
   date: { type: Date, default: Date.now }
 });
 
@@ -29,11 +32,14 @@ function validatePeriodDetailsSchema(pdetails) {
     period: Joi.string().required(),
     model: Joi.ObjectId().required(),
     userId: Joi.ObjectId().required(),
-    expenses: Joi.number().required(),
-    extra: Joi.number().required(),
-    debt: Joi.number().required(),
-    int: Joi.number().required(),
-    isPayed: Joi.boolean().required()
+    expenseA: Joi.number().required(),
+    debtA: Joi.number().required(),
+    intA: Joi.number().required(),
+    isPayedA: Joi.boolean().required(),
+    expenseB: Joi.number().required(),
+    debtB: Joi.number().required(),
+    intB: Joi.number().required(),
+    isPayedB: Joi.boolean().required()
   };
 
   return Joi.validate(pdetails, schema);

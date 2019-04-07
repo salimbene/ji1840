@@ -13,9 +13,9 @@ class Consortia extends Form {
       cbu: '',
       bank: '',
       mail: '',
-      expA: 0,
-      expB: 0,
-      int: 0,
+      expenseA: 0,
+      expenseB: 0,
+      interest: 0,
       balanceA: 0,
       balanceB: 0
     },
@@ -31,13 +31,13 @@ class Consortia extends Form {
     mail: Joi.string()
       .email()
       .required(),
-    expA: Joi.number()
+    expenseA: Joi.number()
       .allow(0)
       .required(),
-    expB: Joi.number()
+    expenseB: Joi.number()
       .allow(0)
       .required(),
-    int: Joi.number()
+    interest: Joi.number()
       .allow(0)
       .required(),
     balanceA: Joi.number()
@@ -66,9 +66,9 @@ class Consortia extends Form {
       cbu: consortia.cbu,
       bank: consortia.bank,
       mail: consortia.mail,
-      expA: consortia.expA,
-      expB: consortia.expB,
-      int: consortia.int,
+      expenseA: consortia.expenseA,
+      expenseB: consortia.expenseB,
+      interest: consortia.interest,
       balanceA: consortia.balanceA,
       balanceB: consortia.balanceB
     };
@@ -77,7 +77,7 @@ class Consortia extends Form {
   doSubmit = async () => {
     const consortia = { ...this.state.data };
     const { _id } = auth.getCurrentUser();
-    if (consortia.int > 1) consortia.int = consortia.int / 100;
+    if (consortia.interest > 1) consortia.interest = consortia.interest / 100;
     await saveConsortia(consortia);
     toast.success(`😀 Los datos se actualizaron con éxito.`, {
       position: 'top-center'
@@ -108,21 +108,21 @@ class Consortia extends Form {
             </div>
             <div className="row">
               <div className="col">
-                {this.renderInput('expA', 'Expensas Ordinarias')}
+                {this.renderInput('expenseA', 'Expensas A')}
               </div>
               <div className="col">
-                {this.renderInput('expB', 'Expensas Extraordinarias')}
+                {this.renderInput('expenseB', 'Expensas B')}
               </div>
               <div className="col">
-                {this.renderInput('int', 'Interes por mora (%)')}
+                {this.renderInput('interest', 'Interes por mora (%)')}
               </div>
             </div>
             <div className="row">
               <div className="col">
-                {this.renderInput('balanceA', 'Saldo Ordinario')}
+                {this.renderInput('balanceA', 'Saldo A')}
               </div>
               <div className="col">
-                {this.renderInput('balanceB', 'Saldo Extraordinario')}
+                {this.renderInput('balanceB', 'Saldo B')}
               </div>
             </div>
             <div className="row pt-3">{this.renderButton('Guardar')}</div>

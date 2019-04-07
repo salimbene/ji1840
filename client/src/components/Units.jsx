@@ -12,7 +12,7 @@ import _ from 'lodash';
 class Units extends Component {
   state = {
     units: {},
-    pageSize: 10,
+    pageSize: 20,
     currentPage: 1,
     searchQuery: '',
     sortColumn: { path: 'fUnit', order: 'asc' },

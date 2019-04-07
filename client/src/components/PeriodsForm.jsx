@@ -19,9 +19,10 @@ class PeriodsForm extends Form {
       data: {
         period: '',
         userId: '',
-        totalA: 0,
-        totalB: 0,
-        totalIncome: 0,
+        expenseA: 0,
+        expenseB: 0,
+        incomeA: 0,
+        incomeB: 0,
         isClosed: false
       },
       sortColumn: { path: 'model', order: 'asc' },
@@ -43,6 +44,7 @@ class PeriodsForm extends Form {
     const { id, period: newPeriod } = this.props.match.params;
 
     if (newPeriod) {
+      console.log('newPeriod');
       await this.newPeriod(newPeriod);
     } else {
       await this.populatePeriod(id);
@@ -56,12 +58,13 @@ class PeriodsForm extends Form {
 
   async populateExpenses(period) {
     const expenses = await getExpensesByPeriod(period);
-    console.log('expenses period', period);
+    console.log('populateExpenses', expenses);
     this.setState({ expenses });
   }
 
   async populateDetails(period) {
     const { data: details } = await getPDetailsByPeriod(period);
+    console.log('populateDetails', details);
     this.setState({ details });
   }
   async populatePeriod(id) {
@@ -74,10 +77,10 @@ class PeriodsForm extends Form {
     const body = {
       period: period,
       userId: auth.getCurrentUser()._id,
-      totalA: 0,
-      totalB: 0,
-      totalIncome: 0,
-      totalExpenses: 0,
+      expensesA: 0,
+      expensesB: 0,
+      incomeA: 0,
+      incomeB: 0,
       isClosed: false
     };
 
@@ -86,15 +89,16 @@ class PeriodsForm extends Form {
   }
 
   mapToViewModel(p) {
-    return {
+    return ({
       _id: p._id,
       period: p.period,
       userId: p.userId,
-      totalA: p.totalA,
-      totalB: p.totalB,
-      totalIncome: p.totalIncome,
+      expensesA: p.expensesA,
+      expensesB: p.expensesB,
+      incomeA: p.incomeA,
+      incomeB: p.incomeB,
       isClosed: p.isClosed
-    };
+    } = p);
   }
 
   togglePeriod() {
@@ -113,13 +117,16 @@ class PeriodsForm extends Form {
     userId: Joi.string()
       .required()
       .label('Usuario'),
-    totalA: Joi.number()
+    expensesA: Joi.number()
       .required()
       .label('Total Expensas A'),
-    totalB: Joi.number()
+    expensesB: Joi.number()
       .required()
       .label('Total Expensas B'),
-    totalIncome: Joi.number()
+    incomeA: Joi.number()
+      .required()
+      .label('Total Income'),
+    incomeB: Joi.number()
       .required()
       .label('Total Income'),
     isClosed: Joi.boolean().label('Cerrado')
@@ -160,7 +167,7 @@ class PeriodsForm extends Form {
 
   render() {
     const { details, expenses, modal, data } = this.state;
-    const { totalA, totalB, totalIncome, _id } = data;
+    const { _id, period } = data;
     const saveButtonLabel = !_id ? 'Iniciar Período' : 'Cerrar Período';
 
     if (!details || !expenses) return 'No hay información disponible';
@@ -180,7 +187,7 @@ class PeriodsForm extends Form {
               />
 
               <ExpensesStats expenses={expenses} />
-              <ExpensesDetails details={details} />
+              <ExpensesDetails details={details} period={period} />
             </div>
           </div>
           <div className="col">

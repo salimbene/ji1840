@@ -27,9 +27,9 @@ router.post('/', [auth, admin], async (req, res) => {
       'cbu',
       'bank',
       'mail',
-      'expA',
-      'expB',
-      'int',
+      'expenseA',
+      'expenseB', // unused
+      'interest',
       'balanceA',
       'balanceB'
     ])
@@ -51,9 +51,9 @@ router.put('/:id', [auth, admin], async (req, res) => {
     cbu,
     bank,
     mail,
-    expA,
-    expB,
-    int,
+    expenseA,
+    expenseB,
+    interest,
     balanceA,
     balanceB
   } = req.body;
@@ -66,9 +66,9 @@ router.put('/:id', [auth, admin], async (req, res) => {
       cbu,
       bank,
       mail,
-      expA,
-      expB,
-      int,
+      expenseA,
+      expenseB,
+      interest,
       balanceA,
       balanceB
     },

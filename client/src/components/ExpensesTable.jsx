@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Table from './common/Table';
 import auth from '../services/authService';
 import { formatDate } from '../utils/dates';
+import { currency } from '../utils/formatter';
 
 class ExpensesTable extends Component {
   columns = [
@@ -12,30 +13,39 @@ class ExpensesTable extends Component {
     },
     {
       path: 'period',
-      label: 'Periodo'
+      label: 'Periodo',
+      content: expense => <div className="text-center">{expense.period}</div>
     },
     {
       path: 'category',
-      label: 'Categoría'
+      label: 'Categoría',
+      content: expense => <div className="text-center">{expense.category}</div>
     },
     {
       path: 'type',
-      label: 'Tipo'
+      label: 'Tipo',
+      content: expense => <div className="text-center">{expense.type}</div>
     },
     {
       path: 'ammount',
       label: 'Importe',
-      content: expense => `$${expense.ammount.toFixed(2)}`
+      content: expense => (
+        <div className="text-right">{currency(expense.ammount)}</div>
+      )
     },
     {
       path: 'date',
       label: 'Fecha',
-      content: expense => formatDate(expense.date)
+      content: expense => (
+        <div className="text-center">{formatDate(expense.date)}</div>
+      )
     },
     {
       path: 'userId',
       label: 'Registrante',
-      content: expense => expense.userId.lastname
+      content: expense => (
+        <div className="text-center">{expense.userId.lastname}</div>
+      )
     }
   ];
 

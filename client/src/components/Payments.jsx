@@ -77,8 +77,8 @@ class Payments extends Component {
     let filtered = allDetails;
 
     filtered.map(detail => {
-      const { expenses, extra, debt, int } = detail;
-      detail.total = expenses + extra + debt + int;
+      const { expenseA, debtA, intA, expenseB, debtB, intB } = detail;
+      detail.total = expenseA + debtA + intA + expenseB + debtB + intB;
     });
 
     if (searchQuery) {
@@ -129,29 +129,6 @@ class Payments extends Component {
     return details;
   }
 
-  renderViewTags = (data, selected) => {
-    const count = data.length;
-    return (
-      <React.Fragment>
-        <p className="mb-1 mt-3">
-          Gastos
-          <mark>{count}</mark>
-          Periodo
-          <mark>{selected ? selected : 'Todos los periodos.'}</mark>
-          Importe Total
-          <mark>
-            $
-            {Number(
-              data
-                .reduce((prev, current) => (prev += current.ammount), 0)
-                .toFixed(2)
-            )}
-          </mark>
-        </p>
-      </React.Fragment>
-    );
-  };
-
   handleSortDetails = sortColumn => {
     this.setState({ sortColumn });
   };
@@ -184,7 +161,7 @@ class Payments extends Component {
     const { month, year } = this.state;
     const { modal, selectedDetail } = this.state;
     const { totalCount, data: details } = this.getPageData();
-
+    console.log(details);
     return (
       <React.Fragment>
         <div className="row align-items-end">

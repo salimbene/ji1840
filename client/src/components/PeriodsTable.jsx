@@ -15,22 +15,22 @@ class PeriodsTable extends Component {
     {
       path: 'totalA',
       label: 'Total Expensas A',
-      content: p => `$${p.totalA.toFixed(2)}`
+      content: p => `$${p.expensesA.toFixed(2)}`
     },
     {
       path: 'totalB',
       label: 'Total Expensas B',
-      content: p => `$${p.totalB.toFixed(2)}`
+      content: p => `$${p.expensesB.toFixed(2)}`
     },
     {
       path: 'totalIncome',
-      label: 'Total Ingresos',
-      content: p => `$${p.totalIncome.toFixed(2)}`
+      label: 'Total Ingresos A',
+      content: p => `$${p.incomeA.toFixed(2)}`
     },
     {
       path: 'totalExpenses',
-      label: 'Total Gastos',
-      content: p => `$${p.totalExpenses.toFixed(2)}`
+      label: 'Total Ingresos B',
+      content: p => `$${p.incomeB.toFixed(2)}`
     },
     {
       path: 'isClosed',

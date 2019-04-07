@@ -50,66 +50,85 @@ router.post('/', [auth, admin], async (req, res) => {
     _.pick(req.body, [
       'period',
       'userId',
-      'totalA',
-      'totalB',
-      'totalIncome',
-      'totalExpenses',
+      'expensesA',
+      'expensesB',
+      'incomeA',
+      'incomeB',
       'isClosed'
     ])
   );
 
+  // tomo datos del body
   const { period: currentPeriod, userId } = periodEntry;
 
+  // tomo datos del consorcio para utilizar en los calculos
   const consortia = await Consortia.find();
-  const totalA = consortia[0].expA;
-  const int = consortia[0].int;
+  const consortExpensesA = consortia[0].expenseA;
+  const consortInterest = consortia[0].interest;
 
+  // consulto los gastos extraordinarios del mes
   const expenses = await Expense.find({ period: currentPeriod, type: 'B' });
 
+  // tomo los esquemas y preparo coeficiente para calculo de extraordinarias
   const pmodels = await PModel.find();
   const pmodelsCount = pmodels.length;
 
   pmodels.forEach(async model => {
-    const { _id, coefficient } = model;
+    // por cada esquema registrado, inicio liquidación
+    const { _id: modelId, coefficient: modelCoefficient } = model;
     const pdetails = new PDetails({
       period: currentPeriod,
-      model: _id,
-      userId: userId,
-      expenses: totalA * coefficient,
-      extra: 0,
-      debt: 0,
-      int: 0,
-      isPayed: false
+      model: modelId,
+      userId, //submitted by
+      expenseA: consortExpensesA * modelCoefficient,
+      debtA: 0,
+      intA: 0,
+      isPayedA: false,
+      expenseB: 0,
+      debtB: 0,
+      intB: 0,
+      isPayedB: false
     });
-    //Calculo de expenses extra-ordinarias con excepciones
+
+    //Calculo de expenses extraordinarias con excepciones
     expenses.forEach(expense => {
       const { excluded, ammount } = expense;
       const coefPayment = pmodelsCount - excluded.length;
       let notExcluded = true;
-      expB = ammount / coefPayment;
+      let expB = ammount / coefPayment;
 
       if (excluded.length === 0) {
-        pdetails.extra += expB;
+        // si no hay excepciones, direcamente sumo el importe
+        pdetails.expenseB += expB;
       } else
-        excluded.forEach(o => {
-          if (String(o) === String(_id)) notExcluded = false;
+        excluded.forEach(excludedId => {
+          // si hay excepciones, las considero
+          if (String(excludedId) === String(modelId)) notExcluded = false;
         });
-      if (notExcluded) pdetails.extra += expB;
+      if (notExcluded) pdetails.expenseB += expB;
     });
 
-    //Calculo de deudas
-    const debts = await PDetails.find({ model: _id, isPayed: false });
-    debts.forEach(d => {
-      if (!d.isPayed) pdetails.debt = +d.ammount;
+    //Calculo de deudas expenses ordinarias
+    const debtsA = await PDetails.find({ model: modelId, isPayedA: false });
+    debtsA.forEach(detail => {
+      if (!detail.isPayedA) pdetails.debtA = +detail.ammount;
     });
+    //Calculó de interés expenses ordinarias
+    pdetails.intA = pdetails.debtA * consortInterest;
 
-    //Calculó de interés 3%
-    pdetails.int = pdetails.debt * int;
-
+    //Calculo de deudas expenses ordinarias
+    const debtsB = await PDetails.find({ model: modelId, isPayedB: false });
+    debtsB.forEach(detail => {
+      if (!detail.isPayedB) pdetails.debtB = +detail.ammount;
+    });
+    //Calculó de interés expenses ordinarias
+    pdetails.intB = pdetails.debtB * consortInterest;
     pdetails
       .save()
       .then(result => {
-        debug(`Entrada creadad OK: ${pdetails.extra}`);
+        debug(
+          `Entrada creadad OK - A:${pdetails.expenseA} B:${pdetails.expenseB}`
+        );
       })
       .catch(err => {
         debug(err.errmsg);
@@ -119,16 +138,17 @@ router.post('/', [auth, admin], async (req, res) => {
       });
   });
 
-  periodEntry.totalA = totalA;
-  periodEntry.totalB = expenses.reduce(
+  periodEntry.expensesA = consortExpensesA;
+  periodEntry.expensesB = expenses.reduce(
     (prev, current) => (prev += current.ammount),
     0
   );
+
   const periodExpenses = await getPeriodExpenses(currentPeriod);
-  periodEntry.totalExpenses = periodExpenses.reduce(
-    (prev, current) => (prev += current.total),
-    0
-  );
+  debug(periodExpenses);
+
+  periodEntry.incomeA = 0;
+  periodEntry.incomeB = 0;
 
   periodEntry
     .save()
@@ -147,6 +167,7 @@ router.put('/:id', [auth, admin], async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
+  // Cierre de período
   const { isClosed, period, totalB, totalIncome } = req.body;
 
   try {
@@ -155,21 +176,29 @@ router.put('/:id', [auth, admin], async (req, res) => {
       { isClosed: !isClosed },
       { new: true }
     );
+    debug(periods);
   } catch (ex) {
     debug(ex.errmsg);
     return res.status(400).send(ex.errmsg);
   }
 
+  // Actualizo balances del consorcio
   const consortia = await Consortia.find();
   const { _id: consortiaId } = consortia[0];
   expenses = getPeriodExpenses(period);
   // tomar gastos A y gastos B
-  await Consortia.findOneAndUpdate(
-    { _id: consortiaId },
-    { $inc: { balanceA: 0 } }, // - gastos A + totalimcome - total b
-    { $inc: { balanceB: 0 } }, // - gastos B + total B
-    { new: true }
-  );
+  try {
+    const consortia = await Consortia.findOneAndUpdate(
+      { _id: consortiaId },
+      { $inc: { balanceA: 0 } }, // - gastos A + totalimcome - total b
+      { $inc: { balanceB: 0 } }, // - gastos B + total B
+      { new: true }
+    );
+    debug(consortia);
+  } catch (ex) {
+    debug(ex.errmsg);
+    return res.status(400).send(ex.errmsg);
+  }
 
   res.send(periods);
 });

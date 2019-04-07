@@ -140,10 +140,15 @@ class UsersForm extends Form {
   doSubmit = async () => {
     const user = { ...this.state.data };
 
-    await saveUser(user);
-    toast.success(`😀 Los datos se guardaron exitosamente.`, {
-      position: 'top-center'
-    });
+    try {
+      await saveUser(user);
+      toast.success(`😀 Los datos se guardaron exitosamente.`, {
+        position: 'top-center'
+      });
+    } catch (error) {
+      console.log(error.response.data);
+      return;
+    }
 
     const { history } = this.props;
     history.push('/users');

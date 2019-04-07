@@ -16,11 +16,13 @@ const ExpensesStats = ({ expenses }) => {
   return (
     <React.Fragment>
       <div className="">
-        <table className="table table-sm">
+        <table className="table table-sm table-hover table-14">
           <thead>
             <tr>
               <th scope="col">Detalle de gastos ordinarios</th>
-              <th scope="col">Totales</th>
+              <th scope="col" className="text-right">
+                Totales
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -74,7 +76,7 @@ const ExpensesStats = ({ expenses }) => {
             </tr>
           </tbody>
         </table>
-        <table className="table table-sm">
+        <table className="table table-sm table-hover table-14">
           <thead>
             <tr>
               <th scope="col">Detalle de gastos extraordinarios</th>
@@ -104,7 +106,7 @@ const ExpensesStats = ({ expenses }) => {
             </tr>
           </tbody>
         </table>
-        <table className="table table-sm">
+        <table className="table table-sm table-hover table-14">
           <tbody>
             <tr className="table-primary">
               <td>
