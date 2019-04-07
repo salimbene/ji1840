@@ -133,7 +133,7 @@ class UnitsForm extends Form {
 
     try {
       await saveUnit(fUnit);
-      toast.success(`😀 Los datos se guardaron exitosamente.`, {
+      toast.success('Los datos se guardaron exitosamente. ✔️', {
         position: 'top-center'
       });
     } catch (error) {

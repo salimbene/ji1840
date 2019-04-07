@@ -120,16 +120,19 @@ class Payments extends Component {
         detail[isPayedKey] = item[isPayedKey];
       } else {
         const payedAB = item.isPayedA && item.isPayedB;
-        console.log(detail);
+
         if (item.isPayedA === payedAB) detail.isPayedA = !payedAB;
         if (item.isPayedB === payedAB) detail.isPayedB = !payedAB;
-        console.log(detail);
+
         item.isPayedA = !payedAB;
         item.isPayedB = !payedAB;
       }
-      console.log(detail);
+
       // DB Update
       await savePDetails(detail);
+      toast.success(`Los datos se guardaron exitosamente. ✔️`, {
+        position: 'top-center'
+      });
     } catch (ex) {
       console.log(ex);
       this.setState({ details: rollback });

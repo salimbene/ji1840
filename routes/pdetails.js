@@ -95,7 +95,7 @@ router.put('/:id', [auth, admin], async (req, res) => {
 
   const update = {};
   if (typeof isPayedA !== 'undefined') update.isPayedA = isPayedA;
-  if (typeof isPayed !== 'undefined') update.isPayedB = isPayedB;
+  if (typeof isPayedB !== 'undefined') update.isPayedB = isPayedB;
 
   const pdetails = await PDetails.findOneAndUpdate(
     { _id: req.params.id },
