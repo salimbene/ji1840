@@ -35,11 +35,11 @@ function validatePeriodDetailsSchema(pdetails) {
     expenseA: Joi.number().required(),
     debtA: Joi.number().required(),
     intA: Joi.number().required(),
-    isPayedA: Joi.boolean().required(),
+    isPayedA: Joi.boolean(),
     expenseB: Joi.number().required(),
     debtB: Joi.number().required(),
     intB: Joi.number().required(),
-    isPayedB: Joi.boolean().required()
+    isPayedB: Joi.boolean()
   };
 
   return Joi.validate(pdetails, schema);

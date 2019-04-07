@@ -99,34 +99,52 @@ class Payments extends Component {
     };
   };
 
-  toggleRegister(detail) {
+  toggleRegister(detail, key) {
     this.setState(prevState => ({
       modal: !prevState.modal,
-      selectedDetail: detail
+      selectedDetail: detail,
+      isPayedKey: key
     }));
   }
 
   handleRegister = async () => {
     const { details: rollback } = this.state;
-    const { selectedDetail, details } = this.state;
-
+    const { selectedDetail, details, isPayedKey } = this.state;
     try {
       const detail = this.mapToMongoModel({ ...selectedDetail });
-      const item = details.find(d => d._id === detail._id);
-      item.isPayed = !item.isPayed;
+
+      // Optimistic update  front-end first
+      const item = details.find(d => d._id === selectedDetail._id);
+      if (isPayedKey) {
+        item[isPayedKey] = !item[isPayedKey];
+        detail[isPayedKey] = item[isPayedKey];
+      } else {
+        const payedAB = item.isPayedA && item.isPayedB;
+        console.log(detail);
+        if (item.isPayedA === payedAB) detail.isPayedA = !payedAB;
+        if (item.isPayedB === payedAB) detail.isPayedB = !payedAB;
+        console.log(detail);
+        item.isPayedA = !payedAB;
+        item.isPayedB = !payedAB;
+      }
+      console.log(detail);
+      // DB Update
       await savePDetails(detail);
     } catch (ex) {
+      console.log(ex);
       this.setState({ details: rollback });
     }
-    this.toggleRegister(selectedDetail);
+    this.toggleRegister();
   };
 
-  mapToMongoModel(details) {
+  mapToMongoModel(detail) {
     //DEpopulate model & userId
-    delete details.total;
-    details.userId = details.userId._id;
-    details.model = details.model._id;
-    return details;
+    delete detail.total;
+    delete detail.isPayedA;
+    delete detail.isPayedB;
+    detail.userId = detail.userId._id;
+    detail.model = detail.model._id;
+    return detail;
   }
 
   handleSortDetails = sortColumn => {
@@ -161,7 +179,7 @@ class Payments extends Component {
     const { month, year } = this.state;
     const { modal, selectedDetail } = this.state;
     const { totalCount, data: details } = this.getPageData();
-    console.log(details);
+
     return (
       <React.Fragment>
         <div className="row align-items-end">

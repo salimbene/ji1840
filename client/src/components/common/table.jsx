@@ -3,9 +3,17 @@ import PropTypes from 'prop-types';
 import TableHeader from './TableHeader';
 import TableBody from './TableBody';
 
-const Table = ({ columns, sortColumn, onSort, data, caption, ...rest }) => {
+const Table = ({
+  columns,
+  sortColumn,
+  onSort,
+  data,
+  caption,
+  size,
+  ...rest
+}) => {
   return (
-    <table className="table table-hover table-sm">
+    <table className={`table table-hover table-sm ${size}`}>
       {caption ? <caption>{caption}</caption> : null}
       <TableHeader columns={columns} sortColumn={sortColumn} onSort={onSort} />
       <TableBody data={data} columns={columns} />

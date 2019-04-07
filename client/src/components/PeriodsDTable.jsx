@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import Table from './common/Table';
-import auth from '../services/authService';
 import { currency } from '../utils/formatter';
 
 class PeriodsDTable extends Component {
@@ -12,74 +11,101 @@ class PeriodsDTable extends Component {
     {
       path: 'model.landlord.lastname',
       label: 'Propietario',
-      content: m => <div>{`${m.model.landlord.lastname}`}</div>
+      content: d => <div>{`${d.model.landlord.lastname}`}</div>
     },
     {
       path: 'model.coefficient',
       label: 'Coef.',
-      content: m => (
-        <div>{`${(Number(m.model.coefficient) * 100).toFixed(3)}`}</div>
+      content: d => (
+        <div>{`${(Number(d.model.coefficient) * 100).toFixed(3)}`}</div>
       )
     },
     {
       path: 'expenseA',
-      label: 'Exp. A',
-      content: m => <div className="text-right">{currency(m.expenseA)}</div>
+      label: 'Exp (A)',
+      content: d => <div className="text-right">{currency(d.expenseA)}</div>
     },
     {
       path: 'debtA',
-      label: 'Exp. B',
-      content: m => <div className="text-right">{currency(m.debtA)}</div>
+      label: 'Deuda (A)',
+      content: d => <div className="text-right">{currency(d.debtA)}</div>
     },
     {
       path: 'intA',
-      label: 'Mora',
-      content: m => <div className="text-right">{currency(m.intA)}</div>
+      label: 'Int (A)',
+      content: d => <div className="text-right">{currency(d.intA)}</div>
+    },
+    {
+      path: 'isPayedA',
+      label: 'Pagó (A)',
+      key: 'reg',
+      content: d => (
+        <div className="text-center">
+          <i
+            className={`fa ${
+              d.isPayedA ? 'fa fa-check-square-o' : 'fa fa-square-o'
+            }`}
+            aria-hidden="true"
+            onClick={event => this.props.onRegister(d, 'isPayedA')}
+          />
+        </div>
+      )
     },
     {
       path: 'expenseB',
-      label: 'Exp. A',
-      content: m => <div className="text-right">{currency(m.expenseB)}</div>
+      label: 'Exp. (B)',
+      content: d => <div className="text-right">{currency(d.expenseB)}</div>
     },
     {
       path: 'debtB',
-      label: 'Exp. B',
-      content: m => <div className="text-right">{currency(m.debtB)}</div>
+      label: 'Deuda (B)',
+      content: d => <div className="text-right">{currency(d.debtB)}</div>
     },
     {
       path: 'intB',
-      label: 'Mora',
-      content: m => <div className="text-right">{currency(m.intB)}</div>
+      label: 'Int. (B)',
+      content: d => <div className="text-right">{currency(d.intB)}</div>
+    },
+    {
+      path: 'isPayedB',
+      label: 'Pagó (B)',
+      key: 'reg',
+      content: d => (
+        <div className="text-center">
+          <i
+            className={`fa ${
+              d.isPayedB ? 'fa fa-check-square-o' : 'fa fa-square-o'
+            }`}
+            aria-hidden="true"
+            onClick={event => this.props.onRegister(d, 'isPayedB')}
+          />
+        </div>
+      )
     },
     {
       path: 'total',
       label: 'Total',
-      content: m => <div className="text-right">{currency(m.total)}</div>
+      content: d => <div className="text-right">{currency(d.total)}</div>
+    },
+    {
+      path: 'isPayedFake',
+      label: 'Pago Total',
+      key: 'reg',
+      content: d => (
+        <div className="text-center">
+          <i
+            className={`fa ${
+              d.isPayedA && d.isPayedB
+                ? 'fa fa-check-square-o'
+                : 'fa fa-square-o'
+            }`}
+            aria-hidden="true"
+            onClick={event => this.props.onRegister(d)}
+          />
+        </div>
+      )
     }
   ];
-
-  registerColumn = {
-    path: 'isPayedA',
-    label: 'Pagar',
-    key: 'reg',
-    content: model => (
-      <div className="text-center">
-        <i
-          className={`fa ${
-            model.isPayed ? 'fa fa-check-square-o' : 'fa fa-square-o'
-          }`}
-          aria-hidden="true"
-          onClick={event => this.props.onRegister(model)}
-        />
-      </div>
-    )
-  };
-
-  constructor() {
-    super();
-    const user = auth.getCurrentUser();
-    if (user && user.isAdmin) this.columns.push(this.registerColumn);
-  }
 
   render() {
     const { data, onSort, sortColumn } = this.props;
@@ -89,6 +115,7 @@ class PeriodsDTable extends Component {
         data={data}
         sortColumn={sortColumn}
         onSort={onSort}
+        size={'table-12'}
       />
     );
   }

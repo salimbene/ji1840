@@ -89,41 +89,42 @@ router.put('/:id', [auth, admin], async (req, res) => {
 
   if (error) return res.status(400).send(error.details[0].message);
 
-  const {
-    isPayedA: newIsPayedA,
-    isPayedB: newIsPayedB,
-    period: currentPeriod
-  } = req.body;
+  const { isPayedA, isPayedB, period: currentPeriod } = req.body;
+  debug(currentPeriod);
+  debug('isPayedA', isPayedA, 'isPayedB', isPayedB);
+
+  const update = {};
+  if (typeof isPayedA !== 'undefined') update.isPayedA = isPayedA;
+  if (typeof isPayed !== 'undefined') update.isPayedB = isPayedB;
 
   const pdetails = await PDetails.findOneAndUpdate(
     { _id: req.params.id },
-    { isPayedA: !newIsPayedA, isPayedB: !newIsPayedB },
+    update,
     { new: true }
   );
   await pdetails.save();
 
-  const {
-    expenseA,
-    debtA,
-    intA,
-    isPayedA,
-    expenseB,
-    debtB,
-    intB,
-    isPayedB
-  } = pdetails;
+  const { expenseA, debtA, intA, expenseB, debtB, intB } = req.body;
+  let paymentA = 0;
+  let paymentB = 0;
+  const increment = {};
 
-  const paymentA = expenseA + debtA + intA;
-  const paymentB = expenseB + debtB + intB;
+  if (typeof isPayedA !== 'undefined') {
+    paymentA = expenseA + debtA + intA;
+    increment.incomeA = isPayedA ? paymentA : paymentA * -1;
+  }
+  if (typeof isPayedB !== 'undefined') {
+    paymentB = expenseB + debtB + intB;
+    increment.incomeB = isPayedB ? paymentB : paymentB * -1;
+  }
 
   const period = await Period.findOneAndUpdate(
     { period: currentPeriod },
-    {
-      $inc: { incomeA: isPayedA ? paymentA : paymentA * -1 },
-      $inc: { incomeB: isPayedB ? paymentB : paymentB * -1 }
-    },
+    { $inc: increment },
     { new: true }
   );
+
+  debug(period);
   await period.save();
 
   res.send(pdetails);
