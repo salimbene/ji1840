@@ -19,7 +19,7 @@ class Periods extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      periods: {},
+      periods: [],
       pageSize: 10,
       currentPage: 1,
       searchQuery: '',
@@ -141,7 +141,15 @@ class Periods extends Component {
       searchQuery
     } = this.state;
 
+    if (!allPeriods) return;
+
     let filtered = allPeriods;
+
+    filtered.map((period, ind) => {
+      period.balanceA = period.incomeA - period.expensesA;
+      period.balanceB = period.incomeB - period.expensesB;
+      period.balance = period.balanceA + period.balanceB;
+    });
 
     if (searchQuery) {
       filtered = allPeriods.filter(u =>
