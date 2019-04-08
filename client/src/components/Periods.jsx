@@ -57,6 +57,7 @@ class Periods extends Component {
 
   async componentDidMount() {
     const { data: periods } = await getPeriods();
+
     this.setState({ periods, user: auth.getCurrentUser() });
   }
 
@@ -103,7 +104,6 @@ class Periods extends Component {
     try {
       const period = this.mapToMongoModel({ ...selectedPeriod });
       const item = periods.find(d => d._id === period._id);
-      console.log(item.isClosed);
 
       if (item.isClosed)
         throw new Error('⚠️ Un período cerrado no puede reabrirse.');

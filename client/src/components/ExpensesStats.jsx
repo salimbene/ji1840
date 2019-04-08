@@ -2,10 +2,10 @@ import React from 'react';
 import _ from 'lodash';
 import { currency } from '../utils/formatter';
 
-const ExpensesStats = ({ expenses }) => {
-  const { data } = expenses;
-  const expA = data.filter(e => e.type === 'A');
-  const expB = data.filter(e => e.type === 'B');
+const ExpensesStats = ({ expenses, period }) => {
+  // const { data } = expenses;
+  const expA = expenses.filter(e => e.type === 'A');
+  const expB = expenses.filter(e => e.type === 'B');
 
   const sorted = _.orderBy(expA, ['category'], ['asc']);
   const grouped = _.groupBy(sorted, 'category');
@@ -19,7 +19,7 @@ const ExpensesStats = ({ expenses }) => {
         <table className="table table-sm table-hover table-14">
           <thead>
             <tr>
-              <th scope="col">Detalle de gastos ordinarios</th>
+              <th scope="col">{`Detalle de gastos ordinarios ${period}`}</th>
               <th scope="col" className="text-right">
                 Totales
               </th>

@@ -5,11 +5,14 @@ import jsPDF from 'jspdf';
 import { toast } from 'react-toastify';
 import ExpensesStats from './ExpensesStats';
 import ExpensesDetails from './ExpensesDetails';
+import ExpensesBanner from './ExpensesBanner';
 import Form from './common/Form';
 import SimpleModal from './common/SimpleModal';
 import { getPeriod, savePeriod, initPeriod } from '../services/periodsService';
 import { getExpensesByPeriod } from '../services/expensesService';
 import { getPDetailsByPeriod } from '../services/pdetailsService';
+import { getConsortia } from '../services/consortiaService';
+
 import auth from '../services/authService';
 
 class PeriodsForm extends Form {
@@ -44,29 +47,34 @@ class PeriodsForm extends Form {
     const { id, period: newPeriod } = this.props.match.params;
 
     if (newPeriod) {
-      console.log('newPeriod');
       await this.newPeriod(newPeriod);
     } else {
       await this.populatePeriod(id);
     }
 
     const { period } = this.state.data;
-    await this.populateDetails(period);
 
-    await this.populateExpenses(period);
+    const details = await this.populateDetails(period);
+    const expenses = await this.populateExpenses(period);
+    const consortia = await this.populateConsortia();
+
+    this.setState({ details, expenses, consortia });
+  }
+
+  async populateConsortia() {
+    const { data: consortia } = await getConsortia();
+    return consortia;
   }
 
   async populateExpenses(period) {
-    const expenses = await getExpensesByPeriod(period);
-    console.log('populateExpenses', expenses);
-    this.setState({ expenses });
+    const { data: expenses } = await getExpensesByPeriod(period);
+    return expenses;
   }
-
   async populateDetails(period) {
     const { data: details } = await getPDetailsByPeriod(period);
-    console.log('populateDetails', details);
-    this.setState({ details });
+    return details;
   }
+
   async populatePeriod(id) {
     const { data: period } = await getPeriod(id);
     this.setState({ data: this.mapToViewModel(period) });
@@ -166,12 +174,13 @@ class PeriodsForm extends Form {
   };
 
   render() {
-    const { details, expenses, modal, data } = this.state;
+    const { details, expenses, consortia, modal, data } = this.state;
     const { _id, period } = data;
     const saveButtonLabel = !_id ? 'Iniciar Período' : 'Cerrar Período';
 
     if (!details || !expenses) return 'No hay información disponible';
 
+    console.log('consortia', consortia[0]);
     return (
       <React.Fragment>
         <div className="row">
@@ -185,8 +194,8 @@ class PeriodsForm extends Form {
                 action={this.handleSavePeriod}
                 body={this.ModalPeriodBody(data)}
               />
-
-              <ExpensesStats expenses={expenses} />
+              <ExpensesBanner consortia={consortia[0]} period={period} />
+              <ExpensesStats expenses={expenses} period={period} />
               <ExpensesDetails details={details} period={period} />
             </div>
           </div>

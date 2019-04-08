@@ -45,9 +45,6 @@ const ExpensesDetails = ({ details, period }) => {
     0
   );
 
-  console.log('typeof total', typeof total);
-  console.log('sorted', sorted);
-
   return (
     <React.Fragment>
       <div className="mt-5">
@@ -55,15 +52,15 @@ const ExpensesDetails = ({ details, period }) => {
           <caption>{`Expensas ${period}`}</caption>
           <thead>
             <tr>
-              <th colspan="3">{`Detalle de expensas del período ${period}`}</th>
+              <th colSpan="3">{`Detalle de expensas del período ${period}`}</th>
               <th
-                colspan="3"
+                colSpan="3"
                 className="text-monospace text-center table-active"
               >
                 Expensas A
               </th>
               <th
-                colspan="3"
+                colSpan="3"
                 className="text-monospace text-center table-secondary"
               >
                 Expensas B
