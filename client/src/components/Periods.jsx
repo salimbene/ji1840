@@ -103,14 +103,16 @@ class Periods extends Component {
     try {
       const period = this.mapToMongoModel({ ...selectedPeriod });
       const item = periods.find(d => d._id === period._id);
+      console.log(item.isClosed);
 
       if (item.isClosed)
-        throw new Error('Un período cerrado no puede reabrirse.');
+        throw new Error('⚠️ Un período cerrado no puede reabrirse.');
 
       item.isClosed = !item.isClosed;
+      period.isClosed = item.isClosed;
       await savePeriod(period);
     } catch (ex) {
-      toast.error(`⚠️ ${ex.message}`);
+      toast.error(ex.message);
       this.setState({ periods: rollback });
     }
     this.toggleClsPeriod(selectedPeriod);
@@ -120,6 +122,9 @@ class Periods extends Component {
     //DEpopulate userId
     delete period.date;
     delete period.__v;
+    delete period.balanceA;
+    delete period.balanceB;
+    delete period.balance;
     period.userId = period.userId._id;
     return period;
   }

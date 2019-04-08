@@ -111,7 +111,7 @@ router.post('/', [auth, admin], async (req, res) => {
     //Calculo de deudas expenses ordinarias
     const debtsA = await PDetails.find({ model: modelId, isPayedA: false });
     debtsA.forEach(detail => {
-      if (!detail.isPayedA) pdetails.debtA = +detail.ammount;
+      if (!detail.isPayedA) pdetails.debtA += detail.expenseA;
     });
     //Calculó de interés expenses ordinarias
     pdetails.intA = pdetails.debtA * consortInterest;
@@ -119,10 +119,11 @@ router.post('/', [auth, admin], async (req, res) => {
     //Calculo de deudas expenses ordinarias
     const debtsB = await PDetails.find({ model: modelId, isPayedB: false });
     debtsB.forEach(detail => {
-      if (!detail.isPayedB) pdetails.debtB = +detail.ammount;
+      if (!detail.isPayedB) pdetails.debtB += detail.expenseB;
     });
     //Calculó de interés expenses ordinarias
     pdetails.intB = pdetails.debtB * consortInterest;
+
     pdetails
       .save()
       .then(result => {
@@ -143,9 +144,6 @@ router.post('/', [auth, admin], async (req, res) => {
     (prev, current) => (prev += current.ammount),
     0
   );
-
-  const periodExpenses = await getPeriodExpenses(currentPeriod);
-  debug(periodExpenses);
 
   periodEntry.incomeA = 0;
   periodEntry.incomeB = 0;
@@ -168,37 +166,27 @@ router.put('/:id', [auth, admin], async (req, res) => {
   if (error) return res.status(400).send(error.details[0].message);
 
   // Cierre de período
-  const { isClosed, period, totalB, totalIncome } = req.body;
+  const { isClosed, period, expensesA, expensesB, incomeA, incomeB } = req.body;
 
-  try {
-    periods = await Period.findOneAndUpdate(
-      { _id: req.params.id },
-      { isClosed: !isClosed },
-      { new: true }
-    );
-    debug(periods);
-  } catch (ex) {
-    debug(ex.errmsg);
-    return res.status(400).send(ex.errmsg);
-  }
+  periods = await Period.findOneAndUpdate(
+    { _id: req.params.id },
+    { isClosed },
+    { new: true }
+  );
+  debug('periods', periods);
 
   // Actualizo balances del consorcio
-  const consortia = await Consortia.find();
-  const { _id: consortiaId } = consortia[0];
-  expenses = getPeriodExpenses(period);
-  // tomar gastos A y gastos B
-  try {
-    const consortia = await Consortia.findOneAndUpdate(
-      { _id: consortiaId },
-      { $inc: { balanceA: 0 } }, // - gastos A + totalimcome - total b
-      { $inc: { balanceB: 0 } }, // - gastos B + total B
-      { new: true }
-    );
-    debug(consortia);
-  } catch (ex) {
-    debug(ex.errmsg);
-    return res.status(400).send(ex.errmsg);
-  }
+  const consort = await Consortia.find();
+  const { _id: consortiaId } = consort[0];
+
+  const consortia = await Consortia.findOneAndUpdate(
+    { _id: consortiaId },
+    {
+      $inc: { balanceA: incomeA - expensesA, balanceB: incomeB - expensesB }
+    },
+    { new: true }
+  );
+  debug('consortia', consortia);
 
   res.send(periods);
 });
