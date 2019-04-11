@@ -1,3 +1,5 @@
+@import 'https://unpkg.com/carbon-components/css/carbon-components.min.css';
+
 body {
   /* margin: 0;
   padding: 20px 0 0 0; */
@@ -6,6 +8,10 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.bx--form-item {
+  margin-bottom: 2rem;
 }
 
 #background {

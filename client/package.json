@@ -4,6 +4,9 @@
   "private": true,
   "dependencies": {
     "bootstrap": "^4.2.1",
+    "carbon-components": "^10.0.0",
+    "carbon-components-react": "^7.0.0",
+    "carbon-icons": "^7.0.5",
     "font-awesome": "^4.7.0",
     "html2canvas": "^1.0.0-alpha.12",
     "joi-browser": "^13.4.0",

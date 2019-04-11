@@ -5,6 +5,7 @@ import Select from './Select';
 import TextArea from './TextArea';
 import Check from './Check';
 import ListGroup from './ListGroup';
+import { Button } from 'carbon-components-react';
 
 class Form extends Component {
   state = {
@@ -69,10 +70,12 @@ class Form extends Component {
   };
 
   renderButton(label) {
+    console.log(typeof this.validate(), this.validate());
     return (
       <button
+        type="submit"
         disabled={this.validate()}
-        className="btn btn-primary btn-center mx-auto"
+        className="bx--btn bx--btn--primary" //btn btn-primary btn-center mx-auto
       >
         {label}
       </button>
