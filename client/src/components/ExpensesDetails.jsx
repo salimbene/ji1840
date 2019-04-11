@@ -87,7 +87,9 @@ const ExpensesDetails = ({ details, period }) => {
                 d.expenseA + d.debtA + d.intA + d.expenseB + d.debtB + d.intB;
               return (
                 <tr key={ind}>
-                  <th scope="col">{d.model.label}</th>
+                  <th scope="col" className="text-center">
+                    {d.model.label}
+                  </th>
                   <td className="text-monospace text-center">
                     {Number(d.model.coefficient * 100).toFixed(2)}
                   </td>

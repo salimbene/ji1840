@@ -35,7 +35,7 @@ code {
 
 .page {
   width: 20cm;
-  /* min-height: 28.7cm; */
+  min-height: 28.7cm;
   padding: 1cm;
   /* margin: 1cm auto; */
   border: 1px #d3d3d3 solid;
