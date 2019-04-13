@@ -64,7 +64,7 @@ const CarbonTablePagination = ({
           </svg>
         </div>
         <span className="bx--pagination__text">
-          <span data-displayed-item-range>1-10</span> de
+          <span data-displayed-item-range>1-10</span> de{' '}
           <span data-total-items>{itemsCount}</span> items
         </span>
       </div>

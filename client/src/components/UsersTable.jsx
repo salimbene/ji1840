@@ -35,7 +35,7 @@ class UsersTable extends Component {
     content: user => (
       <i
         onClick={event => this.props.onDelete(user)}
-        className="fa fa-trash red"
+        className="fa fa-trash red clickable"
       />
     )
   };

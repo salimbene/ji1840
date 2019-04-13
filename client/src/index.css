@@ -1,17 +1,15 @@
-@import 'https://unpkg.com/carbon-components/css/carbon-components.min.css';
-
-body {
-  /* margin: 0;
-  padding: 20px 0 0 0; */
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+@import '../node_modules/carbon-components/css/carbon-components.min.css';
 
 .bx--form-item {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.cc--users-form {
+  width: 100vh;
+  margin-top: 5vh;
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 5vh;
 }
 
 .reset-margin-bottom {

@@ -70,7 +70,6 @@ class Form extends Component {
   };
 
   renderButton(label) {
-    console.log(typeof this.validate(), this.validate());
     return (
       <button
         type="submit"

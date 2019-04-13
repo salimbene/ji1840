@@ -1,16 +1,14 @@
 import React, { Component } from 'react';
-import { getUsers, deleteUser } from '../services/usersService';
+import _ from 'lodash';
 import SearchBox from './common/SearchBox';
-import SimpleModal from './common/SimpleModal';
 import CarbonTableTitle from './common/CarbonTableTitle';
 import CarbonTablePagination from './common/CarbonTablePagination';
+import CarbonModal from './common/CarbonModal';
 import UsersTable from './UsersTable';
 import auth from '../services/authService';
+import { getUsers, deleteUser } from '../services/usersService';
 import { paginate } from '../utils/paginate';
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import _ from 'lodash';
-import { currency } from '../utils/formatter';
 
 class Users extends Component {
   constructor(props) {
@@ -59,6 +57,7 @@ class Users extends Component {
   handlePageSize = event => {
     this.setState({ pageSize: event.target.value });
   };
+
   handlePageChange = (page, arrow, pagesCount) => {
     const { value } = page.target;
     let { currentPage } = this.state;
@@ -110,7 +109,7 @@ class Users extends Component {
     }));
   }
 
-  ModalBodyDetail = user => {
+  modalBodyDetail = user => {
     const { lastname } = user;
     return (
       <p className="lead">
@@ -118,6 +117,18 @@ class Users extends Component {
       </p>
     );
   };
+
+  modalProps = selectedUser => ({
+    isOpen: this.state.modal,
+    title: 'Eliminar usuario',
+    label: 'Consortia - Jose Ingenieros 1840',
+    body: selectedUser && this.modalBodyDetail(selectedUser),
+    cancelBtnLabel: 'Cancelar',
+    submitBtnLabel: 'Eliminar',
+    toggle: this.toggleDelete,
+    submit: this.handleDelete,
+    danger: true
+  });
 
   render() {
     const {
@@ -127,28 +138,21 @@ class Users extends Component {
       searchQuery,
       selectedUser
     } = this.state;
-    const { currentUser } = this.state;
 
+    const { currentUser } = this.state;
     const { totalCount, data: users } = this.getPageData();
 
     return (
       <React.Fragment>
-        <SimpleModal
-          isOpen={this.state.modal}
-          toggle={this.toggleDelete}
-          title="Eliminar usuario"
-          label="Eliminar"
-          action={this.handleDelete}
-          body={selectedUser && this.ModalBodyDetail(selectedUser)}
-        />
-        <div className="row units">
-          <div className="col">
+        <CarbonModal {...this.modalProps(selectedUser)} />
+        <div className="bx--row">
+          <div className="bx--col">
             <CarbonTableTitle
               title="Usuarios"
               helper="Lista de usuarios registrados."
               btnLabel="Registrar usuario"
               btnClick={this.handleAddUser}
-              // currentUser={currentUser}
+              currentUser={currentUser}
             />
             <SearchBox value={searchQuery} onChange={this.handleSearch} />
             <UsersTable
@@ -164,15 +168,6 @@ class Users extends Component {
               onPageSize={this.handlePageSize}
               onPageChange={this.handlePageChange}
             />
-            {/* {currentUser && currentUser.isAdmin && (
-              <button
-                onClick={event => this.handleAddUser(event)}
-                className="btn btn-primary btn-sm"
-                style={{ marginBottom: 20 }}
-              >
-                Nuevo
-              </button>
-            )} */}
           </div>
         </div>
       </React.Fragment>
