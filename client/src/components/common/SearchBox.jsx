@@ -2,12 +2,12 @@ import React from 'react';
 
 const SearchBox = ({ value, onChange }) => {
   return (
-    <div className="bx--form-item">
+    <div className="bx--form-item reset-margin-bottom">
       <input
         id="searchx"
         type="text"
         name="query"
-        className={`bx--text-input`}
+        className="bx--text-input"
         placeholder="Buscar..."
         value={value}
         onChange={e => onChange(e.currentTarget.value)}

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { getUsers, deleteUser } from '../services/usersService';
-import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
 import SimpleModal from './common/SimpleModal';
+import CarbonTableTitle from './common/CarbonTableTitle';
 import CarbonTablePagination from './common/CarbonTablePagination';
 import UsersTable from './UsersTable';
 import auth from '../services/authService';
@@ -143,13 +143,19 @@ class Users extends Component {
         />
         <div className="row units">
           <div className="col">
+            <CarbonTableTitle
+              title="Usuarios"
+              helper="Lista de usuarios registrados."
+              btnLabel="Registrar usuario"
+              btnClick={this.handleAddUser}
+              // currentUser={currentUser}
+            />
             <SearchBox value={searchQuery} onChange={this.handleSearch} />
             <UsersTable
               users={users}
               onDelete={this.toggleDelete}
               onSort={this.handleSort}
               sortColumn={sortColumn}
-              btnClick={this.handleAddUser}
             />
             <CarbonTablePagination
               itemsCount={totalCount}

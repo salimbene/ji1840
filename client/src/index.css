@@ -14,8 +14,8 @@ body {
   margin-bottom: 2rem;
 }
 
-.bx--data-table-header__description {
-  margin-bottom: 0;
+.reset-margin-bottom {
+  margin-bottom: 0 !important;
 }
 
 #background {

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import CarbonTableTitle from './common/CarbonTableTitle';
 import CarbonTable from './common/CarbonTable';
 import auth from '../services/authService';
 
@@ -49,23 +48,15 @@ class UsersTable extends Component {
   }
 
   render() {
-    const { users, onSort, sortColumn, btnClick } = this.props;
+    const { users, onSort, sortColumn } = this.props;
 
     return (
       <React.Fragment>
-        <CarbonTableTitle
-          title="Usuarios"
-          helper="Lista de usuarios registrados."
-          btnLabel="Registrar usuario"
-          btnClick={btnClick}
-          // currentUser={currentUser}
-        />
         <CarbonTable
           columns={this.columns}
           data={users}
           sortColumn={sortColumn}
           onSort={onSort}
-          btnClick={btnClick}
         />
       </React.Fragment>
     );
