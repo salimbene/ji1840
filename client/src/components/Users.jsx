@@ -3,19 +3,21 @@ import { getUsers, deleteUser } from '../services/usersService';
 import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
 import SimpleModal from './common/SimpleModal';
+import CarbonTablePagination from './common/CarbonTablePagination';
 import UsersTable from './UsersTable';
 import auth from '../services/authService';
 import { paginate } from '../utils/paginate';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import _ from 'lodash';
+import { currency } from '../utils/formatter';
 
 class Users extends Component {
   constructor(props) {
     super(props);
     this.state = {
       users: {},
-      pageSize: 25,
+      pageSize: 10,
       currentPage: 1,
       searchQuery: '',
       sortColumn: { path: 'lastname', order: 'asc' },
@@ -54,8 +56,18 @@ class Users extends Component {
     history.push('/register');
   };
 
-  handlePageChange = page => {
-    this.setState({ currentPage: page });
+  handlePageSize = event => {
+    this.setState({ pageSize: event.target.value });
+  };
+  handlePageChange = (page, arrow, pagesCount) => {
+    const { value } = page.target;
+    let { currentPage } = this.state;
+
+    currentPage = value ? Number(value) : (currentPage += arrow);
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > pagesCount) currentPage = pagesCount;
+
+    this.setState({ currentPage });
   };
 
   handleSearch = query => {
@@ -138,8 +150,15 @@ class Users extends Component {
               onDelete={this.toggleDelete}
               onSort={this.handleSort}
               sortColumn={sortColumn}
+              btnClick={this.handleAddUser}
             />
-
+            <CarbonTablePagination
+              itemsCount={totalCount}
+              pageSize={pageSize}
+              currentPage={currentPage}
+              onPageSize={this.handlePageSize}
+              onPageChange={this.handlePageChange}
+            />
             <Pagination
               itemsCount={totalCount}
               pageSize={pageSize}

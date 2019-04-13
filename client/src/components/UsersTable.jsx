@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import Table from './common/Table';
 import auth from '../services/authService';
+import CarbonTable from './common/CarbonTable';
 
 class UsersTable extends Component {
   columns = [
@@ -48,15 +48,16 @@ class UsersTable extends Component {
   }
 
   render() {
-    const { users, onSort, sortColumn } = this.props;
+    const { users, onSort, sortColumn, btnClick } = this.props;
 
     return (
       <React.Fragment>
-        <Table
+        <CarbonTable
           columns={this.columns}
           data={users}
           sortColumn={sortColumn}
           onSort={onSort}
+          btnClick={btnClick}
         />
       </React.Fragment>
     );
