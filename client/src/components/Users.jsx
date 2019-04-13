@@ -143,7 +143,6 @@ class Users extends Component {
         />
         <div className="row units">
           <div className="col">
-            <p>Usuarios registrados: {totalCount}</p>
             <SearchBox value={searchQuery} onChange={this.handleSearch} />
             <UsersTable
               users={users}
@@ -159,13 +158,7 @@ class Users extends Component {
               onPageSize={this.handlePageSize}
               onPageChange={this.handlePageChange}
             />
-            <Pagination
-              itemsCount={totalCount}
-              pageSize={pageSize}
-              currentPage={currentPage}
-              onPageChange={this.handlePageChange}
-            />
-            {currentUser && currentUser.isAdmin && (
+            {/* {currentUser && currentUser.isAdmin && (
               <button
                 onClick={event => this.handleAddUser(event)}
                 className="btn btn-primary btn-sm"
@@ -173,7 +166,7 @@ class Users extends Component {
               >
                 Nuevo
               </button>
-            )}
+            )} */}
           </div>
         </div>
       </React.Fragment>

@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import auth from '../services/authService';
+import CarbonTableTitle from './common/CarbonTableTitle';
 import CarbonTable from './common/CarbonTable';
+import auth from '../services/authService';
 
 class UsersTable extends Component {
   columns = [
@@ -52,6 +53,13 @@ class UsersTable extends Component {
 
     return (
       <React.Fragment>
+        <CarbonTableTitle
+          title="Usuarios"
+          helper="Lista de usuarios registrados."
+          btnLabel="Registrar usuario"
+          btnClick={btnClick}
+          // currentUser={currentUser}
+        />
         <CarbonTable
           columns={this.columns}
           data={users}

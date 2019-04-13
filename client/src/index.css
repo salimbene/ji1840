@@ -14,6 +14,10 @@ body {
   margin-bottom: 2rem;
 }
 
+.bx--data-table-header__description {
+  margin-bottom: 0;
+}
+
 #background {
   position: fixed;
   top: -300px;
@@ -61,6 +65,16 @@ code {
 }
 .clickable {
   cursor: pointer;
+}
+
+.bb {
+  border: 1px blue solid;
+}
+.br {
+  border: 1px red solid;
+}
+.bg {
+  border: 1px green solid;
 }
 
 .centered {

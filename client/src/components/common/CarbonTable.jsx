@@ -2,8 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import CarbonTableHeader from './CarbonTableHeader';
 import CarbonTableBody from './CarbonTableBody';
-import CarbonTablePagination from './CarbonTablePagination';
-import CarbonTableTitle from './CarbonTableTitle';
 
 const CarbonTable = ({
   columns,
@@ -11,15 +9,11 @@ const CarbonTable = ({
   onSort,
   data,
   btnClick,
+  currentUser,
   ...rest
 }) => {
   return (
     <div className="bx--data-table-container " data-table>
-      <CarbonTableTitle
-        title="Usuarios"
-        btnLabel="Registrar usuario"
-        btnClick={btnClick}
-      />
       <table className="bx--data-table     bx--data-table--sort ">
         <CarbonTableHeader
           columns={columns}
