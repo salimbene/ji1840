@@ -35,11 +35,18 @@ class PeriodsForm extends Form {
   }
 
   toPDF = async id => {
-    const input = document.getElementById(id);
+    const input = document.getElementById('pdf1');
     const canvas = await html2canvas(input);
     const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF();
-    pdf.addImage(imgData, 'PNG', 5, 5);
+    const pdf = new jsPDF('portrait', 'mm', 'a4');
+    pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+    pdf.addPage();
+
+    const input2 = document.getElementById('pdf2');
+    const canvas2 = await html2canvas(input2);
+    const imgData2 = canvas2.toDataURL('image/png');
+
+    pdf.addImage(imgData2, 'PNG', 0, 0, 210, 297);
     pdf.save(`Expensas_JI1840_${this.state.period}.pdf`);
   };
 
@@ -185,17 +192,20 @@ class PeriodsForm extends Form {
       <React.Fragment>
         <div className="row">
           <div className="col">
-            <div id="pdf" className="page">
-              <SimpleModal
-                isOpen={modal}
-                toggle={this.togglePeriod}
-                title={saveButtonLabel}
-                label={saveButtonLabel}
-                action={this.handleSavePeriod}
-                body={this.ModalPeriodBody(data)}
-              />
+            <SimpleModal
+              isOpen={modal}
+              toggle={this.togglePeriod}
+              title={saveButtonLabel}
+              label={saveButtonLabel}
+              action={this.handleSavePeriod}
+              body={this.ModalPeriodBody(data)}
+            />
+            <div id="pdf1" className="page">
               <ExpensesBanner consortia={consortia[0]} period={period} />
               <ExpensesStats expenses={expenses} period={period} />
+            </div>
+            <div id="pdf2" className="page">
+              <ExpensesBanner consortia={consortia[0]} period={period} />
               <ExpensesDetails details={details} period={period} />
             </div>
           </div>
