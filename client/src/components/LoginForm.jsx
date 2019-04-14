@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Redirect } from 'react-router-dom';
 import Form from './common/Form';
 import auth from '../services/authService';
@@ -43,7 +43,7 @@ class LoginForm extends Form {
     if (auth.getCurrentUser()) return <Redirect to="/" />;
 
     return (
-      <React.Fragment>
+      <Fragment>
         <div className="rounded centered login">
           <form onSubmit={this.handleSubmit}>
             {this.renderInput('username', 'Usuario')}
@@ -51,7 +51,7 @@ class LoginForm extends Form {
             {this.renderButton('Acceder')}
           </form>
         </div>
-      </React.Fragment>
+      </Fragment>
     );
   }
 }

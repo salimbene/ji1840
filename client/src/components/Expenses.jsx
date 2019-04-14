@@ -1,10 +1,11 @@
-import React, { Component } from 'react';
-import { toast } from 'react-toastify';
+import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
-import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
+import CarbonTableTitle from './common/CarbonTableTitle';
+import CarbonTablePagination from './common/CarbonTablePagination';
+import CarbonModal from './common/CarbonModal';
+import Unauthorized from './common/Unauthorized';
 import PeriodSelector from './common/PeriodSelector';
-import SimpleModal from './common/SimpleModal';
 import ExpensesTable from './ExpensesTable';
 import auth from '../services/authService';
 import { getExpenses, deleteExpense } from '../services/expensesService';
@@ -23,21 +24,15 @@ class Expenses extends Component {
       sortColumn: { path: 'type', order: 'asc' },
       year: getCurrentPeriod().year,
       month: getCurrentPeriod().month,
-      modal: false
+      modal: false,
+      currentUser: auth.getCurrentUser()
     };
     this.toggleDelete = this.toggleDelete.bind(this);
   }
 
-  toggleDelete(expense) {
-    this.setState(prevState => ({
-      modal: !prevState.modal,
-      selectedExpense: expense
-    }));
-  }
-
   async componentDidMount() {
     const { data: expenses } = await getExpenses();
-    this.setState({ expenses, user: auth.getCurrentUser() });
+    this.setState({ expenses });
   }
 
   handleDelete = () => {
@@ -52,7 +47,6 @@ class Expenses extends Component {
     try {
       deleteExpense(selectedExpense._id);
     } catch (ex) {
-      toast.error(`☹️ Error: ${ex.response.data}`);
       this.setState({ expenses: rollback });
     }
 
@@ -85,8 +79,19 @@ class Expenses extends Component {
     history.push('/expenses/new');
   };
 
-  handlePageChange = page => {
-    this.setState({ currentPage: page });
+  handlePageSize = event => {
+    this.setState({ pageSize: event.target.value });
+  };
+
+  handlePageChange = (page, arrow, pagesCount) => {
+    const { value } = page.target;
+    let { currentPage } = this.state;
+
+    currentPage = value ? Number(value) : (currentPage += arrow);
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > pagesCount) currentPage = pagesCount;
+
+    this.setState({ currentPage });
   };
 
   handleSearch = query => {
@@ -121,7 +126,34 @@ class Expenses extends Component {
     };
   };
 
-  DeleteMsgBody = expense => {
+  toggleDelete(expense) {
+    this.setState(prevState => ({
+      modal: !prevState.modal,
+      selectedExpense: expense
+    }));
+  }
+  renderViewTags = (data, selected) => {
+    const count = data.length;
+    return (
+      <Fragment>
+        Gastos
+        <mark>{count}</mark>
+        Periodo
+        <mark>{selected ? selected : 'Todos los periodos.'}</mark>
+        Importe Total
+        <mark>
+          $
+          {Number(
+            data
+              .reduce((prev, current) => (prev += current.ammount), 0)
+              .toFixed(2)
+          )}
+        </mark>
+      </Fragment>
+    );
+  };
+
+  modalBody = expense => {
     const { concept } = expense;
     return (
       <p className="lead">
@@ -130,28 +162,18 @@ class Expenses extends Component {
     );
   };
 
-  renderViewTags = (data, selected) => {
-    const count = data.length;
-    return (
-      <React.Fragment>
-        <p className="mb-1 mt-3">
-          Gastos
-          <mark>{count}</mark>
-          Periodo
-          <mark>{selected ? selected : 'Todos los periodos.'}</mark>
-          Importe Total
-          <mark>
-            $
-            {Number(
-              data
-                .reduce((prev, current) => (prev += current.ammount), 0)
-                .toFixed(2)
-            )}
-          </mark>
-        </p>
-      </React.Fragment>
-    );
-  };
+  modalProps = selectedExpense => ({
+    isOpen: this.state.modal,
+    title: 'Eliminar gastos',
+    label: 'Consortia - Jose Ingenieros 1840',
+    body: selectedExpense && this.modalBody(selectedExpense),
+    cancelBtnLabel: 'Cancelar',
+    submitBtnLabel: 'Eliminar',
+    toggle: this.toggleDelete,
+    submit: this.handleDelete,
+    danger: true
+  });
+
   render() {
     const { user } = this.state;
     if (user && !user.isAdmin)
@@ -170,63 +192,49 @@ class Expenses extends Component {
     } = this.state;
     const { month, year } = this.state;
     const { totalCount, data: expenses } = this.getPageData();
-    const { selectedExpense } = this.state;
+    const { selectedExpense, currentUser } = this.state;
 
+    if (currentUser && !currentUser.isCouncil) return <Unauthorized />;
     return (
-      <React.Fragment>
-        <SimpleModal
-          isOpen={this.state.modal}
-          toggle={this.toggleDelete}
-          title="Eliminar gasto"
-          label="Eliminar"
-          action={this.handleDelete}
-          body={selectedExpense && this.DeleteMsgBody(selectedExpense)}
+      <Fragment>
+        <CarbonModal {...this.modalProps(selectedExpense)} />
+        <CarbonTableTitle
+          title="Gastos"
+          helper={this.renderViewTags(expenses, selectedPeriod)}
+          btnLabel="Registrar gasto"
+          btnClick={this.handleAddExpense}
+          currentUser={currentUser}
         />
-        <div className="row align-items-end">
-          <div className="col-sm-5">
+        <div className="bx--grid">
+          <div className="bx--row bx--no-gutter">
             <PeriodSelector
               months={month}
               years={year}
               handlePeriod={this.handlePeriodSelect}
             />
-          </div>
-          <div className="col">
-            <SearchBox
-              value={searchQuery}
-              onChange={this.handleSearch}
-              className=""
-            />
+            <div className="bx--col-sm-1 bx--col-md-2 bx--col-lg-6">
+              <SearchBox value={searchQuery} onChange={this.handleSearch} />
+            </div>
           </div>
         </div>
-
-        {this.renderViewTags(expenses, selectedPeriod)}
-        <div className="row">
-          <div className="col">
+        <div className="bx--row">
+          <div className="bx--col">
             <ExpensesTable
               expenses={expenses}
               onDelete={this.toggleDelete}
               onSort={this.handleSort}
               sortColumn={sortColumn}
             />
-
-            <Pagination
+            <CarbonTablePagination
               itemsCount={totalCount}
               pageSize={pageSize}
               currentPage={currentPage}
+              onPageSize={this.handlePageSize}
               onPageChange={this.handlePageChange}
             />
-            {user && (
-              <button
-                onClick={event => this.handleAddExpense(event)}
-                className="btn btn-primary btn-sm"
-                style={{ marginBottom: 20 }}
-              >
-                Nuevo
-              </button>
-            )}
           </div>
         </div>
-      </React.Fragment>
+      </Fragment>
     );
   }
 }

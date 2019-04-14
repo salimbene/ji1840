@@ -1,44 +1,44 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import SideBarItem from './common/SideBarItem';
 import SideSeparator from './common/SideSeparator';
 
 const SideBar = ({ user }) => {
   console.log('SideBar:', user);
   return (
-    <nav className="col-md-2 d-none d-md-block bg-light sidebar">
+    <nav className="col-md-2 d-none d-md-block  sidebar">
       <div className="sidebar-sticky">
-        {!user && (
-          <React.Fragment>
+        {/* {!user && (
+          <Fragment>
             <ul className="nav flex-column">
               <SideBarItem label="Acceder" to="/login" />
             </ul>
-          </React.Fragment>
-        )}
+          </Fragment>
+        )} */}
 
         {user && (
-          <React.Fragment>
+          <Fragment>
             <SideSeparator label="Información" />
             <ul className="nav flex-column mb-2">
               <SideBarItem label="Usuarios" to="/users" />
               <SideBarItem label="Proveedores" to="/suppliers" />
-              <SideBarItem label="Unidades" to="/units" />
+              <SideBarItem label="Expensas" to="/periods" />
             </ul>
-          </React.Fragment>
+          </Fragment>
         )}
         {user && user.isCouncil && (
-          <React.Fragment>
-            <SideSeparator label="Gestión" />
+          <Fragment>
+            <SideSeparator label="Movimientos" />
             <ul className="nav flex-column mb-2">
-              <SideBarItem label="Expensas" to="/periods" />
               <SideBarItem label="Gastos" to="/expenses" />
               <SideBarItem label="Pagos" to="/payments" />
             </ul>
             <SideSeparator label="Configuración" />
             <ul className="nav flex-column mb-2">
+              <SideBarItem label="Unidades" to="/units" />
               <SideBarItem label="Esquemas" to="/models" />
               <SideBarItem label="Configuración" to="/consortia" />
             </ul>
-          </React.Fragment>
+          </Fragment>
         )}
       </div>
     </nav>

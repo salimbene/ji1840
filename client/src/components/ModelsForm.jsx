@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { toast } from 'react-toastify';
 import Joi from 'joi-browser';
 import _ from 'lodash';
-import SimpleModal from './common/SimpleModal';
-import Table from './common/Table';
+import CarbonModal from './common/CarbonModal';
+import CarbonTable from './common/CarbonTable';
+import BtnAux from './common/BtnAux';
 import Form from './common/Form';
 import { getModel, saveModel } from '../services/pmodelsServices';
 import { getUnits } from '../services/unitsService';
@@ -29,8 +30,9 @@ class ModelsForm extends Form {
       modal: false
     };
 
-    const user = auth.getCurrentUser();
-    if (user && user.isAdmin) this.columnsUnits.push(this.deleteColumn);
+    const currentUser = auth.getCurrentUser();
+    if (currentUser && currentUser.isAdmin)
+      this.columnsUnits.push(this.deleteColumn);
 
     this.toggleDelete = this.toggleDelete.bind(this);
   }
@@ -100,11 +102,15 @@ class ModelsForm extends Form {
     model.landlord = users.find(e => {
       return e._id === landlordKey;
     })._id;
-    console.log(model);
-    await saveModel(model);
-    toast.success(`😀 Los datos se actualizaron con éxito.`, {
-      position: 'top-center'
-    });
+
+    try {
+      await saveModel(model);
+      toast.success(`Los datos se guardaron exitosamente. ✔️`, {
+        position: 'top-center'
+      });
+    } catch (ex) {
+      console.log(ex.response);
+    }
 
     const { history } = this.props;
     history.push('/models');
@@ -127,7 +133,7 @@ class ModelsForm extends Form {
     const duplicate = data.fUnits.find(e => {
       return e._id === selectedUnitKey;
     });
-    if (duplicate) return toast('La unidad ya se encuentra asignada.');
+    if (duplicate) return toast.info('La unidad ya se encuentra asignada.');
 
     const selectedUnit = units.find(e => {
       return e._id === selectedUnitKey;
@@ -149,7 +155,7 @@ class ModelsForm extends Form {
       label: 'Superficie',
       content: u => (
         <p>
-          {Number(u.sup.total).toPrecision(2)}m<sup>2</sup>
+          {Number(u.sup.total).toFixed(2)}m<sup>2</sup>
         </p>
       )
     },
@@ -162,13 +168,10 @@ class ModelsForm extends Form {
   deleteColumn = {
     key: 'del',
     content: model => (
-      <button
+      <i
         onClick={event => this.toggleDelete(model)}
-        className="btn btn-danger btn-sm"
-        type="button"
-      >
-        Eliminar
-      </button>
+        className="fa fa-trash red clickable"
+      />
     )
   };
 
@@ -202,18 +205,13 @@ class ModelsForm extends Form {
 
   renderProps(data, sortColumn) {
     return (
-      <React.Fragment>
-        <div className="border border-info p-3 mb-3 mx-auto rounded shadow bg-white adjust">
-          <p className="text-muted">Unidades Asignadas</p>
-          <Table
-            columns={this.columnsUnits}
-            onDelete={this.toggleDelete}
-            data={data}
-            sortColumn={sortColumn}
-            onSort={this.handleUnitSort}
-          />
-        </div>
-      </React.Fragment>
+      <CarbonTable
+        columns={this.columnsUnits}
+        onDelete={this.toggleDelete}
+        data={data}
+        sortColumn={sortColumn}
+        onSort={this.handleUnitSort}
+      />
     );
   }
 
@@ -222,44 +220,44 @@ class ModelsForm extends Form {
     return sorted;
   };
 
-  bodyDelUnit = () => {
+  modalBody = unit => {
+    const { fUnit } = unit;
     return (
       <p className="lead">
-        Eliminar una asigación puede ocacionar inconsistencia de datos.
+        Se desaginará la unidad <mark>{fUnit}</mark> al usuario.
       </p>
     );
   };
 
-  getUserFullName = (users, key) => {
-    if (!key || users.length === 0) return '';
-    const fullName = users.find(u => u._id === key);
-    return `${fullName.lastname}, ${fullName.firstname}`;
-  };
+  modalProps = selectedUnit => ({
+    isOpen: this.state.modal,
+    title: 'Elilminar asignación',
+    label: 'Consortia - Jose Ingenieros 1840',
+    body: selectedUnit && this.modalBody(selectedUnit),
+    cancelBtnLabel: 'Cancelar',
+    submitBtnLabel: 'Confirmar',
+    toggle: this.toggleDelete,
+    submit: this.handleDelete,
+    danger: true
+  });
 
   render() {
-    const { sortUnits, data, users, units } = this.state;
-    const { landlordKey } = this.state.keys;
+    const { sortUnits, data, users, units, selectedUnit } = this.state;
+    // const { landlordKey } = this.state.keys;
     const sortedUnits = this.getSortedData(data.fUnits, sortUnits);
 
     return (
-      <React.Fragment>
-        <SimpleModal
-          isOpen={this.state.modal}
-          toggle={this.toggleDelete}
-          title="Eliminar unidad asignada"
-          label="Eliminar"
-          action={this.handleDelete}
-          body={this.bodyDelUnit()}
-        />
-        <div className="border border-info rounded shadow-sm p-3 mb-5 bg-white adjust">
+      <Fragment>
+        <CarbonModal {...this.modalProps(selectedUnit)} />
+        <div className="bx--grid cc--users-form">
           <form onSubmit={this.handleSubmit}>
-            <div className="row align-items-start">
-              <div className="col-sm-12">
+            <div className="bx--row">
+              <div className="bx--col">
                 {this.renderInput('label', 'Nombre')}
               </div>
             </div>
-            <div className="row align-items-end">
-              <div className="col-sm-6">
+            <div className="bx--row">
+              <div className="bx--col">
                 {this.renderSelect(
                   'landlord',
                   'Propietario',
@@ -268,31 +266,28 @@ class ModelsForm extends Form {
                   true
                 )}
               </div>
-            </div>
-            <div className="row align-items-end">
-              <div className="col-sm-3">
+              <div className="bx--col">
                 {this.renderSelect('selectedUnit', 'Unidades', 'fUnit', units)}
-              </div>
-              <div className="col">
-                <button
-                  type="button"
+                <BtnAux
+                  label="Asignar"
                   onClick={event => this.handleAddModel(event)}
-                  className="btn btn-info btn-sm m-1"
-                >
-                  Asignar
-                </button>
+                />
               </div>
             </div>
-            <div className="row align-items-end">
-              <div className="col col-sm-6 pt-4">
-                <mark>{` Coeficiente total: ${data.coefficient}`}</mark>
+            <div className="bx--row">
+              <div className="bx--col">
+                <mark>{` Coeficiente total: ${Number(data.coefficient).toFixed(
+                  2
+                )}`}</mark>
                 {this.renderProps(sortedUnits, sortUnits)}
               </div>
             </div>
-            <div className="row">{this.renderButton('Guardar')}</div>
+            <div className="bx--row">
+              <div className="bx--col">{this.renderButton('Guardar')}</div>
+            </div>
           </form>
         </div>
-      </React.Fragment>
+      </Fragment>
     );
   }
 }

@@ -2,25 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 const TextArea = ({ name, label, error, ...rest }) => {
   return (
-    <div className="form-group">
-      <label className="label " htmlFor={name}>
+    <div className="bx--form-item">
+      <label className="bx--label " htmlFor={name}>
         {label}
       </label>
       <textarea
         {...rest}
         name={name}
         id={name}
-        className={`
-          form-control form-control-sm 
-          ${error && 'is-invalid'}
-        `}
+        className="bx--text-area bx--text-area--v2"
       />
-      {(error && <div className="invalid-feedback">{error}</div>) || (
-        <div className="hidden">fix</div>
-      )}
-      {/* {error && (
-        <div className="alert alert-danger col-sm-10 opacity">{error}</div>
-      )} */}
     </div>
   );
 };

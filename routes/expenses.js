@@ -7,14 +7,14 @@ const debug = require('debug')('routes:expenses');
 const express = require('express');
 const router = express.Router();
 
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
   const expenses = await Expense.find()
     .populate('userId', '-password -isAdmin', 'User')
     .sort('period');
   res.send(expenses);
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', auth, async (req, res) => {
   try {
     const expense = await Expense.findById(req.params.id);
     res.send(expense);
@@ -24,18 +24,18 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.get('/period/:id', async (req, res) => {
+router.get('/period/:id', auth, async (req, res) => {
   const expenses = await Expense.find({ period: req.params.id });
   res.send(expenses);
 });
 
-router.get('/period/total/:id', async (req, res) => {
+router.get('/period/total/:id', auth, async (req, res) => {
   const total = await TotalExpenses(req.params.id);
   debug(req.params.id, total);
   res.send(total);
 });
 
-router.post('/', [auth, admin], async (req, res) => {
+router.post('/', auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
@@ -57,7 +57,7 @@ router.post('/', [auth, admin], async (req, res) => {
   res.send(expense);
 });
 
-router.put('/:id', [auth, admin], async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
   //Validation
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);

@@ -1,17 +1,28 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import Table from './common/Table';
+import CarbonTable from './common/CarbonTable';
 import auth from '../services/authService';
 import { currency } from '../utils/formatter';
 
 class PeriodsTable extends Component {
+  constructor() {
+    super();
+    this.currentUser = auth.getCurrentUser();
+    if (this.currentUser && this.currentUser.isAdmin)
+      this.columns.push(this.deleteColumn);
+  }
+
   columns = [
     {
       path: 'period',
       label: 'Periodo',
-      content: period => (
-        <Link to={`/periods/${period._id}`}>{period.period}</Link>
-      )
+      content: period => {
+        return this.currentUser.isCouncil ? (
+          <Link to={`/periods/${period._id}`}>{period.period}</Link>
+        ) : (
+          period.period
+        );
+      }
     },
     {
       path: 'totalA',
@@ -95,22 +106,16 @@ class PeriodsTable extends Component {
     content: period => (
       <i
         onClick={event => this.props.onDelete(period)}
-        className="fa fa-trash red"
+        className="fa fa-trash red clickable"
       />
     )
   };
-
-  constructor() {
-    super();
-    const user = auth.getCurrentUser();
-    if (user && user.isAdmin) this.columns.push(this.deleteColumn);
-  }
 
   render() {
     const { periods, onSort, sortColumn } = this.props;
 
     return (
-      <Table
+      <CarbonTable
         columns={this.columns}
         data={periods}
         sortColumn={sortColumn}

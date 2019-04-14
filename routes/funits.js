@@ -8,12 +8,12 @@ const { FUnit, validate, getCoefficient } = require('../models/funit');
 const express = require('express');
 const router = express.Router();
 
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
   const fUnits = await FUnit.find().sort('fUnit');
   res.send(fUnits);
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', auth, async (req, res) => {
   try {
     const fUnits = await FUnit.findById(req.params.id);
     res.send(fUnits);
@@ -24,7 +24,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.get('/ownedby/:id', async (req, res) => {
+router.get('/ownedby/:id', auth, async (req, res) => {
   try {
     const fUnits = await FUnit.find()
       .where('landlord.userId')
@@ -38,7 +38,7 @@ router.get('/ownedby/:id', async (req, res) => {
   }
 });
 
-router.post('/', [auth, admin], async (req, res) => {
+router.post('/', auth, async (req, res) => {
   //Validation
   debug(req.body);
   const { error } = validate(req.body);
@@ -77,7 +77,7 @@ router.post('/', [auth, admin], async (req, res) => {
   );
 });
 
-router.put('/:id', [auth, admin], async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
   //Validation
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
@@ -107,7 +107,7 @@ router.put('/:id', [auth, admin], async (req, res) => {
   res.send(fUnits);
 });
 
-router.delete('/:id', [auth, admin], [auth, admin], async (req, res) => {
+router.delete('/:id', [auth, admin], async (req, res) => {
   try {
     const fUnits = await FUnit.findByIdAndRemove(req.params.id);
     res.send(fUnits);

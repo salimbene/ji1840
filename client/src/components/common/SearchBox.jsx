@@ -1,13 +1,13 @@
 import React from 'react';
 
-const SearchBox = ({ value, onChange, className }) => {
+const SearchBox = ({ value, onChange }) => {
   return (
-    <div className="input-group input-group-sm m-1">
+    <div className="bx--form-item reset-margin-bottom">
       <input
         id="searchx"
         type="text"
         name="query"
-        className={`form-control ${className}`}
+        className="bx--text-input"
         placeholder="Buscar..."
         value={value}
         onChange={e => onChange(e.currentTarget.value)}

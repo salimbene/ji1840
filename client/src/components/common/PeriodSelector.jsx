@@ -1,29 +1,27 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import Select from './Select';
 import { getLastXYears, monthLabels } from '../../utils/dates';
 
 const PeriodSelector = ({ months, years, handlePeriod }) => {
   return (
-    <div className="row">
-      <div className="col">
+    <Fragment>
+      <div className="bx--col">
         <Select
           name="month"
-          label="Mes"
           value={months}
           options={monthLabels}
           onChange={handlePeriod}
         />
       </div>
-      <div className="col">
+      <div className="bx--col">
         <Select
           name="year"
-          label="Año"
           value={years}
           options={getLastXYears(5)}
           onChange={handlePeriod}
         />
       </div>
-    </div>
+    </Fragment>
   );
 };
 

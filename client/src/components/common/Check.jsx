@@ -1,19 +1,20 @@
 import React from 'react';
 
-const Check = ({ name, label, error, onChange, checked, ...rest }) => {
+const Check = ({ name, label, onChange, checked, ...rest }) => {
+  console.log('checked', label, checked);
   return (
-    <div className="form-check form-check-inline">
-      <label className="form-check-label mr-2" htmlFor={name}>
+    <div className="bx--form-item bx--checkbox-wrapper">
+      <input
+        id={name}
+        className="bx--checkbox"
+        type="checkbox"
+        name={name}
+        checked={checked}
+        onChange={onChange}
+      />
+      <label className="bx--checkbox-label" htmlFor={name}>
         {label}
       </label>
-      <input
-        type="checkbox"
-        className="form-check-input"
-        id={name}
-        name={name}
-        onChange={onChange}
-        checked={checked}
-      />
     </div>
   );
 };

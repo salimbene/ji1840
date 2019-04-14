@@ -1,45 +1,55 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
 import { getUnits, deleteUnit } from '../services/unitsService';
-import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
+import CarbonTableTitle from './common/CarbonTableTitle';
+import CarbonTablePagination from './common/CarbonTablePagination';
+import CarbonModal from './common/CarbonModal';
+import Unauthorized from './common/Unauthorized';
 import UnitsTable from './UnitsTable';
 import auth from '../services/authService';
 import { paginate } from '../utils/paginate';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import _ from 'lodash';
 
 class Units extends Component {
-  state = {
-    units: {},
-    pageSize: 20,
-    currentPage: 1,
-    searchQuery: '',
-    sortColumn: { path: 'fUnit', order: 'asc' },
-    floor: [{ name: '0', id: 0 }, { name: '1', id: 1 }, { name: '2', id: 2 }]
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      units: {},
+      pageSize: 20,
+      currentPage: 1,
+      searchQuery: '',
+      sortColumn: { path: 'fUnit', order: 'asc' },
+      currentUser: auth.getCurrentUser()
+    };
 
-  async componentDidMount() {
-    const floor = [{ id: '', name: 'all' }, ...this.state.floor];
-    const { data: units } = await getUnits();
-    this.setState({ units, floor, user: auth.getCurrentUser() });
+    this.toggleDelete = this.toggleDelete.bind(this);
   }
 
-  handleDelete = unit => {
+  async componentDidMount() {
+    const { data: units } = await getUnits();
+    this.setState({ units });
+  }
+
+  handleDelete = () => {
+    const { selectedUnit } = this.state;
     const rollback = this.state.units;
-    const units = this.state.units.filter(u => u._id !== unit._id);
+    const units = this.state.units.filter(u => u._id !== selectedUnit._id);
     this.setState({ units });
 
     try {
-      deleteUnit(unit._id);
+      deleteUnit(selectedUnit._id);
     } catch (ex) {
-      if (ex.response && ex.response.status === 404) {
-        toast('Something failed!');
-        this.setState({ units: rollback });
-      }
+      this.setState({ units: rollback });
     }
+    this.toggleDelete();
   };
 
+  toggleDelete(unit) {
+    this.setState(prevState => ({
+      modal: !prevState.modal,
+      selectedUnit: unit
+    }));
+  }
   // handleUpdate = async unit => {
   //   await updateUnit(unit);
   //   const units = [...this.state.units];
@@ -57,16 +67,23 @@ class Units extends Component {
     history.push('/units/new');
   };
 
-  handlePageChange = page => {
-    this.setState({ currentPage: page });
+  handlePageSize = event => {
+    this.setState({ pageSize: event.target.value });
   };
 
-  handleFloorSelect = item => {
-    this.setState({ selectedFloor: item, currentPage: 1, searchQuery: '' });
+  handlePageChange = (page, arrow, pagesCount) => {
+    const { value } = page.target;
+    let { currentPage } = this.state;
+
+    currentPage = value ? Number(value) : (currentPage += arrow);
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > pagesCount) currentPage = pagesCount;
+
+    this.setState({ currentPage });
   };
 
   handleSearch = query => {
-    this.setState({ searchQuery: query, selectedFloor: null, currentPage: 1 });
+    this.setState({ searchQuery: query, currentPage: 1 });
   };
 
   getPageData = () => {
@@ -74,19 +91,16 @@ class Units extends Component {
       units: allUnits,
       pageSize,
       currentPage,
-      selectedFloor,
       sortColumn,
       searchQuery
     } = this.state;
 
     let filtered = allUnits;
 
-    if (searchQuery) {
+    if (searchQuery)
       filtered = allUnits.filter(u =>
         u.landlord.name.toLowerCase().startsWith(searchQuery.toLowerCase())
       );
-    } else if (selectedFloor && selectedFloor.id)
-      filtered = allUnits.filter(u => u.floor === selectedFloor.id);
 
     const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
 
@@ -98,47 +112,62 @@ class Units extends Component {
     };
   };
 
+  modalBody = unit => {
+    const { fUnit, landlord } = unit;
+    if (!landlord) return null;
+    return (
+      <p className="lead">
+        Se eliminará la unidad <mark>{fUnit}</mark> asignada a{' '}
+        <mark>{landlord.name}</mark>.
+      </p>
+    );
+  };
+
+  modalProps = selectedUnit => ({
+    isOpen: this.state.modal,
+    title: 'Eliminar unidad',
+    label: 'Consortia - Jose Ingenieros 1840',
+    body: selectedUnit && this.modalBody(selectedUnit),
+    cancelBtnLabel: 'Cancelar',
+    submitBtnLabel: 'Eliminar',
+    toggle: this.toggleDelete,
+    submit: this.handleDelete,
+    danger: true
+  });
+
   render() {
     const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
-    const { user } = this.state;
+    const { currentUser, selectedUnit } = this.state;
 
-    if (user && !user.isAdmin)
-      return (
-        <div className="alert alert-danger" role="alert">
-          Acceso no autorizado.
-        </div>
-      );
+    if (currentUser && !currentUser.isCouncil) return <Unauthorized />;
 
     const { totalCount, data: units } = this.getPageData();
 
     return (
-      <div className="row units">
-        <div className="col">
-          <ToastContainer />
-          <p>Unidades registradas: {totalCount}</p>
+      <div className="bx--row">
+        <div className="bx--col">
+          <CarbonModal {...this.modalProps(selectedUnit)} />
+          <CarbonTableTitle
+            title="Unidades"
+            helper="Lista de unidades funcionales y complementarias."
+            btnLabel="Registrar unidad"
+            btnClick={this.handleAddUnit}
+            currentUser={currentUser}
+          />
           <SearchBox value={searchQuery} onChange={this.handleSearch} />
           <UnitsTable
             units={units}
-            onDelete={this.handleDelete}
+            onDelete={this.toggleDelete}
             onSort={this.handleSort}
             sortColumn={sortColumn}
           />
-
-          <Pagination
+          <CarbonTablePagination
             itemsCount={totalCount}
             pageSize={pageSize}
             currentPage={currentPage}
+            onPageSize={this.handlePageSize}
             onPageChange={this.handlePageChange}
           />
-          {user && (
-            <button
-              onClick={event => this.handleAddUnit(event)}
-              className="btn btn-primary btn-sm"
-              style={{ marginBottom: 20 }}
-            >
-              Nuevo
-            </button>
-          )}
         </div>
       </div>
     );

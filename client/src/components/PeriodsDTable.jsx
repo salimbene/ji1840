@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Table from './common/Table';
+import CarbonTable from './common/CarbonTable';
 import { currency } from '../utils/formatter';
 
 class PeriodsDTable extends Component {
@@ -42,7 +42,7 @@ class PeriodsDTable extends Component {
       content: d => (
         <div className="text-center">
           <i
-            className={`fa ${
+            className={`clickable fa ${
               d.isPayedA ? 'fa fa-check-square-o' : 'fa fa-square-o'
             }`}
             aria-hidden="true"
@@ -73,7 +73,7 @@ class PeriodsDTable extends Component {
       content: d => (
         <div className="text-center">
           <i
-            className={`fa ${
+            className={`clickable fa ${
               d.isPayedB ? 'fa fa-check-square-o' : 'fa fa-square-o'
             }`}
             aria-hidden="true"
@@ -85,7 +85,15 @@ class PeriodsDTable extends Component {
     {
       path: 'total',
       label: 'Total',
-      content: d => <div className="text-right">{currency(d.total)}</div>
+      content: d => (
+        <div
+          className={`text-right ${
+            (!d.isPayedA && !d.isPayedB) > 0 ? 'table-danger' : 'table-success'
+          }`}
+        >
+          {currency(d.total)}
+        </div>
+      )
     },
     {
       path: 'isPayedFake',
@@ -94,7 +102,7 @@ class PeriodsDTable extends Component {
       content: d => (
         <div className="text-center">
           <i
-            className={`fa ${
+            className={`clickable fa ${
               d.isPayedA && d.isPayedB
                 ? 'fa fa-check-square-o'
                 : 'fa fa-square-o'
@@ -110,12 +118,11 @@ class PeriodsDTable extends Component {
   render() {
     const { data, onSort, sortColumn } = this.props;
     return (
-      <Table
+      <CarbonTable
         columns={this.columns}
         data={data}
         sortColumn={sortColumn}
         onSort={onSort}
-        size={'table-12'}
       />
     );
   }

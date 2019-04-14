@@ -1,7 +1,7 @@
 import React from 'react';
 import Joi from 'joi-browser';
-import Form from './common/Form';
 import { toast } from 'react-toastify';
+import Form from './common/Form';
 import { getUnit, saveUnit } from '../services/unitsService';
 import { getUsers } from '../services/usersService';
 
@@ -62,7 +62,6 @@ class UnitsForm extends Form {
     const unitId = this.props.match.params.id;
     if (unitId === 'new') return;
     const { data: unit } = await getUnit(unitId);
-    // const keys = { lastnameKey: unit.landlord.userId._id };
     this.setState({ data: this.mapToViewModel(unit) }); //
   }
 
@@ -112,19 +111,6 @@ class UnitsForm extends Form {
     };
   };
 
-  handleFocus = e => {
-    if (
-      e.target.name === 'covered' ||
-      e.target.name === 'uncovered' ||
-      e.target.name === 'semi'
-    ) {
-      const { covered, uncovered, semi } = this.state.data;
-      const data = { ...this.state.data };
-      data.total = +covered + +uncovered + +semi;
-      this.setState({ data });
-    }
-  };
-
   doSubmit = async () => {
     const fUnit = { ...this.state.data };
 
@@ -136,8 +122,8 @@ class UnitsForm extends Form {
       toast.success('Los datos se guardaron exitosamente. ✔️', {
         position: 'top-center'
       });
-    } catch (error) {
-      console.log(error.response);
+    } catch (ex) {
+      console.log(ex.response);
     }
 
     const { history } = this.props;
@@ -147,51 +133,46 @@ class UnitsForm extends Form {
   render() {
     const { users } = this.state;
     return (
-      <React.Fragment>
-        <div className="border border-info rounded shadow-sm p-3 mb-5 bg-white">
-          <p className="text-muted">Unidad funcional / complementaria</p>
-          <form onSubmit={this.handleSubmit}>
-            <div className="row">
-              <div className="col">{this.renderInput('fUnit', 'Unidad')}</div>
-              <div className="col">
-                {this.renderInput('polygon', 'Polígono')}
-              </div>
-              <div className="col">
-                {this.renderInput('coefficient', 'Coeficiente')}
-              </div>
+      <div className="bx--grid cc--units-form">
+        <form onSubmit={this.handleSubmit}>
+          <div className="bx--row">
+            <div className="bx--col">{this.renderInput('fUnit', 'Unidad')}</div>
+            <div className="bx--col">
+              {this.renderInput('polygon', 'Polígono')}
             </div>
-            <div className="row">
-              <div className="col col-md-2">
-                {this.renderInput('floor', 'Piso')}
-              </div>
-              <div className="col col-md-2">
-                {this.renderInput('flat', 'Rótulo')}
-              </div>
-              <div className="col">
-                {this.renderSelect('landlordId', 'Propietario', '_id', users)}
-              </div>
+            <div className="bx--col">
+              {this.renderInput('coefficient', 'Coeficiente')}
             </div>
-            <div>
-              <p className="text-muted">Superficie</p>
+          </div>
+          <div className="bx--row">
+            <div className="bx--col">{this.renderInput('floor', 'Piso')}</div>
+            <div className="bx--col">{this.renderInput('flat', 'Rótulo')}</div>
+            <div className="bx--col">
+              {this.renderSelect('landlordId', 'Propietario', '_id', users)}
             </div>
-            <div className="row">
-              <div className="col">
-                {this.renderInput('total', 'Total', 'text', true)}
-              </div>
-              <div className="col">
-                {this.renderInput('covered', 'Cubierta')}
-              </div>
-              <div className="col">
-                {this.renderInput('uncovered', 'Descubierta')}
-              </div>
-              <div className="col">
-                {this.renderInput('semi', 'Semicubierta')}
-              </div>
+          </div>
+          <div>
+            <p className="text-muted">Superficie</p>
+          </div>
+          <div className="bx--row">
+            <div className="bx--col">
+              {this.renderInput('total', 'Total', 'text', true)}
             </div>
-            <div className="row">{this.renderButton('Guardar')}</div>
-          </form>
-        </div>
-      </React.Fragment>
+            <div className="bx--col">
+              {this.renderInput('covered', 'Cubierta')}
+            </div>
+            <div className="bx--col">
+              {this.renderInput('uncovered', 'Descubierta')}
+            </div>
+            <div className="bx--col">
+              {this.renderInput('semi', 'Semicubierta')}
+            </div>
+          </div>
+          <div className="bx--row">
+            <div className="bx--col">{this.renderButton('Guardar')}</div>
+          </div>
+        </form>
+      </div>
     );
   }
 }

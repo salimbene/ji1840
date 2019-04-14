@@ -5,6 +5,7 @@ import logger from './services/logService';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import './index.css';
+// import './styles/index.scss';
 import './dashboard.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'font-awesome/css/font-awesome.css';

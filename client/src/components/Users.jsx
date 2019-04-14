@@ -1,21 +1,20 @@
-import React, { Component } from 'react';
-import { getUsers, deleteUser } from '../services/usersService';
-import Pagination from './common/Pagination';
+import React, { Component, Fragment } from 'react';
+import _ from 'lodash';
 import SearchBox from './common/SearchBox';
-import SimpleModal from './common/SimpleModal';
+import CarbonTableTitle from './common/CarbonTableTitle';
+import CarbonTablePagination from './common/CarbonTablePagination';
+import CarbonModal from './common/CarbonModal';
 import UsersTable from './UsersTable';
 import auth from '../services/authService';
+import { getUsers, deleteUser } from '../services/usersService';
 import { paginate } from '../utils/paginate';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import _ from 'lodash';
 
 class Users extends Component {
   constructor(props) {
     super(props);
     this.state = {
       users: {},
-      pageSize: 25,
+      pageSize: 10,
       currentPage: 1,
       searchQuery: '',
       sortColumn: { path: 'lastname', order: 'asc' },
@@ -39,7 +38,6 @@ class Users extends Component {
     try {
       deleteUser(selectedUser._id);
     } catch (ex) {
-      toast.error(`☹️ Error:${ex.response.data}`);
       this.setState({ users: rollback });
     }
     this.toggleDelete();
@@ -54,12 +52,23 @@ class Users extends Component {
     history.push('/register');
   };
 
-  handlePageChange = page => {
-    this.setState({ currentPage: page });
+  handlePageSize = event => {
+    this.setState({ pageSize: event.target.value });
+  };
+
+  handlePageChange = (page, arrow, pagesCount) => {
+    const { value } = page.target;
+    let { currentPage } = this.state;
+
+    currentPage = value ? Number(value) : (currentPage += arrow);
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > pagesCount) currentPage = pagesCount;
+
+    this.setState({ currentPage });
   };
 
   handleSearch = query => {
-    this.setState({ searchQuery: query, selected: null, currentPage: 1 });
+    this.setState({ searchQuery: query, currentPage: 1 });
   };
 
   getPageData = () => {
@@ -67,7 +76,6 @@ class Users extends Component {
       users: allUsers,
       pageSize,
       currentPage,
-      selected,
       sortColumn,
       searchQuery
     } = this.state;
@@ -78,8 +86,6 @@ class Users extends Component {
       filtered = allUsers.filter(u =>
         u.lastname.toLowerCase().startsWith(searchQuery.toLowerCase())
       );
-    else if (selected && selected.id)
-      filtered = allUsers.filter(u => u.floor === selected.id);
 
     const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
 
@@ -98,7 +104,7 @@ class Users extends Component {
     }));
   }
 
-  ModalBodyDetail = user => {
+  modalBody = user => {
     const { lastname } = user;
     return (
       <p className="lead">
@@ -107,31 +113,36 @@ class Users extends Component {
     );
   };
 
-  render() {
-    const {
-      pageSize,
-      currentPage,
-      sortColumn,
-      searchQuery,
-      selectedUser
-    } = this.state;
-    const { currentUser } = this.state;
+  modalProps = selectedUser => ({
+    isOpen: this.state.modal,
+    title: 'Eliminar usuario',
+    label: 'Consortia - Jose Ingenieros 1840',
+    body: selectedUser && this.modalBody(selectedUser),
+    cancelBtnLabel: 'Cancelar',
+    submitBtnLabel: 'Eliminar',
+    toggle: this.toggleDelete,
+    submit: this.handleDelete,
+    danger: true
+  });
 
+  render() {
+    const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
+
+    const { currentUser, selectedUser } = this.state;
     const { totalCount, data: users } = this.getPageData();
 
     return (
-      <React.Fragment>
-        <SimpleModal
-          isOpen={this.state.modal}
-          toggle={this.toggleDelete}
-          title="Eliminar usuario"
-          label="Eliminar"
-          action={this.handleDelete}
-          body={selectedUser && this.ModalBodyDetail(selectedUser)}
+      <Fragment>
+        <CarbonModal {...this.modalProps(selectedUser)} />
+        <CarbonTableTitle
+          title="Usuarios"
+          helper="Lista de usuarios registrados."
+          btnLabel="Registrar usuario"
+          btnClick={this.handleAddUser}
+          currentUser={currentUser}
         />
-        <div className="row units">
-          <div className="col">
-            <p>Usuarios registrados: {totalCount}</p>
+        <div className="bx--row">
+          <div className="bx--col">
             <SearchBox value={searchQuery} onChange={this.handleSearch} />
             <UsersTable
               users={users}
@@ -139,25 +150,16 @@ class Users extends Component {
               onSort={this.handleSort}
               sortColumn={sortColumn}
             />
-
-            <Pagination
+            <CarbonTablePagination
               itemsCount={totalCount}
               pageSize={pageSize}
               currentPage={currentPage}
+              onPageSize={this.handlePageSize}
               onPageChange={this.handlePageChange}
             />
-            {currentUser && currentUser.isAdmin && (
-              <button
-                onClick={event => this.handleAddUser(event)}
-                className="btn btn-primary btn-sm"
-                style={{ marginBottom: 20 }}
-              >
-                Nuevo
-              </button>
-            )}
           </div>
         </div>
-      </React.Fragment>
+      </Fragment>
     );
   }
 }

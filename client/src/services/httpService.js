@@ -17,7 +17,7 @@ axios.interceptors.response.use(null, error => {
     return Promise.reject(error);
   }
 
-  toast.error(`⚠️ ${error.response.data}`);
+  // toast.error(`⚠️ ${error.response.data}`);
   return Promise.reject(error);
 });
 

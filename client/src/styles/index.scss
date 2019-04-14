@@ -1,25 +1,32 @@
-@import '../node_modules/carbon-components/css/carbon-components.min.css';
+$feature-flags: (
+  components-x: true,
+  ui-shell: true
+);
+
+@import '../../node_modules/carbon-components/scss/globals/scss/styles.scss';
+
+// .root {
+//   // width: 200px;
+//   // height: 200px;
+//   display: block;
+//   position: relative;
+// }
 
 .home::after {
   content: '';
-  background: url('./images/ji1840.jpg') center center fixed;
-  opacity: 0.2;
+  background: url('../images/ji1840.jpg');
+  opacity: 0.5;
   top: 0;
   left: 0;
   bottom: 0;
   right: 0;
   position: absolute;
   z-index: -1;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
 }
 
 .bx--form-item {
   margin-bottom: 1.5rem;
 }
-
 .cc--m5 {
   margin: 5px;
 }
@@ -50,16 +57,6 @@
   margin-bottom: 0 !important;
 }
 
-.table-10 {
-  font-size: 10px;
-}
-.table-12 {
-  font-size: 12px;
-}
-.table-14 {
-  font-size: 14px;
-}
-
 .page {
   width: 20cm;
   min-height: 28.7cm;
@@ -74,6 +71,7 @@
 .scroll {
   overflow: auto;
 }
+
 .red {
   color: red;
 }
@@ -117,20 +115,6 @@
   padding: 20px;
   width: 400px;
   background: rgba(255, 255, 255, 0.1);
-}
-
-.models {
-  width: 50%;
-}
-.units {
-  width: 100%;
-}
-.expenses {
-  width: 80%;
-}
-
-.units--form {
-  width: 80%;
 }
 
 .center-children {
