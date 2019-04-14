@@ -4,7 +4,6 @@ import SearchBox from './common/SearchBox';
 import CarbonTableTitle from './common/CarbonTableTitle';
 import CarbonTablePagination from './common/CarbonTablePagination';
 import CarbonModal from './common/CarbonModal';
-import SimpleModal from './common/SimpleModal';
 import ModelsTable from './ModelsTable';
 import auth from '../services/authService';
 import { getModels, deleteModel } from '../services/pmodelsServices';

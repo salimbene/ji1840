@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import Joi from 'joi-browser';
 import Form from './common/Form';
 import { getConsortia, saveConsortia } from '../services/consortiaService';
-import auth from '../services/authService';
+// import auth from '../services/authService';
 import { toast } from 'react-toastify';
 
 class Consortia extends Form {
@@ -76,59 +76,67 @@ class Consortia extends Form {
 
   doSubmit = async () => {
     const consortia = { ...this.state.data };
-    const { _id } = auth.getCurrentUser();
+    // const { _id } = auth.getCurrentUser();
     if (consortia.interest > 1) consortia.interest = consortia.interest / 100;
-    await saveConsortia(consortia);
-    toast.success(`😀 Los datos se actualizaron con éxito.`, {
-      position: 'top-center'
-    });
+    try {
+      await saveConsortia(consortia);
+      toast.success(`Los datos se guardaron exitosamente. ✔️`, {
+        position: 'top-center'
+      });
+    } catch (ex) {
+      console.log(ex.response);
+    }
   };
 
   render() {
     return (
-      <React.Fragment>
-        <div className="border border-info rounded shadow-sm p-3 w-75 bg-white sm-10">
+      <Fragment>
+        <div className="bx--grid">
           <form onSubmit={this.handleSubmit}>
-            <div className="row">
-              <div className="col">{this.renderInput('name', 'Nombre')}</div>
+            <div className="bx--row">
+              <div className="bx--col">
+                {this.renderInput('name', 'Nombre')}
+              </div>
             </div>
-            <div className="row">
-              <div className="col">
+            <div className="bx--row">
+              <div className="bx--col">
                 {this.renderInput('address', 'Domicilio')}
               </div>
-              <div className="col">
+              <div className="bx--col">
                 {this.renderInput('mail', 'Correo Electrónico')}
               </div>
             </div>
-            <div className="row">
-              <div className="col">
+            <div className="bx--row">
+              <div className="bx--col">
                 {this.renderInput('bank', 'Datos Bancarios')}
               </div>
-              <div className="col">{this.renderInput('cbu', 'CBU')}</div>
+              <div className="bx--col">{this.renderInput('cbu', 'CBU')}</div>
             </div>
-            <div className="row">
-              <div className="col">
+            <div className="bx--row">
+              <div className="bx--col">
                 {this.renderInput('expenseA', 'Expensas A')}
               </div>
-              <div className="col">
+              <div className="bx--col">
                 {this.renderInput('expenseB', 'Expensas B')}
               </div>
-              <div className="col">
+              <div className="bx--col">
                 {this.renderInput('interest', 'Interes por mora (%)')}
               </div>
             </div>
-            <div className="row">
-              <div className="col">
+            <div className="bx--row">
+              <div className="bx--col">
                 {this.renderInput('balanceA', 'Saldo A')}
               </div>
-              <div className="col">
+              <div className="bx--col">
                 {this.renderInput('balanceB', 'Saldo B')}
               </div>
             </div>
-            <div className="row pt-3">{this.renderButton('Guardar')}</div>
+            <div className="bx--row">
+              <div className="bx--col">{this.renderButton('Guardar')}</div>
+            </div>
           </form>
         </div>
-      </React.Fragment>
+      </Fragment>
     );
   }
 }
