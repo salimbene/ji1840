@@ -1,9 +1,12 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { toast } from 'react-toastify';
 import _ from 'lodash';
 import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
 import SimpleModal from './common/SimpleModal';
+import CarbonTableTitle from './common/CarbonTableTitle';
+import CarbonTablePagination from './common/CarbonTablePagination';
+import CarbonModal from './common/CarbonModal';
 import auth from '../services/authService';
 import PeriodsTable from './PeriodsTable';
 import {
@@ -58,7 +61,7 @@ class Periods extends Component {
   async componentDidMount() {
     const { data: periods } = await getPeriods();
 
-    this.setState({ periods, user: auth.getCurrentUser() });
+    this.setState({ periods, currentUser: auth.getCurrentUser() });
   }
 
   handleDelete = period => {
@@ -129,8 +132,19 @@ class Periods extends Component {
     return period;
   }
 
-  handlePageChange = page => {
-    this.setState({ currentPage: page });
+  handlePageSize = event => {
+    this.setState({ pageSize: event.target.value });
+  };
+
+  handlePageChange = (page, arrow, pagesCount) => {
+    const { value } = page.target;
+    let { currentPage } = this.state;
+
+    currentPage = value ? Number(value) : (currentPage += arrow);
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > pagesCount) currentPage = pagesCount;
+
+    this.setState({ currentPage });
   };
 
   handleSearch = query => {
@@ -174,15 +188,55 @@ class Periods extends Component {
     this.setState({ period: input.value });
   };
 
-  newPeriodModalBody = period => {
+  modalBodyNew = period => {
     return (
-      <p className="lead">
-        Se iniciará el periodo <mark>{period}</mark>.
-      </p>
+      <Fragment>
+        <p className="lead">Se dará inicio al período indicado:</p>
+        <Select
+          name={period}
+          value={period}
+          label="Período"
+          options={getLastXMonths(12, 1)}
+          onChange={this.handleChange}
+        />
+      </Fragment>
     );
   };
 
-  clsPeriodModalBody = period => {
+  modalPropsNew = () => {
+    const { period, newModal } = this.state;
+    return {
+      isOpen: newModal,
+      title: 'Inicio de período',
+      label: 'Consortia - Jose Ingenieros 1840',
+      body: this.modalBodyNew(period),
+      cancelBtnLabel: 'Cancelar',
+      submitBtnLabel: 'Iniciar',
+      toggle: this.toggleNewPeriod,
+      submit: this.handleNewPeriod
+    };
+  };
+
+  modalBodyDel = period => {
+    return <p className="lead">Se eliminará el período {period}</p>;
+  };
+
+  modalPropsDel = () => {
+    const { period, delModal } = this.state;
+    return {
+      isOpen: delModal,
+      title: 'Eliminar período',
+      label: 'Consortia - Jose Ingenieros 1840',
+      body: this.modalBodyDel(period),
+      cancelBtnLabel: 'Cancelar',
+      submitBtnLabel: 'Eliminar',
+      toggle: this.toggleDelete,
+      submit: this.handleDelete,
+      danger: true
+    };
+  };
+
+  modalBodyClose = period => {
     return (
       <p className="lead">
         Se cerrará el periodo <mark>{period}</mark>. De existir alguna expensa
@@ -190,6 +244,21 @@ class Periods extends Component {
         saldos del consorcio.
       </p>
     );
+  };
+
+  modalPropsClose = () => {
+    const { period, clsModal } = this.state;
+    return {
+      isOpen: clsModal,
+      title: 'Cerrar período',
+      label: 'Consortia - Jose Ingenieros 1840',
+      body: this.modalBodyClose(period),
+      cancelBtnLabel: 'Cerrar',
+      submitBtnLabel: 'Eliminar',
+      toggle: this.toggleClsPeriod,
+      submit: this.handleClsPeriod,
+      danger: true
+    };
   };
 
   render() {
@@ -201,88 +270,42 @@ class Periods extends Component {
         </div>
       );
 
-    const { delModal, newModal, clsModal } = this.state;
+    const { period, currentUser } = this.state;
     const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
-    const { period } = this.state;
     const { totalCount, data: periods } = this.getPageData();
 
     return (
-      <React.Fragment>
-        <SimpleModal
-          isOpen={newModal}
-          toggle={this.toggleNewPeriod}
-          title={'Iniciar nuevo período'}
-          label={'Confirmar'}
-          action={this.handleNewPeriod}
-          body={this.newPeriodModalBody(period)}
-        />
-        <SimpleModal
-          isOpen={delModal}
-          toggle={this.toggleDelete}
-          title="Eliminar periodo"
-          label="Eliminar"
-          action={this.handleDelete}
-        />
-        <SimpleModal
-          isOpen={clsModal}
-          toggle={this.toggleClsPeriod}
-          title="Cerrar Período"
-          label="Confirmar"
-          action={this.handleClsPeriod}
-          body={this.clsPeriodModalBody(period)}
-        />
-        <div className="row units">
-          <div className="col">
-            <p>Períodos registrados: {totalCount}</p>
+      <Fragment>
+        <CarbonModal {...this.modalPropsNew()} />
+        <CarbonModal {...this.modalPropsDel()} />
+        <CarbonModal {...this.modalPropsClose()} />
+        <div className="bx--row">
+          <div className="bx--col">
+            <CarbonTableTitle
+              title="Expensas"
+              helper="Lista de liquidaciones de expensas registradas."
+              btnLabel="Iniciar período"
+              btnClick={this.toggleNewPeriod}
+              currentUser={currentUser}
+            />
             <SearchBox value={searchQuery} onChange={this.handleSearch} />
-            {totalCount ? (
-              <React.Fragment>
-                <PeriodsTable
-                  periods={periods}
-                  onDelete={this.toggleDelete}
-                  onClosePeriod={this.toggleClsPeriod}
-                  onSort={this.handleSort}
-                  sortColumn={sortColumn}
-                />
-                <Pagination
-                  itemsCount={totalCount}
-                  pageSize={pageSize}
-                  currentPage={currentPage}
-                  onPageChange={this.handlePageChange}
-                />
-              </React.Fragment>
-            ) : (
-              ''
-            )}
-            {user && (
-              <React.Fragment>
-                <div className="border border-info rounded shadow-sm p-3 mt-1 bg-white adjust">
-                  <div className="row align-items-end">
-                    <div className="col">
-                      <Select
-                        name={period}
-                        value={period}
-                        label="Período"
-                        options={getLastXMonths(12, 1)}
-                        onChange={this.handleChange}
-                      />
-                    </div>
-                    <div className="col m-1">
-                      <button
-                        onClick={event => this.toggleNewPeriod()}
-                        className="btn btn-primary btn-sm"
-                        type="button"
-                      >
-                        Iniciar nuevo período
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </React.Fragment>
-            )}
+            <PeriodsTable
+              periods={periods}
+              onDelete={this.toggleDelete}
+              onClosePeriod={this.toggleClsPeriod}
+              onSort={this.handleSort}
+              sortColumn={sortColumn}
+            />
+            <CarbonTablePagination
+              itemsCount={totalCount}
+              pageSize={pageSize}
+              currentPage={currentPage}
+              onPageSize={this.handlePageSize}
+              onPageChange={this.handlePageChange}
+            />
           </div>
         </div>
-      </React.Fragment>
+      </Fragment>
     );
   }
 }

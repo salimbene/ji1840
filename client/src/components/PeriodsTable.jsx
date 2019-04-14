@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import Table from './common/Table';
+import CarbonTable from './common/CarbonTable';
 import auth from '../services/authService';
 import { currency } from '../utils/formatter';
 
@@ -95,22 +95,23 @@ class PeriodsTable extends Component {
     content: period => (
       <i
         onClick={event => this.props.onDelete(period)}
-        className="fa fa-trash red"
+        className="fa fa-trash red clickable"
       />
     )
   };
 
   constructor() {
     super();
-    const user = auth.getCurrentUser();
-    if (user && user.isAdmin) this.columns.push(this.deleteColumn);
+    const currentUser = auth.getCurrentUser();
+    if (currentUser && currentUser.isAdmin)
+      this.columns.push(this.deleteColumn);
   }
 
   render() {
     const { periods, onSort, sortColumn } = this.props;
 
     return (
-      <Table
+      <CarbonTable
         columns={this.columns}
         data={periods}
         sortColumn={sortColumn}

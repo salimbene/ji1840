@@ -127,15 +127,9 @@ class Users extends Component {
   });
 
   render() {
-    const {
-      pageSize,
-      currentPage,
-      sortColumn,
-      searchQuery,
-      selectedUser
-    } = this.state;
+    const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
 
-    const { currentUser } = this.state;
+    const { currentUser, selectedUser } = this.state;
     const { totalCount, data: users } = this.getPageData();
 
     return (

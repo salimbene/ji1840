@@ -7,9 +7,11 @@ const Select = ({ name, label, field, options, ...rest }) => {
   return (
     <div className="bx--form-item">
       <div className="bx--select">
-        <label className="bx--label" htmlFor={name}>
-          {label}
-        </label>
+        {label && (
+          <label className="bx--label" htmlFor={name}>
+            {label}
+          </label>
+        )}
         <div className="bx--select-input__wrapper">
           <select name={name} id={name} {...rest} className="bx--select-input">
             <option value="" />
@@ -47,7 +49,7 @@ const Select = ({ name, label, field, options, ...rest }) => {
 
 Select.propTypes = {
   name: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
+  label: PropTypes.string,
   options: PropTypes.array.isRequired
   // value: PropTypes.string.isRequired // string or number..
 };

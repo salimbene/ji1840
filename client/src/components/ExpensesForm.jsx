@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import Joi from 'joi-browser';
+import { toast } from 'react-toastify';
 import Form from './common/Form';
 import { getExpense, saveExpense } from '../services/expensesService';
 import { getModels } from '../services/pmodelsServices';
 import { getLastXMonths, getPeriod } from '../utils/dates';
 import auth from '../services/authService';
-import { toast } from 'react-toastify';
 
 class ExpensesForm extends Form {
   state = {
@@ -63,7 +63,8 @@ class ExpensesForm extends Form {
         return;
       }
       const { data: expense } = await getExpense(expenseId);
-      this.setState({ data: this.mapToViewModel(expense) });
+      const currentUser = auth.getCurrentUser();
+      this.setState({ data: this.mapToViewModel(expense), currentUser });
     } catch (ex) {
       if (ex.response && ex.response.status === 404)
         return this.props.history.replace('/not-found');
@@ -99,11 +100,11 @@ class ExpensesForm extends Form {
       expense.userId = _id;
       delete expense.selectedEx;
       await saveExpense(expense);
-      toast.success(`😀 Los datos se actualizaron con éxito.`, {
+      toast.success(`Los datos se guardaron exitosamente. ✔️`, {
         position: 'top-center'
       });
     } catch (ex) {
-      toast.error(`☹️ Error: ${ex.response.data}`);
+      console.log(ex.response.data);
     }
 
     const { history } = this.props;
@@ -124,7 +125,6 @@ class ExpensesForm extends Form {
 
   getLabel(id) {
     const { models } = this.state;
-    console.log('getlabel', id);
     if (models.length === 0) return;
     return models.find(m => m._id === id).label;
   }
@@ -141,11 +141,11 @@ class ExpensesForm extends Form {
   renderExcluded(excluded) {
     if (excluded.length === 0) return;
     return excluded.map((v, i) => (
-      <span key={v} className="badge badge-pill badge-info m-1">
+      <span key={v} className="cc--m5">
         <i
           key={v}
           id={v}
-          className="fa fa-minus-circle"
+          className="fa fa-minus-circle clickable"
           onClick={event => this.delEx(event)}
         />{' '}
         {this.getLabel(v)}
@@ -159,74 +159,77 @@ class ExpensesForm extends Form {
     const { selectedExKey } = this.state.keys;
 
     return (
-      <React.Fragment>
-        <h3>
-          Registrar Gasto
-          <small className="text-muted"> > Detalles</small>
-        </h3>
-        <div className="border border-info rounded shadow-sm p-3 w-75 bg-white sm-10">
-          <form onSubmit={this.handleSubmit}>
-            <div className="row">
-              <div className="col">
-                {this.renderInput('concept', 'Concepto')}
-              </div>
+      <div className="bx--grid cc--users-form">
+        <form onSubmit={this.handleSubmit}>
+          <div className="bx--row">
+            <div className="bx--col">
+              {this.renderInput('concept', 'Concepto')}
             </div>
-            <div className="row">
-              <div className="col col-sm-3">
-                {this.renderInput('ammount', 'Importe')}
-              </div>
+          </div>
+          <div className="bx--row">
+            <div className="bx--col bx--col-sm-3">
+              {this.renderInput('ammount', 'Importe')}
+            </div>
 
-              <div className="col col-sm-2">
-                {this.renderSelect('type', 'Tipo', '', this.typeOptions)}
-              </div>
-              <div className="col">
-                {this.renderSelect(
-                  'category',
-                  'Rubro',
-                  '',
-                  this.categoryOptions
-                )}
-              </div>
+            <div className="bx--col bx--col-sm-2">
+              {this.renderSelect('type', 'Tipo', '', this.typeOptions)}
             </div>
-            <div className="row align-items-start">
-              <div className="col col-sm-4">
-                {this.renderSelect('period', 'Mes', '', getLastXMonths(12))}
-              </div>
-              <div className="col col-sm-4">
-                <div className="row">
-                  <div className="col">
-                    {this.renderSelect(
-                      'selectedEx',
-                      'Excepciones',
-                      'label',
-                      models
-                    )}
+            <div className="bx--col">
+              {this.renderSelect('category', 'Rubro', '', this.categoryOptions)}
+            </div>
+          </div>
+          <div className="bx--row align-items-start">
+            <div className="bx--col">
+              {this.renderSelect('period', 'Mes', '', getLastXMonths(12))}
+            </div>
+
+            <div className="bx--col">
+              {this.renderSelect('selectedEx', 'Excepciones', 'label', models)}
+
+              <button
+                className="bx--btn bx--btn--sm bx--btn--secondary"
+                onClick={event => this.addExcluded(selectedExKey)}
+                type="button"
+              >
+                {' '}
+                Agregar
+                <svg
+                  focusable="false"
+                  preserveAspectRatio="xMidYMid meet"
+                  // style="will-change: transform;"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="bx--btn__icon"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 32 32"
+                  aria-hidden="true"
+                >
+                  <path d="M17 15V7h-2v8H7v2h8v8h2v-8h8v-2h-8z" />
+                </svg>
+              </button>
+            </div>
+            <div className="bx--col">
+              {excluded && excluded.length !== 0 && (
+                <Fragment>
+                  <div className="bx--row">
+                    <div className="bx--col">
+                      <label className="bx--label">Exclusiones</label>
+                    </div>
                   </div>
-                  <i
-                    className="fa fa-plus-square mt-5"
-                    onClick={event => this.addExcluded(selectedExKey)}
-                  />
-                </div>
-              </div>
-              <div className="col">
-                {excluded && excluded.length !== 0 && (
-                  <React.Fragment>
-                    <div className="row">
-                      <div className="col">
-                        <div className="label m-1">Exclusiones</div>
-                      </div>
+                  <div className="bx--row">
+                    <div className="bx--col">
+                      {this.renderExcluded(excluded)}
                     </div>
-                    <div className="row">
-                      <div className="col">{this.renderExcluded(excluded)}</div>
-                    </div>
-                  </React.Fragment>
-                )}
-              </div>
+                  </div>
+                </Fragment>
+              )}
             </div>
-            <div className="row pt-3">{this.renderButton('Guardar')}</div>
-          </form>
-        </div>
-      </React.Fragment>
+          </div>
+          <div className="bx--row">
+            <div className="bx--col">{this.renderButton('Guardar')}</div>
+          </div>
+        </form>
+      </div>
     );
   }
 }

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import Table from './common/Table';
+import CarbonTable from './common/CarbonTable';
 import auth from '../services/authService';
 import { formatDate } from '../utils/dates';
 import { currency } from '../utils/formatter';
@@ -59,35 +58,22 @@ class ExpensesTable extends Component {
     )
   };
 
-  conceptColumn = {
-    path: 'concept',
-    label: 'Concepto',
-    content: expense => (
-      <Link to={`/expenses/${expense._id}`}>{expense.concept}</Link>
-    )
-  };
-
   constructor() {
     super();
-    const user = auth.getCurrentUser();
-    if (user && user.isAdmin) {
+    const currentUser = auth.getCurrentUser();
+    if (currentUser && currentUser.isAdmin)
       this.columns.push(this.deleteColumn);
-    }
   }
 
   render() {
-    const { expenses, onSort, sortColumn, viewOnly, caption } = this.props;
-
-    if (!viewOnly) this.columns[0] = this.conceptColumn;
+    const { expenses, onSort, sortColumn } = this.props;
 
     return (
-      <Table
-        columns={!viewOnly ? this.columns : this.columns.slice(0, 4)}
+      <CarbonTable
+        columns={this.columns}
         data={expenses}
         sortColumn={sortColumn}
         onSort={onSort}
-        viewOnly={viewOnly}
-        caption={caption}
       />
     );
   }

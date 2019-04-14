@@ -4,6 +4,9 @@
   margin-bottom: 1.5rem;
 }
 
+.cc--m5 {
+  margin: 5px;
+}
 .cc--users-form {
   width: 100vh;
   margin-top: 5vh;
@@ -17,6 +20,11 @@
   margin-left: 0;
   margin-right: 0;
   margin-bottom: 5vh;
+}
+
+.cc--expenses-grid {
+  width: 100%;
+  padding: 0;
 }
 
 .reset-margin-bottom {
