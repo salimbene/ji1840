@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
-import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
-import SimpleModal from './common/SimpleModal';
+import CarbonTableTitle from './common/CarbonTableTitle';
+import CarbonTablePagination from './common/CarbonTablePagination';
+import CarbonModal from './common/CarbonModal';
 import SuppliersTable from './SuppliersTable';
 import auth from '../services/authService';
 import { getSuppliers, deleteSupplier } from '../services/suppliersService';
 import { paginate } from '../utils/paginate';
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 class Suppliers extends Component {
   constructor(props) {
@@ -33,7 +33,7 @@ class Suppliers extends Component {
 
   async componentDidMount() {
     const { data: suppliers } = await getSuppliers();
-    this.setState({ suppliers, user: auth.getCurrentUser() });
+    this.setState({ suppliers, currentUser: auth.getCurrentUser() });
   }
 
   handleDelete = () => {
@@ -71,6 +71,21 @@ class Suppliers extends Component {
     this.setState({ searchQuery: query, currentPage: 1 });
   };
 
+  handlePageSize = event => {
+    this.setState({ pageSize: event.target.value });
+  };
+
+  handlePageChange = (page, arrow, pagesCount) => {
+    const { value } = page.target;
+    let { currentPage } = this.state;
+
+    currentPage = value ? Number(value) : (currentPage += arrow);
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > pagesCount) currentPage = pagesCount;
+
+    this.setState({ currentPage });
+  };
+
   getPageData = () => {
     const {
       suppliers: allSuppliers,
@@ -96,9 +111,26 @@ class Suppliers extends Component {
     };
   };
 
-  deleteMsgBody = () => {
-    return <p className="lead">El proveedor selecionado se eliminará.</p>;
+  modalBody = supplier => {
+    const { name } = supplier;
+    return (
+      <p className="lead">
+        Se eliminará el proveedor <mark>{name}</mark>.
+      </p>
+    );
   };
+
+  modalProps = selectedUser => ({
+    isOpen: this.state.modal,
+    title: 'Eliminar proveedor',
+    label: 'Consortia - Jose Ingenieros 1840',
+    body: selectedUser && this.modalBody(selectedUser),
+    cancelBtnLabel: 'Cancelar',
+    submitBtnLabel: 'Eliminar',
+    toggle: this.toggleDelete,
+    submit: this.handleDelete,
+    danger: true
+  });
 
   render() {
     const {
@@ -108,60 +140,39 @@ class Suppliers extends Component {
       searchQuery,
       selectedSupplier
     } = this.state;
-    const { user } = this.state;
 
-    if (user && !user.isAdmin)
-      return (
-        <div className="alert alert-danger" role="alert">
-          Acceso no autorizado.
-        </div>
-      );
-
+    const { currentUser } = this.state;
     const { totalCount, data: suppliers } = this.getPageData();
 
     return (
-      <React.Fragment>
-        <SimpleModal
-          isOpen={this.state.modal}
-          toggle={this.toggleDelete}
-          title="Eliminar gasto"
-          label="Eliminar"
-          action={this.handleDelete}
-          body={selectedSupplier && this.deleteMsgBody(selectedSupplier)}
-        />
-
-        <div className="row units">
-          <div className="col">
-            <p>Proveedores registrados: {totalCount}</p>
+      <Fragment>
+        <CarbonModal {...this.modalProps(selectedSupplier)} />
+        <div className="bx--row">
+          <div className="bx--col">
+            <CarbonTableTitle
+              title="Proveedores"
+              helper="Lista de proveedores registrados."
+              btnLabel="Registrar proveedor"
+              btnClick={this.handleAddSuppplier}
+              currentUser={currentUser}
+            />
             <SearchBox value={searchQuery} onChange={this.handleSearch} />
-            {totalCount && (
-              <React.Fragment>
-                <SuppliersTable
-                  suppliers={suppliers}
-                  onDelete={this.toggleDelete}
-                  onSort={this.handleSort}
-                  sortColumn={sortColumn}
-                />
-                <Pagination
-                  itemsCount={totalCount}
-                  pageSize={pageSize}
-                  currentPage={currentPage}
-                  onPageChange={this.handlePageChange}
-                />
-              </React.Fragment>
-            )}
-            {user && (
-              <button
-                onClick={event => this.handleAddSuppplier(event)}
-                className="btn btn-primary btn-sm"
-                style={{ marginBottom: 20 }}
-              >
-                Nuevo
-              </button>
-            )}
+            <SuppliersTable
+              suppliers={suppliers}
+              onDelete={this.toggleDelete}
+              onSort={this.handleSort}
+              sortColumn={sortColumn}
+            />
+            <CarbonTablePagination
+              itemsCount={totalCount}
+              pageSize={pageSize}
+              currentPage={currentPage}
+              onPageSize={this.handlePageSize}
+              onPageChange={this.handlePageChange}
+            />
           </div>
         </div>
-      </React.Fragment>
+      </Fragment>
     );
   }
 }

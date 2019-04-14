@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import Joi from 'joi-browser';
 import { toast } from 'react-toastify';
 import Form from './common/Form';
@@ -87,9 +87,8 @@ class UsersForm extends Form {
       toast.success(`Los datos se guardaron exitosamente. ✔️`, {
         position: 'top-center'
       });
-    } catch (error) {
-      console.log(error.response.data);
-      return;
+    } catch (ex) {
+      console.log(ex.response.data);
     }
 
     const { history } = this.props;
@@ -119,7 +118,7 @@ class UsersForm extends Form {
     if (!currentUser.isCouncil) return null;
 
     return (
-      <React.Fragment>
+      <Fragment>
         <div className="bx--row">
           <div className="bx--col">
             {this.renderCheck('isCouncil', 'Es miembro del consejo ')}
@@ -130,47 +129,44 @@ class UsersForm extends Form {
             {this.renderCheck('isLandlord', 'Es propietario')}
           </div>
         </div>
-      </React.Fragment>
+      </Fragment>
     );
   }
 
   render() {
     const { currentUser } = this.state;
-    console.log(currentUser);
     return (
-      <React.Fragment>
-        <div className="bx--grid cc--users-form">
-          <form onSubmit={this.handleSubmit}>
-            <div className="bx--row">
-              <div className="bx--col">
-                {this.renderInput('lastname', 'Apellido')}
-              </div>
+      <div className="bx--grid cc--users-form">
+        <form onSubmit={this.handleSubmit}>
+          <div className="bx--row">
+            <div className="bx--col">
+              {this.renderInput('lastname', 'Apellido')}
             </div>
-            <div className="bx--row">
-              <div className="bx--col">
-                {this.renderInput('firstname', 'Nombre(s)')}
-              </div>
+          </div>
+          <div className="bx--row">
+            <div className="bx--col">
+              {this.renderInput('firstname', 'Nombre(s)')}
             </div>
-            <div className="bx--row">
-              <div className="bx--col">{this.renderInput('mail', 'Mail')}</div>
+          </div>
+          <div className="bx--row">
+            <div className="bx--col">{this.renderInput('mail', 'Mail')}</div>
+          </div>
+          <div className="bx--row">
+            <div className="bx--col">
+              {this.renderInput('phone', 'Telefono')}
             </div>
-            <div className="bx--row">
-              <div className="bx--col">
-                {this.renderInput('phone', 'Telefono')}
-              </div>
+          </div>
+          <div className="bx--row">
+            <div className="bx--col">
+              {this.renderTextArea('notes', 'Notas')}
             </div>
-            <div className="bx--row">
-              <div className="bx--col">
-                {this.renderTextArea('notes', 'Notas')}
-              </div>
-            </div>
-            {this.renderAdmin(currentUser)}
-            <div className="bx--row">
-              <div className="bx--col">{this.renderButton('Guardar')}</div>
-            </div>
-          </form>
-        </div>
-      </React.Fragment>
+          </div>
+          {this.renderAdmin(currentUser)}
+          <div className="bx--row">
+            <div className="bx--col">{this.renderButton('Guardar')}</div>
+          </div>
+        </form>
+      </div>
     );
   }
 }

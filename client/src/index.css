@@ -11,6 +11,13 @@
   margin-right: 0;
   margin-bottom: 5vh;
 }
+.cc--units-form {
+  width: 100vh;
+  margin-top: 5vh;
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 5vh;
+}
 
 .reset-margin-bottom {
   margin-bottom: 0 !important;

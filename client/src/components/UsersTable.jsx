@@ -51,14 +51,12 @@ class UsersTable extends Component {
     const { users, onSort, sortColumn } = this.props;
 
     return (
-      <React.Fragment>
-        <CarbonTable
-          columns={this.columns}
-          data={users}
-          sortColumn={sortColumn}
-          onSort={onSort}
-        />
-      </React.Fragment>
+      <CarbonTable
+        columns={this.columns}
+        data={users}
+        sortColumn={sortColumn}
+        onSort={onSort}
+      />
     );
   }
 }

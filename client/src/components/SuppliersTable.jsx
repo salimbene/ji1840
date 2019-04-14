@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import Table from './common/Table';
+import CarbonTable from './common/CarbonTable';
 import auth from '../services/authService';
 
 class SuppliersTable extends Component {
@@ -31,22 +31,22 @@ class SuppliersTable extends Component {
     content: supplier => (
       <i
         onClick={event => this.props.onDelete(supplier)}
-        className="fa fa-trash red"
+        className="fa fa-trash red clickable"
       />
     )
   };
 
   constructor() {
     super();
-    const user = auth.getCurrentUser();
-    if (user && user.isAdmin) this.columns.push(this.deleteColumn);
+    const currentUser = auth.getCurrentUser();
+    if (currentUser && currentUser.isAdmin)
+      this.columns.push(this.deleteColumn);
   }
 
   render() {
     const { suppliers, onSort, sortColumn } = this.props;
-
     return (
-      <Table
+      <CarbonTable
         columns={this.columns}
         data={suppliers}
         sortColumn={sortColumn}

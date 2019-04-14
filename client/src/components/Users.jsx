@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import SearchBox from './common/SearchBox';
 import CarbonTableTitle from './common/CarbonTableTitle';
@@ -39,7 +39,6 @@ class Users extends Component {
     try {
       deleteUser(selectedUser._id);
     } catch (ex) {
-      toast.error(`☹️ Error:${ex.response.data}`);
       this.setState({ users: rollback });
     }
     this.toggleDelete();
@@ -70,7 +69,7 @@ class Users extends Component {
   };
 
   handleSearch = query => {
-    this.setState({ searchQuery: query, selected: null, currentPage: 1 });
+    this.setState({ searchQuery: query, currentPage: 1 });
   };
 
   getPageData = () => {
@@ -78,7 +77,6 @@ class Users extends Component {
       users: allUsers,
       pageSize,
       currentPage,
-      selected,
       sortColumn,
       searchQuery
     } = this.state;
@@ -89,8 +87,6 @@ class Users extends Component {
       filtered = allUsers.filter(u =>
         u.lastname.toLowerCase().startsWith(searchQuery.toLowerCase())
       );
-    else if (selected && selected.id)
-      filtered = allUsers.filter(u => u.floor === selected.id);
 
     const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
 
@@ -109,7 +105,7 @@ class Users extends Component {
     }));
   }
 
-  modalBodyDetail = user => {
+  modalBody = user => {
     const { lastname } = user;
     return (
       <p className="lead">
@@ -122,7 +118,7 @@ class Users extends Component {
     isOpen: this.state.modal,
     title: 'Eliminar usuario',
     label: 'Consortia - Jose Ingenieros 1840',
-    body: selectedUser && this.modalBodyDetail(selectedUser),
+    body: selectedUser && this.modalBody(selectedUser),
     cancelBtnLabel: 'Cancelar',
     submitBtnLabel: 'Eliminar',
     toggle: this.toggleDelete,
@@ -143,7 +139,7 @@ class Users extends Component {
     const { totalCount, data: users } = this.getPageData();
 
     return (
-      <React.Fragment>
+      <Fragment>
         <CarbonModal {...this.modalProps(selectedUser)} />
         <div className="bx--row">
           <div className="bx--col">
@@ -170,7 +166,7 @@ class Users extends Component {
             />
           </div>
         </div>
-      </React.Fragment>
+      </Fragment>
     );
   }
 }

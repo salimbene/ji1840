@@ -1,5 +1,6 @@
 import React from 'react';
 import Joi from 'joi-browser';
+import { toast } from 'react-toastify';
 import Form from './common/Form';
 import { getSupplier, saveSupplier } from '../services/suppliersService';
 
@@ -61,6 +62,9 @@ class SuppliersForm extends Form {
 
     try {
       await saveSupplier(supplier);
+      toast.success('Los datos se guardaron exitosamente. ✔️', {
+        position: 'top-center'
+      });
     } catch (ex) {
       console.log(ex.response);
     }
@@ -71,32 +75,27 @@ class SuppliersForm extends Form {
 
   render() {
     return (
-      <React.Fragment>
-        <h3>
-          Registrar Proveedor
-          <small className="text-muted"> > Detalles</small>
-        </h3>
-        <div className="border border-info rounded shadow-sm p-3 mb-5 bg-white">
-          <form onSubmit={this.handleSubmit}>
-            <div className="row">
-              <div className="col">{this.renderInput('name', 'Nombre')}</div>
-              <div className="col">
-                {this.renderInput('category', 'Categoria')}
-              </div>
-              <div className="col">
-                {this.renderInput('contact', 'Contacto')}
-              </div>
+      <div className="bx--grid cc--users-form">
+        <form onSubmit={this.handleSubmit}>
+          <div className="bx--row">
+            <div className="bx--col">{this.renderInput('name', 'Nombre')}</div>
+            <div className="bx--col">
+              {this.renderInput('category', 'Categoria')}
             </div>
-            <div className="row">
-              <div className="col">
-                {this.renderInput('comments', 'Observaciones')}
-              </div>
+            <div className="bx--col">
+              {this.renderInput('contact', 'Contacto')}
             </div>
-
-            <div className="row">{this.renderButton('Guardar')}</div>
-          </form>
-        </div>
-      </React.Fragment>
+          </div>
+          <div className="bx--row">
+            <div className="bx--col">
+              {this.renderTextArea('comments', 'Observaciones')}
+            </div>
+          </div>
+          <div className="bx--row">
+            <div className="bx--col">{this.renderButton('Guardar')}</div>
+          </div>
+        </form>
+      </div>
     );
   }
 }
