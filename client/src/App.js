@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import Home from './components/Home';
@@ -18,13 +18,13 @@ import RegisterForm from './components/RegisterForm';
 import LoginForm from './components/LoginForm';
 import Logout from './components/Logout';
 import NotFound from './components/NotFound';
-import SideBar from './components/SideBar';
-import NavBar from './components/NavBar';
 import ModelsForm from './components/ModelsForm';
 import Models from './components/Models';
 import Consortia from './components/Consortia';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import auth from './services/authService';
+import SideBar from './components/SideBar';
+import NavBar from './components/NavBar';
 import { getConsortia } from './services/consortiaService';
 
 class App extends Component {
@@ -39,7 +39,7 @@ class App extends Component {
     const { user, consortia } = this.state;
 
     return (
-      <React.Fragment>
+      <Fragment>
         <ToastContainer />
         <NavBar user={user} consortia={consortia} />
         <div className="container-fluid">
@@ -74,13 +74,13 @@ class App extends Component {
                 <ProtectedRoute path="/users/:id" component={UsersForm} />} />
                 <ProtectedRoute path="/users" component={Users} />} />
                 <Route path="/not-found" component={NotFound} />
-                <Route exact path="/" component={Home} />
-                <Redirect to="/not-found" />
+                <ProtectedRoute exact path="/" component={Home} />
+                <Redirect to="/login" />
               </Switch>
             </main>
           </div>
         </div>
-      </React.Fragment>
+      </Fragment>
     );
   }
 }

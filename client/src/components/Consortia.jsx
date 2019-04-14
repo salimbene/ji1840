@@ -2,8 +2,9 @@ import React, { Fragment } from 'react';
 import Joi from 'joi-browser';
 import Form from './common/Form';
 import { getConsortia, saveConsortia } from '../services/consortiaService';
-// import auth from '../services/authService';
+import auth from '../services/authService';
 import { toast } from 'react-toastify';
+import Unauthorized from './common/Unauthorized';
 
 class Consortia extends Form {
   state = {
@@ -51,7 +52,10 @@ class Consortia extends Form {
   async populateConsotia() {
     const { data: consortia } = await getConsortia();
     if (consortia.length === 0) return;
-    this.setState({ data: this.mapToViewModel(consortia[0]) });
+    this.setState({
+      data: this.mapToViewModel(consortia[0]),
+      currentUser: auth.getCurrentUser()
+    });
   }
 
   async componentDidMount() {
@@ -89,6 +93,10 @@ class Consortia extends Form {
   };
 
   render() {
+    const { currentUser } = this.state;
+
+    if (currentUser && !currentUser.isCouncil) return <Unauthorized />;
+
     return (
       <Fragment>
         <div className="bx--grid">

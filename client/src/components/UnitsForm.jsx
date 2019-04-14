@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import Joi from 'joi-browser';
 import { toast } from 'react-toastify';
 import Form from './common/Form';

@@ -17,7 +17,7 @@ const CarbonTableTitle = ({
               <p className="bx--data-table-header__description">{helper}</p>
             </div>
             <div className="bx--col bx--toolbar-content">
-              {currentUser && currentUser.isAdmin && (
+              {currentUser && currentUser.isCouncil && (
                 <button
                   className="bx--btn bx--btn--sm bx--btn--primary"
                   onClick={event => btnClick(event)}

@@ -1,14 +1,14 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import { getUnits, deleteUnit } from '../services/unitsService';
 import SearchBox from './common/SearchBox';
 import CarbonTableTitle from './common/CarbonTableTitle';
 import CarbonTablePagination from './common/CarbonTablePagination';
 import CarbonModal from './common/CarbonModal';
+import Unauthorized from './common/Unauthorized';
 import UnitsTable from './UnitsTable';
 import auth from '../services/authService';
 import { paginate } from '../utils/paginate';
-import { toast } from 'react-toastify';
 
 class Units extends Component {
   constructor(props) {
@@ -18,7 +18,8 @@ class Units extends Component {
       pageSize: 20,
       currentPage: 1,
       searchQuery: '',
-      sortColumn: { path: 'fUnit', order: 'asc' }
+      sortColumn: { path: 'fUnit', order: 'asc' },
+      currentUser: auth.getCurrentUser()
     };
 
     this.toggleDelete = this.toggleDelete.bind(this);
@@ -26,7 +27,7 @@ class Units extends Component {
 
   async componentDidMount() {
     const { data: units } = await getUnits();
-    this.setState({ units, currentUser: auth.getCurrentUser() });
+    this.setState({ units });
   }
 
   handleDelete = () => {
@@ -138,12 +139,8 @@ class Units extends Component {
     const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
     const { currentUser, selectedUnit } = this.state;
 
-    // if (user && !user.isAdmin)
-    //   return (
-    //     <div className="alert alert-danger" role="alert">
-    //       Acceso no autorizado.
-    //     </div>
-    //   );
+    if (currentUser && !currentUser.isCouncil) return <Unauthorized />;
+
     const { totalCount, data: units } = this.getPageData();
 
     return (

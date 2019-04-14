@@ -4,13 +4,23 @@ import CarbonTable from './common/CarbonTable';
 import auth from '../services/authService';
 
 class SuppliersTable extends Component {
+  constructor() {
+    super();
+    this.currentUser = auth.getCurrentUser();
+    if (this.currentUser && this.currentUser.isCouncil)
+      this.columns.push(this.deleteColumn);
+  }
   columns = [
     {
       path: 'name',
       label: 'Nombre',
-      content: supplier => (
-        <Link to={`/suppliers/${supplier._id}`}>{supplier.name}</Link>
-      )
+      content: supplier => {
+        return this.currentUser.isCouncil ? (
+          <Link to={`/suppliers/${supplier._id}`}>{supplier.name}</Link>
+        ) : (
+          supplier.name
+        );
+      }
     },
     {
       path: 'category',
@@ -35,13 +45,6 @@ class SuppliersTable extends Component {
       />
     )
   };
-
-  constructor() {
-    super();
-    const currentUser = auth.getCurrentUser();
-    if (currentUser && currentUser.isAdmin)
-      this.columns.push(this.deleteColumn);
-  }
 
   render() {
     const { suppliers, onSort, sortColumn } = this.props;

@@ -4,11 +4,24 @@ import CarbonTable from './common/CarbonTable';
 import auth from '../services/authService';
 
 class UsersTable extends Component {
+  constructor() {
+    super();
+    this.currentUser = auth.getCurrentUser();
+    if (this.currentUser && this.currentUser.isAdmin)
+      this.columns.push(this.deleteColumn);
+  }
+
   columns = [
     {
       path: 'lastname',
       label: 'Apellido',
-      content: user => <Link to={`/users/${user._id}`}>{user.lastname}</Link>
+      content: user => {
+        return this.currentUser.isCouncil ? (
+          <Link to={`/users/${user._id}`}>{user.lastname}</Link>
+        ) : (
+          user.lastname
+        );
+      }
     },
     {
       path: 'firstname',
@@ -39,13 +52,6 @@ class UsersTable extends Component {
       />
     )
   };
-
-  constructor() {
-    super();
-    const currentUser = auth.getCurrentUser();
-    if (currentUser && currentUser.isAdmin)
-      this.columns.push(this.deleteColumn);
-  }
 
   render() {
     const { users, onSort, sortColumn } = this.props;

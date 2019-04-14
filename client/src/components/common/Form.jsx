@@ -5,7 +5,6 @@ import Select from './Select';
 import TextArea from './TextArea';
 import Check from './Check';
 import ListGroup from './ListGroup';
-import { Button } from 'carbon-components-react';
 
 class Form extends Component {
   state = {

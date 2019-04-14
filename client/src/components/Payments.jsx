@@ -7,6 +7,7 @@ import CarbonModal from './common/CarbonModal';
 import PeriodSelector from './common/PeriodSelector';
 import PeriodsDTable from './PeriodsDTable';
 import auth from '../services/authService';
+import Unauthorized from './common/Unauthorized';
 import { getPDetailsByPeriod, savePDetails } from '../services/pdetailsService';
 import { getCurrentPeriod, getPeriod } from '../utils/dates';
 import { paginate } from '../utils/paginate';
@@ -23,13 +24,13 @@ class Payments extends Component {
       sortColumn: { path: 'model', order: 'asc' },
       year: getCurrentPeriod().year,
       month: getCurrentPeriod().month,
-      modal: false
+      modal: false,
+      currentUser: auth.getCurrentUser()
     };
     this.toggleRegister = this.toggleRegister.bind(this);
   }
 
   async componentDidMount() {
-    this.setState({ user: auth.getCurrentUser() });
     const { selectedPeriod } = this.state;
     await this.populateDetails(selectedPeriod);
   }
@@ -91,6 +92,7 @@ class Payments extends Component {
     filtered.map(detail => {
       const { expenseA, debtA, intA, expenseB, debtB, intB } = detail;
       detail.total = expenseA + debtA + intA + expenseB + debtB + intB;
+      return null;
     });
 
     if (searchQuery) {
@@ -195,20 +197,15 @@ class Payments extends Component {
   };
 
   render() {
-    const { user } = this.state;
+    const { currentUser } = this.state;
 
-    if (user && !user.isAdmin)
-      return (
-        <div className="alert alert-danger" role="alert">
-          Acceso no autorizado.
-        </div>
-      );
+    if (currentUser && !currentUser.isCouncil) return <Unauthorized />;
 
     if (!this.state.details) return 'No data available.';
 
     const { pageSize, currentPage, searchQuery, sortColumn } = this.state;
     const { month, year } = this.state;
-    const { selectedDetail, currentUser } = this.state;
+    const { selectedDetail } = this.state;
     const { totalCount, data: details } = this.getPageData();
 
     return (

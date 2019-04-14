@@ -8,6 +8,7 @@ import ModelsTable from './ModelsTable';
 import auth from '../services/authService';
 import { getModels, deleteModel } from '../services/pmodelsServices';
 import { paginate } from '../utils/paginate';
+import Unauthorized from './common/Unauthorized';
 
 class Models extends Component {
   constructor(props) {
@@ -130,12 +131,7 @@ class Models extends Component {
     const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
     const { currentUser, selectedModel } = this.state;
 
-    if (currentUser && !currentUser.isAdmin)
-      return (
-        <div className="alert alert-danger" role="alert">
-          Acceso no autorizado.
-        </div>
-      );
+    if (currentUser && !currentUser.isCouncil) return <Unauthorized />;
 
     const { totalCount, data: models } = this.getPageData();
 

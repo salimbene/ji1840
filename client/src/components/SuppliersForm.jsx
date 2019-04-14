@@ -62,6 +62,7 @@ class SuppliersForm extends Form {
 
     try {
       await saveSupplier(supplier);
+      console.log(supplier);
       toast.success('Los datos se guardaron exitosamente. ✔️', {
         position: 'top-center'
       });

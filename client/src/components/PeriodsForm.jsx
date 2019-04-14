@@ -2,7 +2,6 @@ import React from 'react';
 import Joi from 'joi-browser';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { toast } from 'react-toastify';
 import ExpensesStats from './ExpensesStats';
 import ExpensesDetails from './ExpensesDetails';
 import ExpensesBanner from './ExpensesBanner';

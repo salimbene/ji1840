@@ -4,6 +4,7 @@ import SearchBox from './common/SearchBox';
 import CarbonTableTitle from './common/CarbonTableTitle';
 import CarbonTablePagination from './common/CarbonTablePagination';
 import CarbonModal from './common/CarbonModal';
+import Unauthorized from './common/Unauthorized';
 import PeriodSelector from './common/PeriodSelector';
 import ExpensesTable from './ExpensesTable';
 import auth from '../services/authService';
@@ -23,14 +24,15 @@ class Expenses extends Component {
       sortColumn: { path: 'type', order: 'asc' },
       year: getCurrentPeriod().year,
       month: getCurrentPeriod().month,
-      modal: false
+      modal: false,
+      currentUser: auth.getCurrentUser()
     };
     this.toggleDelete = this.toggleDelete.bind(this);
   }
 
   async componentDidMount() {
     const { data: expenses } = await getExpenses();
-    this.setState({ expenses, currentUser: auth.getCurrentUser() });
+    this.setState({ expenses });
   }
 
   handleDelete = () => {
@@ -192,6 +194,7 @@ class Expenses extends Component {
     const { totalCount, data: expenses } = this.getPageData();
     const { selectedExpense, currentUser } = this.state;
 
+    if (currentUser && !currentUser.isCouncil) return <Unauthorized />;
     return (
       <Fragment>
         <CarbonModal {...this.modalProps(selectedExpense)} />

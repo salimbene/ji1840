@@ -8,7 +8,6 @@ import UsersTable from './UsersTable';
 import auth from '../services/authService';
 import { getUsers, deleteUser } from '../services/usersService';
 import { paginate } from '../utils/paginate';
-import { toast } from 'react-toastify';
 
 class Users extends Component {
   constructor(props) {

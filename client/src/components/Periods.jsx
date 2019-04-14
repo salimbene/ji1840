@@ -1,9 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { toast } from 'react-toastify';
 import _ from 'lodash';
-import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
-import SimpleModal from './common/SimpleModal';
 import CarbonTableTitle from './common/CarbonTableTitle';
 import CarbonTablePagination from './common/CarbonTablePagination';
 import CarbonModal from './common/CarbonModal';
@@ -168,6 +166,7 @@ class Periods extends Component {
       period.balanceA = period.incomeA - period.expensesA;
       period.balanceB = period.incomeB - period.expensesB;
       period.balance = period.balanceA + period.balanceB;
+      return null;
     });
 
     if (searchQuery) {
@@ -270,7 +269,7 @@ class Periods extends Component {
         </div>
       );
 
-    const { period, currentUser } = this.state;
+    const { currentUser } = this.state;
     const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
     const { totalCount, data: periods } = this.getPageData();
 

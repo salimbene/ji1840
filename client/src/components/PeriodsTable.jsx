@@ -5,13 +5,24 @@ import auth from '../services/authService';
 import { currency } from '../utils/formatter';
 
 class PeriodsTable extends Component {
+  constructor() {
+    super();
+    this.currentUser = auth.getCurrentUser();
+    if (this.currentUser && this.currentUser.isAdmin)
+      this.columns.push(this.deleteColumn);
+  }
+
   columns = [
     {
       path: 'period',
       label: 'Periodo',
-      content: period => (
-        <Link to={`/periods/${period._id}`}>{period.period}</Link>
-      )
+      content: period => {
+        return this.currentUser.isCouncil ? (
+          <Link to={`/periods/${period._id}`}>{period.period}</Link>
+        ) : (
+          period.period
+        );
+      }
     },
     {
       path: 'totalA',
@@ -99,13 +110,6 @@ class PeriodsTable extends Component {
       />
     )
   };
-
-  constructor() {
-    super();
-    const currentUser = auth.getCurrentUser();
-    if (currentUser && currentUser.isAdmin)
-      this.columns.push(this.deleteColumn);
-  }
 
   render() {
     const { periods, onSort, sortColumn } = this.props;

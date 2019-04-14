@@ -8,7 +8,7 @@ const debug = require('debug')('routes:pdetails');
 const express = require('express');
 const router = express.Router();
 
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
   const pdetails = await PDetails.find()
     .populate('userId', '-password -isAdmin', 'User')
     .populate('model', '', 'pmodel')
@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
   res.send(pdetails);
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', auth, async (req, res) => {
   try {
     const pdetails = await PDetails.find()
       .where('period')
@@ -55,7 +55,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/', [auth, admin], async (req, res) => {
+router.post('/', auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
@@ -83,7 +83,7 @@ router.post('/', [auth, admin], async (req, res) => {
   res.send(pdetails);
 });
 
-router.put('/:id', [auth, admin], async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
   //Validation
   const { error } = validate(req.body);
 
