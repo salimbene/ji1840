@@ -1,19 +1,18 @@
 require('dotenv').config();
 
-const helmet = require('helmet'); //Secure HTTP headers
-const morgan = require('morgan'); //Logging HTTP requests
 const debug = require('debug')('app:server'); //Formated & Located debugging
 const winston = require('winston');
+const morgan = require('morgan');
 const config = require('config');
 const express = require('express');
 const app = express();
 
-app.use(helmet());
 require('./startup/logging');
 require('./startup/routes')(app);
 require('./startup/mongodb')();
 require('./startup/config')();
 require('./startup/validation')();
+require('./startup/prod')(app);
 
 //Logging only on development environment
 if (app.get('env') === 'development') {

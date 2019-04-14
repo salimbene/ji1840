@@ -9,7 +9,11 @@
     "client": "cd ./client && npm run client",
     "build": "cd ./client && npm run build",
     "postbuild": "cp -R ./client/build .",
-    "dev": "concurrently --kill-others \"npm run server\" \"npm run client\""
+    "dev": "concurrently --kill-others \"npm run server\" \"npm run client\"",
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": "10.15.0"
   },
   "repository": {
     "type": "git",
@@ -25,7 +29,7 @@
     "axios": "^0.18.0",
     "bcrypt": "^3.0.3",
     "body-parser": "^1.18.3",
-    "compression": "^1.7.3",
+    "compression": "^1.7.4",
     "config": "^3.0.1",
     "debug": "^4.1.1",
     "dotenv": "^6.2.0",
