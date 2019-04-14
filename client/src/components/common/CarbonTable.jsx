@@ -13,8 +13,8 @@ const CarbonTable = ({
   ...rest
 }) => {
   return (
-    <div className="bx--data-table-container " data-table>
-      <table className="bx--data-table     bx--data-table--sort ">
+    <div className="bx--data-table-container cc--mb25" data-table>
+      <table className="bx--data-table bx--data-table--sort">
         <CarbonTableHeader
           columns={columns}
           sortColumn={sortColumn}

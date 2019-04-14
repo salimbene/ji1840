@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import Joi from 'joi-browser';
 import { toast } from 'react-toastify';
 import Form from './common/Form';
+import BtnAux from './common/BtnAux';
 import { getExpense, saveExpense } from '../services/expensesService';
 import { getModels } from '../services/pmodelsServices';
 import { getLastXMonths, getPeriod } from '../utils/dates';
@@ -185,28 +186,10 @@ class ExpensesForm extends Form {
 
             <div className="bx--col">
               {this.renderSelect('selectedEx', 'Excepciones', 'label', models)}
-
-              <button
-                className="bx--btn bx--btn--sm bx--btn--secondary"
+              <BtnAux
+                label="Agregar"
                 onClick={event => this.addExcluded(selectedExKey)}
-                type="button"
-              >
-                {' '}
-                Agregar
-                <svg
-                  focusable="false"
-                  preserveAspectRatio="xMidYMid meet"
-                  // style="will-change: transform;"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="bx--btn__icon"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 32 32"
-                  aria-hidden="true"
-                >
-                  <path d="M17 15V7h-2v8H7v2h8v8h2v-8h8v-2h-8z" />
-                </svg>
-              </button>
+              />
             </div>
             <div className="bx--col">
               {excluded && excluded.length !== 0 && (

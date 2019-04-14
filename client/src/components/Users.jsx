@@ -135,15 +135,15 @@ class Users extends Component {
     return (
       <Fragment>
         <CarbonModal {...this.modalProps(selectedUser)} />
+        <CarbonTableTitle
+          title="Usuarios"
+          helper="Lista de usuarios registrados."
+          btnLabel="Registrar usuario"
+          btnClick={this.handleAddUser}
+          currentUser={currentUser}
+        />
         <div className="bx--row">
           <div className="bx--col">
-            <CarbonTableTitle
-              title="Usuarios"
-              helper="Lista de usuarios registrados."
-              btnLabel="Registrar usuario"
-              btnClick={this.handleAddUser}
-              currentUser={currentUser}
-            />
             <SearchBox value={searchQuery} onChange={this.handleSearch} />
             <UsersTable
               users={users}

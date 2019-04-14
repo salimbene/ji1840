@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
-import Pagination from './common/Pagination';
 import SearchBox from './common/SearchBox';
+import CarbonTableTitle from './common/CarbonTableTitle';
+import CarbonTablePagination from './common/CarbonTablePagination';
+import CarbonModal from './common/CarbonModal';
 import PeriodSelector from './common/PeriodSelector';
-import SimpleModal from './common/SimpleModal';
 import PeriodsDTable from './PeriodsDTable';
 import auth from '../services/authService';
 import { getPDetailsByPeriod, savePDetails } from '../services/pdetailsService';
@@ -15,7 +16,7 @@ class Payments extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      pageSize: 20,
+      pageSize: 15,
       currentPage: 1,
       searchQuery: '',
       selectedPeriod: getPeriod(new Date()),
@@ -56,8 +57,19 @@ class Payments extends Component {
     });
   };
 
-  handlePageChange = page => {
-    this.setState({ currentPage: page });
+  handlePageSize = event => {
+    this.setState({ pageSize: event.target.value });
+  };
+
+  handlePageChange = (page, arrow, pagesCount) => {
+    const { value } = page.target;
+    let { currentPage } = this.state;
+
+    currentPage = value ? Number(value) : (currentPage += arrow);
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > pagesCount) currentPage = pagesCount;
+
+    this.setState({ currentPage });
   };
 
   handleSearch = query => {
@@ -154,7 +166,7 @@ class Payments extends Component {
     this.setState({ sortColumn });
   };
 
-  ModalBodyDetail = model => {
+  modalBody = model => {
     const { label } = model;
     const { lastname } = model.landlord;
     return (
@@ -164,6 +176,22 @@ class Payments extends Component {
         saldo de ingresos del período.
       </p>
     );
+  };
+
+  modalProps = selectedDetail => {
+    if (!selectedDetail) return null;
+    const { modal } = this.state;
+    const { model } = selectedDetail;
+    return {
+      isOpen: modal,
+      title: 'Actualizar información de pagos',
+      label: 'Consortia - Jose Ingenieros 1840',
+      body: model && this.modalBody(model),
+      cancelBtnLabel: 'Cancelar',
+      submitBtnLabel: 'Confirmar',
+      toggle: this.toggleRegister,
+      submit: this.handleRegister
+    };
   };
 
   render() {
@@ -180,50 +208,46 @@ class Payments extends Component {
 
     const { pageSize, currentPage, searchQuery, sortColumn } = this.state;
     const { month, year } = this.state;
-    const { modal, selectedDetail } = this.state;
+    const { selectedDetail, currentUser } = this.state;
     const { totalCount, data: details } = this.getPageData();
 
     return (
-      <React.Fragment>
-        <div className="row align-items-end">
-          <div className="col-sm-5">
-            <PeriodSelector
-              months={month}
-              years={year}
-              handlePeriod={this.handlePeriodSelect}
-            />
-          </div>
-          <div className="col">
+      <Fragment>
+        <CarbonModal {...this.modalProps(selectedDetail)} />
+        <CarbonTableTitle
+          title="Liquidaciones"
+          helper="Lista de liquidaciones registradas."
+          currentUser={currentUser}
+        />
+        <div className="bx--row">
+          <div className="bx--col" />
+          <PeriodSelector
+            months={month}
+            years={year}
+            handlePeriod={this.handlePeriodSelect}
+          />
+          <div className="bx--col">
             <SearchBox value={searchQuery} onChange={this.handleSearch} />
           </div>
         </div>
-        {selectedDetail && selectedDetail.model && (
-          <SimpleModal
-            isOpen={modal}
-            toggle={this.toggleRegister}
-            title="Registrar pago"
-            label="Confirmar"
-            action={this.handleRegister}
-            body={this.ModalBodyDetail(selectedDetail.model)}
-          />
-        )}
-        <div className="row units">
-          <div className="col">
+        <div className="bx--row">
+          <div className="bx--col">
             <PeriodsDTable
               data={details}
               onRegister={this.toggleRegister}
               onSort={this.handleSortDetails}
               sortColumn={sortColumn}
             />
-            <Pagination
+            <CarbonTablePagination
               itemsCount={totalCount}
               pageSize={pageSize}
               currentPage={currentPage}
               onPageChange={this.handlePageChange}
+              onPageSize={this.handlePageSize}
             />
           </div>
         </div>
-      </React.Fragment>
+      </Fragment>
     );
   }
 }

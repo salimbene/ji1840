@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import Table from './common/Table';
+import CarbonTable from './common/CarbonTable';
 import auth from '../services/authService';
 
 class ModelsTable extends Component {
@@ -70,14 +70,12 @@ class ModelsTable extends Component {
     const { models, onSort, sortColumn } = this.props;
 
     return (
-      <React.Fragment>
-        <Table
-          columns={this.columns}
-          data={models}
-          sortColumn={sortColumn}
-          onSort={onSort}
-        />
-      </React.Fragment>
+      <CarbonTable
+        columns={this.columns}
+        data={models}
+        sortColumn={sortColumn}
+        onSort={onSort}
+      />
     );
   }
 }
