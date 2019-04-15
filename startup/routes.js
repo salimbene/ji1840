@@ -1,6 +1,4 @@
 const express = require('express');
-const compression = require('compression');
-// const bodyParser = require('body-parser');
 const fUnits = require('../routes/funits');
 const pmodels = require('../routes/pmodels');
 const periods = require('../routes/periods');
@@ -9,18 +7,11 @@ const expenses = require('../routes/expenses');
 const suppliers = require('../routes/suppliers');
 const consortia = require('../routes/consortia');
 const users = require('../routes/users');
-const home = require('../routes/home');
 const auth = require('../routes/auth');
 const error = require('../middleware/error');
 
 module.exports = function(app) {
   app.use(express.json());
-  app.use(compression());
-  // parse application/x-www-form-urlencoded
-  // app.use(bodyParser.urlencoded({ extended: false }));
-  // // parse application/json
-  // app.use(bodyParser.json());
-  //Routes
   app.use('/api/consortia', consortia);
   app.use('/api/pdetails', pdetails);
   app.use('/api/periods', periods);
@@ -30,7 +21,6 @@ module.exports = function(app) {
   app.use('/api/suppliers', suppliers);
   app.use('/api/users', users);
   app.use('/api/auth', auth);
-  app.use('/', home);
 
   app.use(error);
 };

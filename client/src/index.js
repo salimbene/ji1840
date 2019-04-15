@@ -14,7 +14,8 @@ logger.init();
 
 console.log(
   'index.js - process.env.REACT_APP_NAME',
-  process.env.REACT_APP_NAME
+  process.env.REACT_APP_NAME,
+  process.env.REACT_APP_API_URL
 );
 
 ReactDOM.render(
