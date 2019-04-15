@@ -1,0 +1,7 @@
+applications:
+  - name: ji1840
+    buildpack: sdk-for-nodejs
+    command: npm start
+    path: .
+    memory: 512M
+    instances: 1
