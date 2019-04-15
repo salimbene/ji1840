@@ -1,0 +1,9 @@
+mongodb://jiuser:P0l1t314!@ds227255.mlab.com:27255/ji1840
+mongodb://localhost:27017/ji1840
+
+mongodump -h localhost:27017 -d ji1840 -o /Users/msalimbe1/devs/learning/ji1840/backup
+mongorestore -h ds227255.mlab.com:27255 -d ji1840 -u jiuser -p P0l1t314! /Users/msalimbe1/devs/learning/ji1840/backup/ji1840
+
+
+    "client": "cd ./client && npm run client",
+    // "build": "cd ./client && npm run build",
