@@ -1,5 +1,5 @@
 const auth = require('../middleware/auth');
-const admin = require('../middleware/admin');
+// const admin = require('../middleware/admin');
 const { Supplier, validate } = require('../models/supplier');
 const _ = require('lodash');
 const debug = require('debug')('routes:suppliers');
@@ -15,13 +15,8 @@ router.get('/', auth, async (req, res) => {
 });
 
 router.get('/:id', auth, async (req, res) => {
-  try {
-    const supplier = await Supplier.findById(req.params.id);
-    res.send(supplier);
-  } catch (ex) {
-    debug(ex.message);
-    res.status(404).send(`El proveedor con ID: ${req.params.id} no existe.`);
-  }
+  const supplier = await Supplier.findById(req.params.id);
+  res.send(supplier);
 });
 
 router.post('/', auth, async (req, res) => {
@@ -59,14 +54,9 @@ router.put('/:id', auth, async (req, res) => {
 });
 
 router.delete('/:id', auth, async (req, res) => {
-  try {
-    const supplier = await Supplier.findByIdAndRemove(req.params.id);
-    res.send(supplier);
-    debug(`${supplier.name} DELETED ok!`);
-  } catch (ex) {
-    debug(ex.message);
-    res.status(404).send(`El proveedor con ID: ${req.params.id} no existe.`);
-  }
+  const supplier = await Supplier.findByIdAndRemove(req.params.id);
+  res.send(supplier);
+  debug(`${supplier.name} DELETED ok!`);
 });
 
 module.exports = router;

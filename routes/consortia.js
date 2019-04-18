@@ -84,16 +84,9 @@ router.put('/:id', auth, async (req, res) => {
 });
 
 router.delete('/:id', [auth, admin], async (req, res) => {
-  try {
-    const consortia = await Consortia.findByIdAndRemove(req.params.id);
-    res.send(consortia);
-    debug(`${consortia.name} DELETED ok!`);
-  } catch (ex) {
-    debug(ex.message);
-    res
-      .status(404)
-      .send(`El consorcio con identificador ${req.params.id} no existe.`);
-  }
+  const consortia = await Consortia.findByIdAndRemove(req.params.id);
+  res.send(consortia);
+  debug(`${consortia.name} deleted!`);
 });
 
 module.exports = router;

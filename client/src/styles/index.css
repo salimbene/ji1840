@@ -1,8 +1,8 @@
-@import '../node_modules/carbon-components/css/carbon-components.min.css';
+@import '../../node_modules/carbon-components/css/carbon-components.min.css';
 
 .home::after {
   content: '';
-  background: url('./images/ji1840.jpg') center center fixed;
+  background: url('../images/ji1840.jpg') center center fixed;
   opacity: 0.2;
   top: 0;
   left: 0;

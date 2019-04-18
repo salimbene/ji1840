@@ -4,7 +4,7 @@ const debug = require('debug')('routes:funits');
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 
-const { FUnit, validate, getCoefficient } = require('../models/funit');
+const { FUnit, validate } = require('../models/funit');
 const express = require('express');
 const router = express.Router();
 

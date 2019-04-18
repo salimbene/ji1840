@@ -9,12 +9,7 @@ module.exports = function(req, res, next) {
   if (!token)
     return res.status(401).send('Acceso denegado. No se encontró el token.');
 
-  try {
-    const decoded = jwt.verify(token, config.get('jwtPrivateKey'));
-    // debug(decoded);
-    req.user = decoded;
-    next();
-  } catch (ex) {
-    res.status(400).send('Token inválido.');
-  }
+  const decoded = jwt.verify(token, config.get('jwtPrivateKey'));
+  req.user = decoded;
+  next();
 };

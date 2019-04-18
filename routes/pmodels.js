@@ -16,18 +16,11 @@ router.get('/', auth, async (req, res) => {
 });
 
 router.get('/:id', auth, async (req, res) => {
-  try {
-    const pmodel = await PModel.findById(req.params.id)
-      .populate('fUnits', '', 'fUnit')
-      .populate('landlord', '', 'User');
+  const pmodel = await PModel.findById(req.params.id)
+    .populate('fUnits', '', 'fUnit')
+    .populate('landlord', '', 'User');
 
-    res.send(pmodel);
-  } catch (ex) {
-    debug(ex.message);
-    res
-      .status(404)
-      .send(`El modelo de expensa ID: ${req.params.id} no existe.`);
-  }
+  res.send(pmodel);
 });
 
 router.post('/', auth, async (req, res) => {
@@ -64,30 +57,13 @@ router.put('/:id', auth, async (req, res) => {
       .status(404)
       .send(`El modelo de expensa ID: ${req.params.id} no existe.`);
 
-  // const { userId } = req.body;
-  // const payment = 0;
-  // const user = await User.findOneAndUpdate(
-  //   { _id: userId },
-  //   { $dec: { balance: payment } },
-  //   { new: true }
-  // );
-
-  // debug(user);
-
   res.send(pmodel);
 });
 
 router.delete('/:id', [auth, admin], async (req, res) => {
-  try {
-    const pmodel = await PModel.findByIdAndRemove(req.params.id);
-    res.send(pmodel);
-    debug(`${pmodel._id} DELETED ok!`);
-  } catch (ex) {
-    debug(ex.message);
-    res
-      .status(404)
-      .send(`El modelo de expensa ID: ${req.params.id} no existe.`);
-  }
+  const pmodel = await PModel.findByIdAndRemove(req.params.id);
+  res.send(pmodel);
+  debug(`${pmodel._id} DELETED ok!`);
 });
 
 module.exports = router;

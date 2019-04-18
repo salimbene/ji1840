@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Check = ({ name, label, onChange, checked, ...rest }) => {
-  console.log('checked', label, checked);
+  // console.log('checked', label, checked);
   return (
     <div className="bx--form-item bx--checkbox-wrapper">
       <input

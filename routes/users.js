@@ -13,7 +13,6 @@ router.get('/', auth, async (req, res) => {
     .ne('DISPONIBLE')
     .select('-password -isAdmin')
     .sort('lastname');
-  // debug(users);
   res.send(users);
 });
 
@@ -21,7 +20,6 @@ router.get('/landlords', auth, async (req, res) => {
   const users = await User.find({ isLandlord: true })
     .select('-password -isAdmin')
     .sort('lastname');
-  // debug(users);
   res.send(users);
 });
 
@@ -31,15 +29,8 @@ router.get('/me', auth, async (req, res) => {
 });
 
 router.get('/:id', auth, async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id).select(
-      '-password -isAdmin'
-    );
-    res.send(user);
-  } catch (ex) {
-    debug(ex.message);
-    res.status(404).send(`El usuario con ID: ${req.params.id} no existe.`);
-  }
+  const user = await User.findById(req.params.id).select('-password -isAdmin');
+  res.send(user);
 });
 
 router.post('/', auth, async (req, res) => {
@@ -71,13 +62,7 @@ router.post('/', auth, async (req, res) => {
   user.password = await bcrypt.hash(user.password, salt);
   await user.save();
 
-  // const token = user.generateAuthToken();
-
-  res
-    .status(200)
-    // .header('x-auth-token', token)
-    // .header('access-control-expose-headers', 'x-auth-token')
-    .send(_.pick(user, ['_id', 'mail']));
+  res.status(200).send(_.pick(user, ['_id', 'mail']));
 });
 
 router.put('/:id', auth, async (req, res) => {
@@ -85,31 +70,31 @@ router.put('/:id', auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  let user = await User.findOne({ mail: req.body.mail });
-  if (user)
-    return res
-      .status(400)
-      .send('La dirección de email ya se encuentra registrada.');
-
   const {
     lastname,
     firstname,
-    mail,
     phone,
     notes,
+    mail,
     balance,
     isLandlord,
     isCouncil
   } = req.body;
 
-  user = await User.findOneAndUpdate(
+  const duplicate = await User.findOne({ mail });
+  if (duplicate && duplicate.id !== req.params.id)
+    return res
+      .status(400)
+      .send('La dirección de email ya se encuentra registrada.');
+
+  const user = await User.findOneAndUpdate(
     { _id: req.params.id },
     {
       lastname,
       firstname,
-      mail,
       phone,
       notes,
+      mail,
       balance,
       isLandlord,
       isCouncil
@@ -121,19 +106,14 @@ router.put('/:id', auth, async (req, res) => {
     return res
       .status(404)
       .send(`El usuario con ID: ${req.params.id} no existe.`);
-  debug(user);
+
   res.send(user);
 });
 
 router.delete('/:id', [auth, admin], async (req, res) => {
-  try {
-    const user = await User.findByIdAndRemove(req.params.id);
-    res.send(user);
-    debug(`${user.lastname} DELETED ok!`);
-  } catch (ex) {
-    debug(ex.message);
-    res.status(404).send(`El usuario con ID: ${req.params.id} no existe.`);
-  }
+  const user = await User.findByIdAndRemove(req.params.id);
+  res.send(user);
+  debug(`${user.lastname} DELETED!`);
 });
 
 module.exports = router;

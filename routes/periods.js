@@ -2,10 +2,9 @@ const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 const { Period, validate } = require('../models/period');
 const { PDetails } = require('../models/pdetails');
-const { Expense, getPeriodExpenses } = require('../models/expense');
+const { Expense } = require('../models/expense');
 const { PModel } = require('../models/pmodel');
 const { Consortia } = require('../models/consortia.js');
-// const { User } = require('../models/user');
 const _ = require('lodash');
 const debug = require('debug')('routes:periods');
 
@@ -20,18 +19,13 @@ router.get('/', auth, async (req, res) => {
 });
 
 router.get('/:id', auth, async (req, res) => {
-  try {
-    const period = await Period.findById(req.params.id).populate(
-      'userId',
-      '-password -isAdmin',
-      'User'
-    );
+  const period = await Period.findById(req.params.id).populate(
+    'userId',
+    '-password -isAdmin',
+    'User'
+  );
 
-    res.send(period);
-  } catch (ex) {
-    debug(ex.message);
-    res.status(404).send(`El periodo con ID: ${req.params.id} no existe.`);
-  }
+  res.send(period);
 });
 
 router.get('/period/:id', auth, async (req, res) => {
@@ -192,23 +186,17 @@ router.put('/:id', auth, async (req, res) => {
 });
 
 router.delete('/:id', [auth, admin], async (req, res) => {
-  try {
-    const period = await Period.findById(req.params.id);
-    // const period = await Period.findByIdAndRemove(req.params.id);
+  const period = await Period.findById(req.params.id);
+  // const period = await Period.findByIdAndRemove(req.params.id);
 
-    const pdetails = await PDetails.find()
-      .where('period')
-      .equals(period.period);
+  const pdetails = await PDetails.find()
+    .where('period')
+    .equals(period.period);
 
-    pdetails.forEach(pd => pd.delete());
-    period.delete();
+  pdetails.forEach(pd => pd.delete());
+  period.delete();
 
-    res.status(200).send('Period and details deleted OK.');
-    // debug(`${period._id} DELETED ok!`);
-  } catch (ex) {
-    debug(ex.message);
-    res.status(404).send(`El período con ID: ${req.params.id} no existe.`);
-  }
+  res.status(200).send('Period and details deleted OK.');
 });
 
 module.exports = router;

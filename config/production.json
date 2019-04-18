@@ -1,4 +1,5 @@
 {
+  "env": "production",
   "jwtPrivateKey": "ji1840_jwtPrivateKey",
   "port": "5000",
   "db": "mongodb://jiuser:P0l1t314!@ds227255.mlab.com:27255/ji1840",

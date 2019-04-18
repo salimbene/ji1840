@@ -20,7 +20,7 @@ class Form extends Component {
     const errors = {};
 
     for (let item of error.details) {
-      console.log(`Validating ${item.path[0]}: ${item.message}`);
+      // console.log(`Validating ${item.path[0]}: ${item.message}`);
       errors[item.path[0]] = `El valor ${
         item.path[0]
       } es incorrecto o se encuentra vacio.`; // item.message;

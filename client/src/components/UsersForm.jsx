@@ -87,12 +87,11 @@ class UsersForm extends Form {
       toast.success(`Los datos se guardaron exitosamente. ✔️`, {
         position: 'top-center'
       });
+      const { history } = this.props;
+      history.push('/users');
     } catch (ex) {
       console.log(ex.response.data);
     }
-
-    const { history } = this.props;
-    history.push('/users');
   };
 
   columnsUnits = [

@@ -15,13 +15,8 @@ router.get('/', auth, async (req, res) => {
 });
 
 router.get('/:id', auth, async (req, res) => {
-  try {
-    const expense = await Expense.findById(req.params.id);
-    res.send(expense);
-  } catch (ex) {
-    debug(ex.message);
-    res.status(404).send(`La expensa con ID: ${req.params.id} no existe.`);
-  }
+  const expense = await Expense.findById(req.params.id);
+  res.send(expense);
 });
 
 router.get('/period/:id', auth, async (req, res) => {
@@ -87,14 +82,9 @@ router.put('/:id', auth, async (req, res) => {
 });
 
 router.delete('/:id', [auth, admin], async (req, res) => {
-  try {
-    const expense = await Expense.findByIdAndRemove(req.params.id);
-    res.send(expense);
-    debug(`${expense.month} DELETED ok!`);
-  } catch (ex) {
-    debug(ex.message);
-    res.status(404).send(`La expensa con ID: ${req.params.id} no existe.`);
-  }
+  const expense = await Expense.findByIdAndRemove(req.params.id);
+  res.send(expense);
+  debug(`${expense.month} deleted!`);
 });
 
 module.exports = router;

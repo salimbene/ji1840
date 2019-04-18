@@ -19,40 +19,35 @@ router.get('/', auth, async (req, res) => {
 });
 
 router.get('/:id', auth, async (req, res) => {
-  try {
-    const pdetails = await PDetails.find()
-      .where('period')
-      .equals(req.params.id)
-      .populate('userId', '-password -isAdmin', 'User')
-      .populate([
-        {
-          path: 'model',
-          model: 'pmodel',
-          populate: {
-            path: 'landlord',
-            model: 'User',
-            select: '-password -isAdmin'
-          }
+  const pdetails = await PDetails.find()
+    .where('period')
+    .equals(req.params.id)
+    .populate('userId', '-password -isAdmin', 'User')
+    .populate([
+      {
+        path: 'model',
+        model: 'pmodel',
+        populate: {
+          path: 'landlord',
+          model: 'User',
+          select: '-password -isAdmin'
         }
-      ])
-      .populate([
-        {
-          path: 'model',
-          model: 'pmodel',
-          populate: {
-            path: 'fUnits',
-            model: 'fUnit'
-          }
+      }
+    ])
+    .populate([
+      {
+        path: 'model',
+        model: 'pmodel',
+        populate: {
+          path: 'fUnits',
+          model: 'fUnit'
         }
-      ])
-      .select('-date -__v')
-      .sort('isPayedA');
+      }
+    ])
+    .select('-date -__v')
+    .sort('isPayedA');
 
-    res.send(pdetails);
-  } catch (ex) {
-    debug(ex.message);
-    res.status(404).send(`La liquidación con ID: ${req.params.id} no existe.`);
-  }
+  res.send(pdetails);
 });
 
 router.post('/', auth, async (req, res) => {
@@ -131,14 +126,9 @@ router.put('/:id', auth, async (req, res) => {
 });
 
 router.delete('/:id', [auth, admin], async (req, res) => {
-  try {
-    const pdetails = await PDetails.findByIdAndRemove(req.params.id);
-    res.send(pdetails);
-    debug(`La liquidación ID: ${pdetails._id} DELETED ok!`);
-  } catch (ex) {
-    debug(ex.message);
-    res.status(404).send(`La liquidación ID: ${req.params.id} no existe.`);
-  }
+  const pdetails = await PDetails.findByIdAndRemove(req.params.id);
+  res.send(pdetails);
+  debug(`La liquidación ID: ${pdetails._id} DELETED ok!`);
 });
 
 module.exports = router;
