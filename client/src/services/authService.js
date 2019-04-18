@@ -11,6 +11,10 @@ export async function login(mail, password) {
   const { data: jwt } = await http.post(apiEndpoint, { mail, password });
   localStorage.setItem(tokenKey, jwt);
 }
+export async function checkLogin(mail, password) {
+  const data = await http.post(apiEndpoint, { mail, password });
+  return data;
+}
 
 export function logout() {
   localStorage.removeItem(tokenKey);
@@ -38,7 +42,8 @@ export default {
   logout,
   getCurrentUser,
   loginWithJwt,
-  getJwt
+  getJwt,
+  checkLogin
 };
 
 // const getTokenExpirationDate = token => {

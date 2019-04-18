@@ -252,8 +252,8 @@ class Periods extends Component {
       title: 'Cerrar período',
       label: 'Consortia - Jose Ingenieros 1840',
       body: this.modalBodyClose(period),
-      cancelBtnLabel: 'Cerrar',
-      submitBtnLabel: 'Eliminar',
+      cancelBtnLabel: 'Cancelar',
+      submitBtnLabel: 'Cerrar',
       toggle: this.toggleClsPeriod,
       submit: this.handleClsPeriod,
       danger: true

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-const Input = ({ name, label, error, value, ...rest }) => {
+const Input = ({ name, label, error, value, type, ...rest }) => {
   return (
     <React.Fragment>
       <div className="bx--form-item">
@@ -14,6 +14,8 @@ const Input = ({ name, label, error, value, ...rest }) => {
           value={value}
           className={`bx--text-input required ${error ? 'data-invalid' : ''}`}
           placeholder={`Ingrese el ${label} aquí`}
+          type={type}
+          autoComplete={type}
         />
         <div className="bx--form-requirement">{error}</div>
       </div>

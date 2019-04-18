@@ -15,7 +15,10 @@ class UsersForm extends Form {
       notes: '',
       balance: 0,
       isCouncil: false,
-      isLandlord: false
+      isLandlord: false,
+      pwdCurrent: '',
+      pwdNew: '',
+      pwdNew2: ''
     },
     errors: {},
     currentUser: ''
@@ -45,7 +48,16 @@ class UsersForm extends Form {
       .label('Notas'),
     balance: Joi.number().label('Balance'),
     isCouncil: Joi.boolean().label('Consejo'),
-    isLandlord: Joi.boolean().label('Propietario')
+    isLandlord: Joi.boolean().label('Propietario'),
+    pwdCurrent: Joi.string()
+      .max(30)
+      .allow(''),
+    pwdNew: Joi.string()
+      .max(30)
+      .allow(''),
+    pwdNew2: Joi.string()
+      .max(30)
+      .allow('')
   };
 
   async populateUser() {
@@ -75,7 +87,10 @@ class UsersForm extends Form {
       notes: user.notes || '',
       balance: user.balance,
       isCouncil: user.isCouncil || false,
-      isLandlord: user.isLandlord || false
+      isLandlord: user.isLandlord || false,
+      pwdCurrent: '',
+      pwdNew: '',
+      pwdNew2: ''
     };
   }
 
@@ -83,6 +98,7 @@ class UsersForm extends Form {
     const user = { ...this.state.data };
 
     try {
+      await this.parsePassword(user);
       await saveUser(user);
       toast.success(`Los datos se guardaron exitosamente. ✔️`, {
         position: 'top-center'
@@ -93,6 +109,29 @@ class UsersForm extends Form {
       console.log(ex.response.data);
     }
   };
+
+  async parsePassword(user) {
+    const { pwdCurrent, pwdNew, pwdNew2 } = this.state.data;
+
+    //eliminar pwd***
+    delete user.pwdCurrent;
+    delete user.pwdNew;
+    delete user.pwdNew2;
+
+    //Si new1 o new2 no se cargan, se ignora el cambio de clave.
+    if (pwdNew === '' || pwdNew2 === '') return null;
+
+    //validar password
+    await auth.checkLogin(user.mail, pwdCurrent);
+
+    //validar new1 y new2
+    if (pwdNew === '' || pwdNew !== pwdNew2) {
+      toast.error(`⚠️ Verifique la clave nueva y su repetición.`);
+      return null;
+    }
+
+    user.password = pwdNew;
+  }
 
   columnsUnits = [
     { path: 'fUnit', label: 'Unidad' },
@@ -134,35 +173,48 @@ class UsersForm extends Form {
 
   render() {
     const { currentUser } = this.state;
+    const { pwdCurrent, pwdNew, pwdNew2 } = this.state.data;
+    console.log(pwdCurrent, pwdNew, pwdNew2);
     return (
       <div className="bx--grid cc--users-form">
         <form onSubmit={this.handleSubmit}>
           <div className="bx--row">
             <div className="bx--col">
-              {this.renderInput('lastname', 'Apellido')}
+              <div className="bx--row">
+                <div className="bx--col">
+                  {this.renderInput('lastname', 'Apellido')}
+                </div>
+              </div>
+              <div className="bx--row">
+                <div className="bx--col">
+                  {this.renderInput('firstname', 'Nombre(s)')}
+                </div>
+              </div>
+              <div className="bx--row">
+                <div className="bx--col">
+                  {this.renderInput('mail', 'Mail')}
+                </div>
+              </div>
+              <div className="bx--row">
+                <div className="bx--col">
+                  {this.renderInput('phone', 'Telefono')}
+                </div>
+              </div>
+              <div className="bx--row">
+                <div className="bx--col">
+                  {this.renderTextArea('notes', 'Notas')}
+                </div>
+              </div>
+              {this.renderAdmin(currentUser)}
+              <div className="bx--row">
+                <div className="bx--col">{this.renderButton('Guardar')}</div>
+              </div>
             </div>
-          </div>
-          <div className="bx--row">
             <div className="bx--col">
-              {this.renderInput('firstname', 'Nombre(s)')}
+              {this.renderInput('pwdCurrent', 'Clave actual', 'password')}
+              {this.renderInput('pwdNew', 'Clave nueva', 'password')}
+              {this.renderInput('pwdNew2', 'Clave nueva ', 'password')}
             </div>
-          </div>
-          <div className="bx--row">
-            <div className="bx--col">{this.renderInput('mail', 'Mail')}</div>
-          </div>
-          <div className="bx--row">
-            <div className="bx--col">
-              {this.renderInput('phone', 'Telefono')}
-            </div>
-          </div>
-          <div className="bx--row">
-            <div className="bx--col">
-              {this.renderTextArea('notes', 'Notas')}
-            </div>
-          </div>
-          {this.renderAdmin(currentUser)}
-          <div className="bx--row">
-            <div className="bx--col">{this.renderButton('Guardar')}</div>
           </div>
         </form>
       </div>

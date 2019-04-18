@@ -78,7 +78,8 @@ router.put('/:id', auth, async (req, res) => {
     mail,
     balance,
     isLandlord,
-    isCouncil
+    isCouncil,
+    password
   } = req.body;
 
   const duplicate = await User.findOne({ mail });
@@ -87,20 +88,25 @@ router.put('/:id', auth, async (req, res) => {
       .status(400)
       .send('La dirección de email ya se encuentra registrada.');
 
-  const user = await User.findOneAndUpdate(
-    { _id: req.params.id },
-    {
-      lastname,
-      firstname,
-      phone,
-      notes,
-      mail,
-      balance,
-      isLandlord,
-      isCouncil
-    },
-    { new: true }
-  );
+  const body = {
+    lastname,
+    firstname,
+    phone,
+    notes,
+    mail,
+    balance,
+    isLandlord,
+    isCouncil
+  };
+
+  if (password) {
+    const salt = await bcrypt.genSalt(10);
+    body.password = await bcrypt.hash(password, salt);
+  }
+
+  const user = await User.findOneAndUpdate({ _id: req.params.id }, body, {
+    new: true
+  });
 
   if (!user)
     return res

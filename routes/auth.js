@@ -18,6 +18,7 @@ router.post('/', async (req, res) => {
   if (!validPassword) return res.status(400).send('La clave no es válida');
 
   const token = user.generateAuthToken();
+  debug(token);
   res.status(200).send(token);
 });
 
