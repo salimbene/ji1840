@@ -16,6 +16,10 @@
   background-size: cover;
 }
 
+.cc--no-padding {
+  padding: 0 1rem 0 1rem !important;
+}
+
 .bx--form-item {
   margin-bottom: 1.5rem;
 }
@@ -42,8 +46,10 @@
 }
 
 .cc--expenses-grid {
-  width: 100%;
-  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr 4fr;
+  padding: 0 0 0 0;
+  margin: 0 0 0 0;
 }
 
 .reset-margin-bottom {

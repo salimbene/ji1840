@@ -2,7 +2,7 @@ import React from 'react';
 
 const SearchBox = ({ value, onChange }) => {
   return (
-    <div className="bx--form-item reset-margin-bottom">
+    <div>
       <input
         id="searchx"
         type="text"

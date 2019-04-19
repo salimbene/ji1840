@@ -11,6 +11,7 @@ import auth from '../services/authService';
 import { getExpenses, deleteExpense } from '../services/expensesService';
 import { getCurrentPeriod } from '../utils/dates';
 import { paginate } from '../utils/paginate';
+import { currency } from '../utils/formatter';
 
 class Expenses extends Component {
   constructor(props) {
@@ -135,21 +136,18 @@ class Expenses extends Component {
   renderViewTags = (data, selected) => {
     const count = data.length;
     return (
-      <Fragment>
-        Gastos
+      <p>
+        {`Gastos: `}
         <mark>{count}</mark>
-        Periodo
-        <mark>{selected ? selected : 'Todos los periodos.'}</mark>
-        Importe Total
+        {` Importe Total: `}
         <mark>
-          $
-          {Number(
-            data
-              .reduce((prev, current) => (prev += current.ammount), 0)
-              .toFixed(2)
+          {currency(
+            data.reduce((prev, current) => (prev += current.ammount), 0)
           )}
         </mark>
-      </Fragment>
+        {` Filtro: `}
+        <mark>{selected ? selected : 'Todos los períodos. '}</mark>
+      </p>
     );
   };
 
@@ -205,17 +203,14 @@ class Expenses extends Component {
           btnClick={this.handleAddExpense}
           currentUser={currentUser}
         />
-        <div className="bx--grid">
-          <div className="bx--row bx--no-gutter">
-            <PeriodSelector
-              months={month}
-              years={year}
-              handlePeriod={this.handlePeriodSelect}
-            />
-            <div className="bx--col-sm-1 bx--col-md-2 bx--col-lg-6">
-              <SearchBox value={searchQuery} onChange={this.handleSearch} />
-            </div>
-          </div>
+        <div className="cc--expenses-grid">
+          <PeriodSelector
+            months={month}
+            years={year}
+            handlePeriod={this.handlePeriodSelect}
+          />
+
+          <SearchBox value={searchQuery} onChange={this.handleSearch} />
         </div>
         <div className="bx--row">
           <div className="bx--col">

@@ -216,16 +216,13 @@ class Payments extends Component {
           helper="Lista de liquidaciones registradas."
           currentUser={currentUser}
         />
-        <div className="bx--row">
-          <div className="bx--col" />
+        <div className="cc--expenses-grid">
           <PeriodSelector
             months={month}
             years={year}
             handlePeriod={this.handlePeriodSelect}
           />
-          <div className="bx--col">
-            <SearchBox value={searchQuery} onChange={this.handleSearch} />
-          </div>
+          <SearchBox value={searchQuery} onChange={this.handleSearch} />
         </div>
         <div className="bx--row">
           <div className="bx--col">

@@ -45,7 +45,10 @@ class App extends Component {
         <div className="container-fluid">
           <div className="row">
             <SideBar user={user} />
-            <main role="main" className="col-md-9 ml-sm-auto col-lg-10 px-4">
+            <main
+              role="main"
+              className="col-md-9 ml-sm-auto col-lg-10 px-4 cc--mb25"
+            >
               <Switch>
                 <Route path="/login" component={LoginForm} />
                 <Route path="/logout" component={Logout} />

@@ -4,7 +4,6 @@ import Form from './common/Form';
 import { getConsortia, saveConsortia } from '../services/consortiaService';
 import auth from '../services/authService';
 import { toast } from 'react-toastify';
-import Unauthorized from './common/Unauthorized';
 
 class Consortia extends Form {
   state = {
@@ -20,6 +19,7 @@ class Consortia extends Form {
       balanceA: 0,
       balanceB: 0
     },
+    currentUser: auth.getCurrentUser(),
     errors: {}
   };
 
@@ -53,8 +53,7 @@ class Consortia extends Form {
     const { data: consortia } = await getConsortia();
     if (consortia.length === 0) return;
     this.setState({
-      data: this.mapToViewModel(consortia[0]),
-      currentUser: auth.getCurrentUser()
+      data: this.mapToViewModel(consortia[0])
     });
   }
 
@@ -95,7 +94,7 @@ class Consortia extends Form {
   render() {
     const { currentUser } = this.state;
 
-    if (currentUser && !currentUser.isCouncil) return <Unauthorized />;
+    const readOnly = !currentUser.isAdmin;
 
     return (
       <Fragment>
@@ -103,45 +102,54 @@ class Consortia extends Form {
           <form onSubmit={this.handleSubmit}>
             <div className="bx--row">
               <div className="bx--col">
-                {this.renderInput('name', 'Nombre')}
+                {this.renderInput('name', 'Nombre', null, readOnly)}
               </div>
             </div>
             <div className="bx--row">
               <div className="bx--col">
-                {this.renderInput('address', 'Domicilio')}
+                {this.renderInput('address', 'Domicilio', null, readOnly)}
               </div>
               <div className="bx--col">
-                {this.renderInput('mail', 'Correo Electrónico')}
+                {this.renderInput('mail', 'Correo Electrónico', null, readOnly)}
               </div>
             </div>
             <div className="bx--row">
               <div className="bx--col">
-                {this.renderInput('bank', 'Datos Bancarios')}
-              </div>
-              <div className="bx--col">{this.renderInput('cbu', 'CBU')}</div>
-            </div>
-            <div className="bx--row">
-              <div className="bx--col">
-                {this.renderInput('expenseA', 'Expensas A')}
+                {this.renderInput('bank', 'Datos Bancarios', null, readOnly)}
               </div>
               <div className="bx--col">
-                {this.renderInput('expenseB', 'Expensas B')}
-              </div>
-              <div className="bx--col">
-                {this.renderInput('interest', 'Interes por mora (%)')}
+                {this.renderInput('cbu', 'CBU', null, readOnly)}
               </div>
             </div>
             <div className="bx--row">
               <div className="bx--col">
-                {this.renderInput('balanceA', 'Saldo A')}
+                {this.renderInput('expenseA', 'Expensas A', null, readOnly)}
               </div>
               <div className="bx--col">
-                {this.renderInput('balanceB', 'Saldo B')}
+                {this.renderInput('expenseB', 'Expensas B', null, readOnly)}
+              </div>
+              <div className="bx--col">
+                {this.renderInput(
+                  'interest',
+                  'Interes por mora (%)',
+                  null,
+                  readOnly
+                )}
               </div>
             </div>
             <div className="bx--row">
-              <div className="bx--col">{this.renderButton('Guardar')}</div>
+              <div className="bx--col">
+                {this.renderInput('balanceA', 'Saldo A', null, readOnly)}
+              </div>
+              <div className="bx--col">
+                {this.renderInput('balanceB', 'Saldo B', null, readOnly)}
+              </div>
             </div>
+            {!readOnly && (
+              <div className="bx--row">
+                <div className="bx--col">{this.renderButton('Guardar')}</div>
+              </div>
+            )}
           </form>
         </div>
       </Fragment>

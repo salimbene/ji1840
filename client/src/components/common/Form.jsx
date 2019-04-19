@@ -81,7 +81,7 @@ class Form extends Component {
     );
   }
 
-  renderInput(name, label, type = 'text', readonly = false) {
+  renderInput(name, label, type = 'text', readOnly = false) {
     const { data, errors } = this.state;
     return (
       <Input
@@ -92,11 +92,11 @@ class Form extends Component {
         onChange={this.handleChange}
         onFocus={this.handleFocus}
         error={errors[name]}
-        readOnly={readonly}
+        readOnly={readOnly}
       />
     );
   }
-  renderTextArea(name, label, type = 'text', readonly = false) {
+  renderTextArea(name, label, type = 'text', readOnly = false) {
     const { data, errors } = this.state;
     return (
       <TextArea
@@ -107,7 +107,7 @@ class Form extends Component {
         onChange={this.handleChange}
         onFocus={this.handleFocus}
         error={errors[name]}
-        readOnly={readonly}
+        readOnly={readOnly}
       />
     );
   }

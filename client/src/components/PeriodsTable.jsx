@@ -8,6 +8,10 @@ class PeriodsTable extends Component {
   constructor() {
     super();
     this.currentUser = auth.getCurrentUser();
+
+    if (this.currentUser && this.currentUser.isCouncil)
+      this.columns.push(this.isClosedColumn);
+
     if (this.currentUser && this.currentUser.isAdmin)
       this.columns.push(this.deleteColumn);
   }
@@ -16,13 +20,9 @@ class PeriodsTable extends Component {
     {
       path: 'period',
       label: 'Periodo',
-      content: period => {
-        return this.currentUser.isCouncil ? (
-          <Link to={`/periods/${period._id}`}>{period.period}</Link>
-        ) : (
-          period.period
-        );
-      }
+      content: period => (
+        <Link to={`/periods/${period._id}`}>{period.period}</Link>
+      )
     },
     {
       path: 'totalA',
@@ -82,24 +82,25 @@ class PeriodsTable extends Component {
           {currency(p.balance)}
         </div>
       )
-    },
-    {
-      path: 'isClosed',
-      label: 'Cerrado',
-      key: 'cls',
-      content: p => (
-        <div className="text-center">
-          <i
-            className={`fa ${
-              p.isClosed ? 'fa fa-check-square-o' : 'fa fa-square-o'
-            }`}
-            aria-hidden="true"
-            onClick={event => this.props.onClosePeriod(p)}
-          />
-        </div>
-      )
     }
   ];
+
+  isClosedColumn = {
+    path: 'isClosed',
+    label: 'Cerrado',
+    key: 'cls',
+    content: p => (
+      <div className="text-center">
+        <i
+          className={`fa ${
+            p.isClosed ? 'fa fa-check-square-o' : 'fa fa-square-o'
+          }`}
+          aria-hidden="true"
+          onClick={event => this.props.onClosePeriod(p)}
+        />
+      </div>
+    )
+  };
 
   deleteColumn = {
     key: 'del',

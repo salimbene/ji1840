@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 
 const fullName = ['tenant', 'landlord', 'lastname', 'userId', 'landlordId'];
 
-const Select = ({ name, label, field, options, ...rest }) => {
+const Select = ({ name, label, field, options, className, ...rest }) => {
   return (
-    <div className="bx--form-item">
+    <div className={`bx--form-item ${className}`}>
       <div className="bx--select">
         {label && (
           <label className="bx--label" htmlFor={name}>

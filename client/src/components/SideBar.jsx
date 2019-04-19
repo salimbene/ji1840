@@ -19,24 +19,30 @@ const SideBar = ({ user }) => {
           <Fragment>
             <SideSeparator label="Información" />
             <ul className="nav flex-column mb-2">
-              <SideBarItem label="Usuarios" to="/users" />
+              <SideBarItem label="Consorcio" to="/consortia" />
               <SideBarItem label="Proveedores" to="/suppliers" />
-              <SideBarItem label="Expensas" to="/periods" />
+              <SideBarItem label="Usuarios" to="/users" />
             </ul>
           </Fragment>
         )}
-        {user && user.isCouncil && (
+        <Fragment>
+          <SideSeparator label="Consorcio" />
+          <ul className="nav flex-column mb-2">
+            <SideBarItem label="Expensas" to="/periods" />
+            {user && user.isCouncil && (
+              <Fragment>
+                <SideBarItem label="Gastos" to="/expenses" />
+                <SideBarItem label="Pagos" to="/payments" />
+                <SideBarItem label="Unidades" to="/units" />
+              </Fragment>
+            )}
+          </ul>
+        </Fragment>
+        {user && user.isAdmin && (
           <Fragment>
-            <SideSeparator label="Movimientos" />
+            <SideSeparator label="Admin" />
             <ul className="nav flex-column mb-2">
-              <SideBarItem label="Gastos" to="/expenses" />
-              <SideBarItem label="Pagos" to="/payments" />
-            </ul>
-            <SideSeparator label="Configuración" />
-            <ul className="nav flex-column mb-2">
-              <SideBarItem label="Unidades" to="/units" />
               <SideBarItem label="Esquemas" to="/models" />
-              <SideBarItem label="Configuración" to="/consortia" />
             </ul>
           </Fragment>
         )}
