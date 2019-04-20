@@ -112,10 +112,23 @@ class ExpensesForm extends Form {
     history.push('/expenses');
   };
 
+  addAll = () => {
+    const { models } = this.state;
+    const allExcluded = [];
+    for (let m of models) allExcluded.push(m._id);
+
+    const newData = { ...this.state.data };
+    newData.excluded = allExcluded;
+
+    this.setState({ data: newData });
+  };
+
   addExcluded(selected) {
+    if (!selected) return null;
     const { excluded: newExcluded } = this.state.data;
     const newState = { ...this.state };
 
+    //si ya existe no se vuelve a agregar
     const newEx = newExcluded.find(e => e === selected);
     if (newEx) return;
 
@@ -142,7 +155,7 @@ class ExpensesForm extends Form {
   renderExcluded(excluded) {
     if (excluded.length === 0) return;
     return excluded.map((v, i) => (
-      <span key={v} className="cc--m5">
+      <span key={v} className="bx--tag bx--tag--cool-gray cc--m5">
         <i
           key={v}
           id={v}
@@ -168,35 +181,54 @@ class ExpensesForm extends Form {
             </div>
           </div>
           <div className="bx--row">
-            <div className="bx--col bx--col-sm-3">
+            <div className="bx--col">
               {this.renderInput('ammount', 'Importe')}
             </div>
 
-            <div className="bx--col bx--col-sm-2">
+            <div className="bx--col">
               {this.renderSelect('type', 'Tipo', '', this.typeOptions)}
             </div>
+          </div>
+          <div className="bx--row">
             <div className="bx--col">
               {this.renderSelect('category', 'Rubro', '', this.categoryOptions)}
+            </div>
+            <div className="bx--col">
+              {this.renderSelect('period', 'Período', '', getLastXMonths(12))}
             </div>
           </div>
           <div className="bx--row align-items-start">
             <div className="bx--col">
-              {this.renderSelect('period', 'Mes', '', getLastXMonths(12))}
+              {this.renderSelect('selectedEx', 'Excepciones:', 'label', models)}
             </div>
-
             <div className="bx--col">
-              {this.renderSelect('selectedEx', 'Excepciones', 'label', models)}
               <BtnAux
                 label="Agregar"
                 onClick={event => this.addExcluded(selectedExKey)}
+                className="cc--mt25"
               />
+
+              <label className="bx--label cc--ml5 cc--mr5">{' Todos'}</label>
+              <svg
+                onClick={event => this.addAll()}
+                width="10"
+                height="10"
+                fillRule="evenodd"
+              >
+                <path d="M6 4h4v2H6v4H4V6H0V4h4V0h2v4z" />
+              </svg>
             </div>
+          </div>
+          <div className="bx--row">
+            <div className="bx--col">{this.renderButton('Guardar')}</div>
             <div className="bx--col">
               {excluded && excluded.length !== 0 && (
                 <Fragment>
                   <div className="bx--row">
                     <div className="bx--col">
-                      <label className="bx--label">Exclusiones</label>
+                      <label className="bx--label">
+                        Se excluirá del pago a:
+                      </label>
                     </div>
                   </div>
                   <div className="bx--row">
@@ -207,9 +239,6 @@ class ExpensesForm extends Form {
                 </Fragment>
               )}
             </div>
-          </div>
-          <div className="bx--row">
-            <div className="bx--col">{this.renderButton('Guardar')}</div>
           </div>
         </form>
       </div>

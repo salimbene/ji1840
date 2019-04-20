@@ -26,7 +26,7 @@ class ModelsTable extends Component {
       label: 'Unidades',
       content: m => (
         <div className="text-center">
-          <span className="badge badge-info">
+          <span className="bx--tag bx--tag--cyan">
             {m.fUnits.length === 1
               ? m.fUnits[0].fUnit
               : m.fUnits

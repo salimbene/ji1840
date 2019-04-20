@@ -1,17 +1,17 @@
 import React from 'react';
 
-const BtnAux = ({ label, onClick, className }) => {
+const BtnNew = ({ btnClick, btnLabel }) => {
   return (
     <button
-      className={`bx--btn bx--btn--sm bx--btn--secondary ${className}`}
-      onClick={onClick}
+      className="bx--btn bx--btn--sm bx--btn--primary"
+      onClick={event => btnClick(event)}
       type="button"
     >
-      {` ${label}`}
+      {btnLabel}
       <svg
         focusable="false"
         preserveAspectRatio="xMidYMid meet"
-        style={{ willChange: 'transform' }}
+        // style="will-change: transform;"
         xmlns="http://www.w3.org/2000/svg"
         className="bx--btn__icon"
         width="20"
@@ -25,4 +25,4 @@ const BtnAux = ({ label, onClick, className }) => {
   );
 };
 
-export default BtnAux;
+export default BtnNew;

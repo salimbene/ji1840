@@ -136,34 +136,32 @@ class Models extends Component {
     const { totalCount, data: models } = this.getPageData();
 
     return (
-      <Fragment>
-        <CarbonModal {...this.modalProps(selectedModel)} />
-        <CarbonTableTitle
-          title="Esquemas de expensas"
-          helper="Lista de esquemas para el regitro de espensas."
-          btnLabel="Registrar esquema"
-          btnClick={this.handleAddModel}
-          currentUser={currentUser}
-        />
-        <div className="bx--row cc--users-form">
-          <div className="bx--col">
-            <SearchBox value={searchQuery} onChange={this.handleSearch} />
-            <ModelsTable
-              models={models}
-              onDelete={this.toggleDelete}
-              onSort={this.handleSort}
-              sortColumn={sortColumn}
-            />
-            <CarbonTablePagination
-              itemsCount={totalCount}
-              pageSize={pageSize}
-              currentPage={currentPage}
-              onPageSize={this.handlePageSize}
-              onPageChange={this.handlePageChange}
-            />
-          </div>
+      <div className="bx--row cc--models-form">
+        <div className="bx--col">
+          <CarbonModal {...this.modalProps(selectedModel)} />
+          <CarbonTableTitle
+            title="Esquemas de expensas"
+            helper="Lista de esquemas para el regitro de espensas."
+            btnLabel="Registrar esquema"
+            btnClick={this.handleAddModel}
+            currentUser={currentUser}
+          />
+          <SearchBox value={searchQuery} onChange={this.handleSearch} />
+          <ModelsTable
+            models={models}
+            onDelete={this.toggleDelete}
+            onSort={this.handleSort}
+            sortColumn={sortColumn}
+          />
+          <CarbonTablePagination
+            itemsCount={totalCount}
+            pageSize={pageSize}
+            currentPage={currentPage}
+            onPageSize={this.handlePageSize}
+            onPageChange={this.handlePageChange}
+          />
         </div>
-      </Fragment>
+      </div>
     );
   }
 }

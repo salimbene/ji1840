@@ -138,15 +138,17 @@ class Expenses extends Component {
     return (
       <p>
         {`Gastos: `}
-        <mark>{count}</mark>
+        <span className="bx--tag bx--tag--teal">{count}</span>
         {` Importe Total: `}
-        <mark>
+        <span className="bx--tag bx--tag--magenta">
           {currency(
             data.reduce((prev, current) => (prev += current.ammount), 0)
           )}
-        </mark>
+        </span>
         {` Filtro: `}
-        <mark>{selected ? selected : 'Todos los períodos. '}</mark>
+        <span className="bx--tag bx--tag--blue">
+          {selected ? selected : 'Todos los períodos. '}
+        </span>
       </p>
     );
   };

@@ -76,7 +76,7 @@ class SuppliersForm extends Form {
 
   render() {
     return (
-      <div className="bx--grid cc--users-form">
+      <div className="bx--grid cc--suppliers-form">
         <form onSubmit={this.handleSubmit}>
           <div className="bx--row">
             <div className="bx--col">{this.renderInput('name', 'Nombre')}</div>
