@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import logger from './services/logService';
+// import UIMain from './components/unused/UIMain';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 // import './styles/index.scss';
@@ -21,6 +22,7 @@ console.log(
 
 ReactDOM.render(
   <BrowserRouter>
+    {/* <UIMain /> */}
     <App />
   </BrowserRouter>,
   document.getElementById('root')

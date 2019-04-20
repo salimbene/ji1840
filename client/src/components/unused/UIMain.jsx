@@ -1,16 +1,19 @@
 import React, { Component, Fragment } from 'react';
+import UIMenu from './UIMenu';
+import UIBody from './UIBody';
 import UIHeader from './UIHeader';
-import UISide from './UISide';
 
 class UIMain extends Component {
   state = {};
   render() {
     return (
-      <Fragment>
+      <div className="cc--ui-wrapper">
         <UIHeader />
-        <UISide />
-        <div className="bx--content" />{' '}
-      </Fragment>
+        <UIMenu />
+        <div className="cc--ui-main">
+          <UIBody />
+        </div>
+      </div>
     );
   }
 }

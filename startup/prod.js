@@ -2,6 +2,7 @@ const helmet = require('helmet'); //Secure HTTP headers
 const compression = require('compression');
 const serveStatic = require('serve-static');
 const path = require('path');
+const debug = require('debug')('app:prod');
 const cwd = process.cwd();
 
 module.exports = function(app) {
