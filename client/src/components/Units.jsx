@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
+import { Loading } from 'carbon-components-react';
 import { getUnits, deleteUnit } from '../services/unitsService';
 import SearchBox from './common/SearchBox';
 import CarbonTableTitle from './common/CarbonTableTitle';
@@ -138,6 +139,8 @@ class Units extends Component {
   render() {
     const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
     const { currentUser, selectedUnit } = this.state;
+
+    if (!this.state.units) return <Loading />;
 
     if (currentUser && !currentUser.isCouncil) return <Unauthorized />;
 

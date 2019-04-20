@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
+import { Loading } from 'carbon-components-react';
 import SearchBox from './common/SearchBox';
 import CarbonTableTitle from './common/CarbonTableTitle';
 import CarbonTablePagination from './common/CarbonTablePagination';
@@ -201,7 +202,7 @@ class Payments extends Component {
 
     if (currentUser && !currentUser.isCouncil) return <Unauthorized />;
 
-    if (!this.state.details) return 'No data available.';
+    if (!this.state.details) return <Loading />;
 
     const { pageSize, currentPage, searchQuery, sortColumn } = this.state;
     const { month, year } = this.state;

@@ -16,13 +16,13 @@ axios.interceptors.response.use(null, error => {
     toast.error(`⚠️ ${error.response.data}`);
     return Promise.reject(error);
   }
-  // console.log(error.response);
-  toast.error(`⚠️ ${error.response.data}`);
+  console.log(error.response);
+  // toast.error(`⚠️ ${error.response.data}`);
   return Promise.reject(error);
 });
 
 function setJwt(jwt) {
-  axios.defaults.headers.common['x-auth-token'] = jwt;
+  if (jwt) axios.defaults.headers.common['x-auth-token'] = jwt;
 }
 
 export default {

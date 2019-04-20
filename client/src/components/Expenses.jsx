@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import SearchBox from './common/SearchBox';
+import { Loading } from 'carbon-components-react';
 import CarbonTableTitle from './common/CarbonTableTitle';
 import CarbonTablePagination from './common/CarbonTablePagination';
 import CarbonModal from './common/CarbonModal';
@@ -195,6 +196,9 @@ class Expenses extends Component {
     const { selectedExpense, currentUser } = this.state;
 
     if (currentUser && !currentUser.isCouncil) return <Unauthorized />;
+
+    if (!expenses) return <Loading />;
+
     return (
       <Fragment>
         <CarbonModal {...this.modalProps(selectedExpense)} />

@@ -2,6 +2,7 @@ import React from 'react';
 import Joi from 'joi-browser';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { Loading, InlineLoading } from 'carbon-components-react';
 import ExpensesStats from './ExpensesStats';
 import ExpensesDetails from './ExpensesDetails';
 import ExpensesBanner from './ExpensesBanner';
@@ -11,7 +12,6 @@ import { getPeriod, savePeriod, initPeriod } from '../services/periodsService';
 import { getExpensesByPeriod } from '../services/expensesService';
 import { getPDetailsByPeriod } from '../services/pdetailsService';
 import { getConsortia } from '../services/consortiaService';
-
 import auth from '../services/authService';
 
 class PeriodsForm extends Form {
@@ -28,12 +28,15 @@ class PeriodsForm extends Form {
         isClosed: false
       },
       sortColumn: { path: 'model', order: 'asc' },
-      errors: {}
+      errors: {},
+      loading: false
     };
     this.togglePeriod = this.togglePeriod.bind(this);
   }
 
   toPDF = async id => {
+    const { period } = this.state.data;
+
     const input = document.getElementById('pdf1');
     const canvas = await html2canvas(input);
     const imgData = canvas.toDataURL('image/png');
@@ -46,7 +49,8 @@ class PeriodsForm extends Form {
     const imgData2 = canvas2.toDataURL('image/png');
 
     pdf.addImage(imgData2, 'PNG', 0, 0, 210, 297);
-    pdf.save(`Expensas_JI1840_${this.state.period}.pdf`);
+    pdf.save(`Expensas_${period}.pdf`);
+    this.setState({ loading: false });
   };
 
   async componentDidMount() {
@@ -180,13 +184,12 @@ class PeriodsForm extends Form {
   };
 
   render() {
-    const { details, expenses, consortia, modal, data } = this.state;
+    const { details, expenses, consortia, modal, data, loading } = this.state;
     const { _id, period } = data;
     const saveButtonLabel = !_id ? 'Iniciar Período' : 'Cerrar Período';
 
-    if (!details || !expenses) return 'No hay información disponible';
+    if (!details || !expenses) return <Loading />;
 
-    console.log('consortia', consortia[0]);
     return (
       <React.Fragment>
         <div className="row">
@@ -209,12 +212,18 @@ class PeriodsForm extends Form {
             </div>
           </div>
           <div className="col">
-            <i
-              className="fa fa-download blue clickable"
-              onClick={event => this.toPDF('pdf')}
-            >
-              descargar
-            </i>
+            {loading ? (
+              <InlineLoading description="Preparando pdf..." />
+            ) : (
+              <i
+                className="fa fa-download blue clickable"
+                onClick={event => {
+                  this.setState({ loading: true }, () => this.toPDF('pdf'));
+                }}
+              >
+                descargar
+              </i>
+            )}
           </div>
         </div>
       </React.Fragment>
