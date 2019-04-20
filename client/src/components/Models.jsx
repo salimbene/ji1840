@@ -141,7 +141,7 @@ class Models extends Component {
           <CarbonModal {...this.modalProps(selectedModel)} />
           <CarbonTableTitle
             title="Esquemas de expensas"
-            helper="Lista de esquemas para el regitro de espensas."
+            helper="Lista de esquemas para el registro de espensas."
             btnLabel="Registrar esquema"
             btnClick={this.handleAddModel}
             currentUser={currentUser}
